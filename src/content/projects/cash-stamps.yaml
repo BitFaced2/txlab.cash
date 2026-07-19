@@ -1,0 +1,13 @@
+name: Cash Stamps
+tagline: Claimable BCH gift wallets with reclaim-on-expiry.
+description: |
+  Cash Stamps generates single-use BCH wallets you can hand out as physical
+  or digital gifts — recipient claims by scanning; unclaimed stamps return to
+  the issuer after expiry. Useful for onboarding, promo drops, and airdrops.
+category: tool
+repository: https://github.com/harvmaster/CashStamps
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - web
+custody: non-custodial

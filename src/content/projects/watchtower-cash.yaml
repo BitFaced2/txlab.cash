@@ -1,0 +1,14 @@
+name: Watchtower Cash
+tagline: BCH blockchain API for apps — mempool alerts, tx notifications, wallet backend.
+description: |
+  Paytaca's backend infrastructure for BCH apps — subscribe to addresses for
+  mempool and confirmation events, resolve BCMR metadata, drive wallet flows
+  without running your own indexer stack.
+category: infrastructure
+repository: https://github.com/paytaca/watchtower-cash
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - server
+capabilities:
+  cashtokens: true

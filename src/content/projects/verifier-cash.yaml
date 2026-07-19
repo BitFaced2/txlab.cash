@@ -1,0 +1,18 @@
+name: verifier.cash
+tagline: Public competition to build the smallest Groth16 SNARK verifier on BCH.
+description: |
+  A public leaderboard for on-chain zero-knowledge verification on Bitcoin
+  Cash. Contributors submit implementations of Groth16 SNARK verifiers over
+  BN254; each entry is benchmarked against the BCH VM (via Libauth) and
+  scored on script size. As of mid-2026, the smallest consensus-compliant
+  submission runs across 10 inputs at ~83 KB — a 95% reduction since June.
+  Inspired by ecdsa.fail; builders include Toorik, mr-zwets, and kallisti.
+category: tool
+website: https://verifier.cash
+repository: https://github.com/mr-zwets/zk-verifier-bench
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - web
+capabilities:
+  cashtokens: false

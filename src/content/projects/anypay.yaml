@@ -1,0 +1,13 @@
+name: Anypay
+tagline: Multi-chain invoicing and payments platform with BCH support.
+description: |
+  Anypay is an invoicing and payments back end for merchants — accept BCH
+  (plus a growing multi-chain set) and settle via TypeScript SDKs for browser
+  and Node. Open source, 34 repos under the anypay org.
+category: merchant-service
+repository: https://github.com/anypay
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - server
+  - web

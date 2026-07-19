@@ -1,0 +1,17 @@
+name: Fex.cash
+tagline: Decentralized market for CashTokens on Bitcoin Cash.
+description: |
+  Fex is a non-custodial exchange for BCH CashTokens — orders sit as UTXOs
+  on-chain, no operator custody, no bridged asset. A MetaMask snap (bch-snap)
+  makes Fex reachable from an existing EVM wallet without a separate BCH
+  install.
+category: defi
+website: https://fex.cash
+repository: https://github.com/fex-cash/fex
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - web
+custody: non-custodial
+capabilities:
+  cashtokens: true

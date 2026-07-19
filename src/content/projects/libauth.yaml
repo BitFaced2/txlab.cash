@@ -9,7 +9,7 @@ category: library
 website: https://libauth.org
 repository: https://github.com/bitauth/libauth
 license: MIT
-freshness: active
+freshness: maintained
 lastVerified: '2026-07-18'
 platforms:
   - cli

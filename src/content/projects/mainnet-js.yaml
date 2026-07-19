@@ -1,0 +1,17 @@
+name: mainnet-js
+tagline: TypeScript / JavaScript SDK for Bitcoin Cash and CashTokens.
+description: |
+  A batteries-included SDK for building BCH apps in TypeScript or JavaScript —
+  wallets, tokens, contracts, and Electrum client. Monorepo publishes a REST
+  server alongside the library, so any language can drive BCH through a
+  local HTTP endpoint.
+category: library
+website: https://mainnet.cash
+repository: https://github.com/mainnet-cash/mainnet-js
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - server
+  - web
+capabilities:
+  cashtokens: true

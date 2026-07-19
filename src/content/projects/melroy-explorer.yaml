@@ -1,0 +1,15 @@
+name: Melroy BCH Explorer
+tagline: Block explorer with first-class CashTokens and BCMR support.
+description: |
+  A community-run block explorer that treats CashTokens as first-class
+  citizens — BCMR-aware identity resolution, token history, and NFT rendering
+  alongside standard tx/address views. Runs on melroy.org.
+category: explorer
+website: https://explorer.melroy.org
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - web
+capabilities:
+  cashtokens: true
+  nfts: true

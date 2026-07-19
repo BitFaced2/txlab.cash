@@ -1,0 +1,17 @@
+name: CashNinjas
+tagline: CashTokens NFT collection plus open-source minting stack.
+description: |
+  CashNinjas is a CashTokens NFT collection and the tooling behind it — the
+  Shinobi Art Engine (a layer-compositor for BCH NFT collections) and a small
+  suite of minting scripts, all open source. A useful reference for anyone
+  minting a CashTokens NFT series.
+category: nft
+website: https://ninjas.cash
+repository: https://github.com/cashninjas
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - web
+capabilities:
+  cashtokens: true
+  nfts: true

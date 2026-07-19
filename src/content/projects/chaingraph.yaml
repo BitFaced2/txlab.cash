@@ -10,7 +10,7 @@ category: indexer
 website: https://chaingraph.cash
 repository: https://github.com/bitauth/chaingraph
 license: MIT
-freshness: active
+freshness: maintained
 lastVerified: '2026-07-18'
 platforms:
   - server

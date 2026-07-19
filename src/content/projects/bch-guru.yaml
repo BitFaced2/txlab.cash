@@ -1,0 +1,16 @@
+name: BCH Guru
+tagline: Peer-to-peer prediction markets on Bitcoin Cash mainnet.
+description: |
+  A non-custodial prediction game running on BCH — each market is a covenant,
+  each position a CashToken. Also home to a well-known CashTokens NFT
+  collection.
+category: defi
+website: https://bch.guru
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - web
+custody: non-custodial
+capabilities:
+  cashtokens: true
+  nfts: true

@@ -16,6 +16,7 @@ platforms:
   - desktop-macos
   - desktop-windows
   - android
+  - ios
 custody: non-custodial
 capabilities:
   cashtokens: true

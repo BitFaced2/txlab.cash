@@ -1,0 +1,18 @@
+name: Selene Wallet
+tagline: Non-custodial mobile BCH wallet — iOS, Android, and web.
+description: |
+  Selene is a non-custodial Bitcoin Cash wallet built by XULU.TECH in
+  collaboration with Kallisti.cash and The Bitcoin Cash Podcast. Distributed
+  through the App Store, Play Store, and as a direct APK. BSD-3-Clause, source
+  hosted on a self-run GitLab.
+category: wallet
+website: https://selene.cash
+repository: https://git.xulu.tech/selene.cash/selene-wallet/
+license: BSD-3-Clause
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - ios
+  - android
+  - web
+custody: non-custodial

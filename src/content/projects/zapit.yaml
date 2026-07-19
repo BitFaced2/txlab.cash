@@ -1,0 +1,20 @@
+name: Zapit
+tagline: Multi-chain non-custodial wallet with CashTokens, BCMR, and WalletConnect.
+description: |
+  Zapit is a self-custodial mobile and browser-extension wallet with first-class
+  CashTokens support — BCMR-aware identity, WalletConnect for dApps, and an
+  integrated P2P exchange. Multi-chain (BCH, ETH, MATIC, AVAX, BTC, LTC),
+  but BCH is the flagship experience.
+category: wallet
+website: https://zapit.io
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - ios
+  - android
+  - browser-extension
+custody: non-custodial
+capabilities:
+  cashtokens: true
+  nfts: true
+  walletConnect: true

@@ -1,0 +1,17 @@
+name: BCMR Indexer
+tagline: Public index of Bitcoin Cash Metadata Registries — the identity layer for CashTokens.
+description: |
+  BCMR (Bitcoin Cash Metadata Registry) is the on-chain-anchored identity
+  standard for CashTokens — names, icons, decimals, and provenance. This
+  indexer harvests published registries and exposes them via a public HTTP
+  endpoint, so wallets and explorers don't each have to reindex the same
+  chain data.
+category: infrastructure
+website: https://bcmr.paytaca.com
+repository: https://github.com/paytaca/bcmr-indexer
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - server
+capabilities:
+  cashtokens: true

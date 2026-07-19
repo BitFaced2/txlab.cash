@@ -1,0 +1,15 @@
+name: loping.net
+tagline: Testnet3 and testnet4 block explorers — dev-critical infrastructure.
+description: |
+  Public explorers for BCH's testnet3 and testnet4 chains, maintained by
+  Bitcoin Unlimited. Nothing flashy — just the reference view of what your
+  chipnet transaction actually did. Essential when debugging pre-mainnet
+  contracts.
+category: explorer
+website: https://tbch4.loping.net
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - web
+capabilities:
+  testnet: true

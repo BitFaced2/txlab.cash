@@ -36,23 +36,30 @@ const upgrades: {
   },
   {
     date: "2025-05-15",
-    name: "VM Limits",
+    name: "VM Limits + BigInt",
     summary:
-      "Larger scripts, higher opcount ceiling — unlocks the covenant patterns Layla builds on.",
+      "New operation-cost budget replaces the 201-op limit, stack elements raised to 10,000 bytes, and BigInt removes nMaxNumSize entirely — arbitrary-precision math on chain.",
     activated: true,
   },
   {
     date: "2024-05-15",
     name: "ABLA",
     summary:
-      "Adaptive Block Size Limit Algorithm — block limit grows with sustained demand.",
+      "Adaptive Blocksize Limit Algorithm — block limit grows with sustained demand.",
     activated: true,
   },
   {
     date: "2023-05-15",
     name: "CashTokens",
     summary:
-      "Native fungible tokens and NFTs, P2SH32 — no wrappers, no bridge, no ERC-20 shim.",
+      "Native fungible tokens and NFTs (CHIP-2022-02) plus P2SH32 (CHIP-2022-05) — no wrappers, no bridge, no ERC-20 shim.",
+    activated: true,
+  },
+  {
+    date: "2022-05-15",
+    name: "May 2022 upgrade",
+    summary:
+      "Native introspection opcodes and 64-bit script integers — the prerequisites CashTokens covenants would rely on the next cycle.",
     activated: true,
   },
   {
@@ -90,22 +97,23 @@ const upgrades: {
   },
   {
     date: "2018-05-15",
-    name: "May 2018 upgrade",
+    name: "Monolith",
     summary:
       "32 MB blocks, OP_RETURN 220 bytes, re-enabled opcodes (OP_CAT, OP_SPLIT, arithmetic).",
     activated: true,
   },
   {
     date: "2017-11-13",
-    name: "Emergency DAA",
-    summary: "New difficulty adjustment algorithm to stabilise block times.",
+    name: "November 2017 upgrade",
+    summary:
+      "New difficulty adjustment algorithm replacing EDA, plus LOW_S and NULLFAIL signature enforcement.",
     activated: true,
   },
   {
     date: "2017-08-01",
-    name: "Genesis fork",
+    name: "UAHF",
     summary:
-      "BCH forks from BTC. 8 MB blocks, no SegWit, no RBF, original transaction semantics.",
+      "User-Activated Hard Fork. BCH splits from BTC — 8 MB blocks, no SegWit, no RBF, SIGHASH_FORKID replay protection, Emergency Difficulty Adjustment.",
     activated: true,
   },
 ];
