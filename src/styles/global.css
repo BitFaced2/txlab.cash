@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+/**
+ * Palette lifted from BCHN Dirty (cypher.qss) — consistent identity
+ * across BitFaced's BCH tooling. Cypherpunk: near-black w/ green undertone,
+ * neon BCH green accent, dark neon purple secondary.
+ */
+
+@theme {
+  /* Surfaces */
+  --color-canvas:   #0B0F0D;   /* base page bg — near-black w/ green undertone */
+  --color-surface:  #141917;   /* cards / panels */
+  --color-elevated: #1C2320;   /* hover / lifted */
+  --color-line:     #232B27;   /* borders / dividers */
+  --color-line-mid: #2E3833;   /* stronger borders */
+
+  /* Foreground */
+  --color-fg:       #E8ECEA;   /* primary text */
+  --color-fg-mid:   #B4BDB8;
+  --color-fg-mute:  #7B857F;
+  --color-fg-dim:   #4A544F;
+
+  /* Accents */
+  --color-bch-400:  #3FE5B5;   /* neon highlight (glow) */
+  --color-bch-500:  #0AC18E;   /* primary accent — BCH green */
+  --color-bch-600:  #089674;
+  --color-bch-700:  #067458;
+
+  --color-neon-300: #C79DFF;
+  --color-neon-400: #B26EFF;
+  --color-neon-500: #9D4EDD;   /* dark neon purple */
+  --color-neon-600: #7B33B8;
+
+  --color-warn:     #E8B547;
+  --color-danger:   #E85D6B;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, "Liberation Mono", monospace;
+
+  /* Motion */
+  --animate-pulse-dot: pulse-dot 2s ease-in-out infinite;
+  --animate-tx-flow:   tx-flow 5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  --animate-scanline:  scanline 8s linear infinite;
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.35; transform: scale(0.8); }
+  }
+
+  @keyframes tx-flow {
+    0%   { offset-distance: 0%;   opacity: 0; }
+    6%   { opacity: 1; }
+    94%  { opacity: 1; }
+    100% { offset-distance: 100%; opacity: 0; }
+  }
+
+  @keyframes scanline {
+    0%   { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+}
+
+html {
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01", "ss03";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-canvas);
+  color: var(--color-fg);
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-canvas);
+}
+
+/* Tabular numerals for anything numeric */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Selection: dark neon purple (matches BCHN Dirty's cypher.qss) */
+::selection {
+  background: var(--color-neon-500);
+  color: var(--color-fg);
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-bch-500);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Ambient grid backdrop */
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(from var(--color-line) r g b / 0.7) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(from var(--color-line) r g b / 0.7) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+}
+
+.bg-grid-fade {
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 70%);
+}
+
+/* Green glow — used on primary interactive surfaces */
+.glow-bch {
+  box-shadow:
+    0 0 0 1px rgb(from var(--color-bch-500) r g b / 0.25),
+    0 0 24px -6px rgb(from var(--color-bch-500) r g b / 0.35);
+}
+.glow-bch-hover:hover {
+  box-shadow:
+    0 0 0 1px rgb(from var(--color-bch-500) r g b / 0.5),
+    0 0 32px -4px rgb(from var(--color-bch-500) r g b / 0.4);
+}
+
+/* Purple glow — reserved for secondary/special accents */
+.glow-neon {
+  box-shadow:
+    0 0 0 1px rgb(from var(--color-neon-500) r g b / 0.3),
+    0 0 24px -6px rgb(from var(--color-neon-500) r g b / 0.35);
+}
+
+/* Animated nav underline */
+.link-underline {
+  position: relative;
+}
+.link-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 1.5px;
+  background: var(--color-bch-500);
+  box-shadow: 0 0 8px rgb(from var(--color-bch-500) r g b / 0.6);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 200ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+.link-underline:hover::after,
+.link-underline[data-active="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Horizontal scroll row utilities (used by the Directory) */
+.scroll-row {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  cursor: grab;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 40px,
+    black calc(100% - 40px),
+    transparent 100%
+  );
+}
+.scroll-row::-webkit-scrollbar { display: none; }
+.scroll-row.is-dragging {
+  cursor: grabbing;
+  scroll-snap-type: none; /* snap during drag is jittery */
+  user-select: none;
+}
+.scroll-row.is-dragging * {
+  pointer-events: none; /* don't fire hovers/clicks mid-drag */
+}
+
+.scroll-row-track {
+  display: flex;
+  gap: 1rem;
+  min-width: max-content;
+  align-items: stretch;
+  /* No side padding — track is infinite; fade masks give the visual context */
+  padding-inline: 1rem;
+}
+
+.scroll-row-item {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  width: 340px;
+  display: flex;
+}
+.scroll-row-item > * {
+  width: 100%;
+}
+
+/* Inline prose links */
+.prose-link {
+  text-decoration: underline;
+  text-decoration-color: var(--color-bch-700);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  transition: text-decoration-color 200ms, color 200ms;
+}
+.prose-link:hover {
+  text-decoration-color: var(--color-bch-500);
+  color: var(--color-bch-400);
+}
+
+/* Terminal-style text stroke for hero */
+.text-glow-bch {
+  text-shadow: 0 0 24px rgb(from var(--color-bch-500) r g b / 0.4);
+}
+.text-glow-neon {
+  text-shadow: 0 0 24px rgb(from var(--color-neon-500) r g b / 0.5);
+}

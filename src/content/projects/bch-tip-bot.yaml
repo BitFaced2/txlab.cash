@@ -1,0 +1,16 @@
+name: BCH Tip Bot
+tagline: Tip Bitcoin Cash on X/Twitter by mentioning the bot in a tweet.
+description: |
+  A Twitter/X bot for sending BCH tips by mentioning it in a tweet
+  (e.g., "@bchtip tip @username 0.001 BCH"). Custodial — the service holds
+  user balances against unique deposit addresses (3-conf minimum) and pays
+  out via CashAddr withdrawals. 1% tip fee, 500-sat withdrawal fee. Written
+  in TypeScript.
+category: social
+website: https://github.com/BitFaced2/BCH-Tip-Bot
+repository: https://github.com/BitFaced2/BCH-Tip-Bot
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - server
+custody: custodial

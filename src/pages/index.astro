@@ -1,0 +1,203 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PathwayCard from "../components/PathwayCard.astro";
+import TxJourneyPreview from "../components/TxJourneyPreview.astro";
+import BlockCounter from "../components/BlockCounter.astro";
+
+const pathways = [
+  {
+    href: "/use",
+    title: "Use BCH",
+    body: "Transact, choose a wallet, find merchants, understand privacy.",
+    icon: "use" as const,
+    index: "01",
+  },
+  {
+    href: "/build",
+    title: "Build on BCH",
+    body: "CashScript, CashTokens, Libauth, contract patterns, playgrounds.",
+    icon: "build" as const,
+    index: "02",
+  },
+  {
+    href: "/run",
+    title: "Run BCH",
+    body: "Node implementations, mining, infrastructure, network health.",
+    icon: "run" as const,
+    index: "03",
+  },
+  {
+    href: "/grow",
+    title: "Grow BCH",
+    body: "Flipstarter, bounties, translation, contribution paths.",
+    icon: "grow" as const,
+    index: "04",
+  },
+];
+
+const secondaryStats = [
+  { label: "Mempool", target: "mempool", accent: "neon" as const, suffix: "tx" },
+  { label: "Tx / 24h", target: "tx24h", accent: "neon" as const },
+];
+
+/* Static median-fee. See build-plan.md Phase 2 — swap to live via self-hosted
+   Chaingraph. BCH fee has effectively held at ~1 sat/vB (network minimum). */
+const medianFee = { value: "1.0", suffix: "sat/vB" };
+---
+
+<BaseLayout title="txlab.cash — Peer-to-peer cash is programmable">
+  {/* Hero */}
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-grid bg-grid-fade opacity-40 pointer-events-none" aria-hidden="true"></div>
+    {/* primary green glow from top-center */}
+    <div
+      class="absolute inset-x-0 top-0 h-[500px] pointer-events-none"
+      style="background: radial-gradient(ellipse 800px 400px at 50% 0%, rgb(from var(--color-bch-500) r g b / 0.08), transparent 70%);"
+      aria-hidden="true"></div>
+    {/* secondary purple glow from lower-right */}
+    <div
+      class="absolute right-0 bottom-0 w-[600px] h-[400px] pointer-events-none"
+      style="background: radial-gradient(ellipse 600px 300px at 80% 100%, rgb(from var(--color-neon-500) r g b / 0.10), transparent 70%);"
+      aria-hidden="true"></div>
+
+    <div class="relative max-w-6xl mx-auto px-6 pt-24 pb-20">
+      <div class="inline-flex items-center gap-2.5 px-3 py-1 rounded-full border border-line bg-surface/80 text-xs font-mono text-fg-mute">
+        <span class="relative flex h-1.5 w-1.5">
+          <span class="absolute inline-flex h-full w-full rounded-full bg-bch-500 opacity-70" style="animation: var(--animate-pulse-dot); box-shadow: 0 0 8px var(--color-bch-500);"></span>
+          <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-bch-500"></span>
+        </span>
+        <span class="text-fg-mid">POST-LAYLA</span>
+        <span class="text-neon-400" aria-hidden="true">·</span>
+        <span>MAY 15 2026</span>
+      </div>
+
+      <h1 class="mt-6 text-5xl md:text-7xl lg:text-8xl font-bold tracking-[-0.03em] leading-[1.02] text-fg">
+        Peer-to-peer<br />cash is <span class="text-bch-500 font-mono font-medium tracking-tight text-glow-bch">programmable</span>.
+      </h1>
+
+      <p class="mt-8 text-lg md:text-xl text-fg-mid max-w-2xl leading-relaxed">
+        Explore the Bitcoin Cash network, its applications, and its open-source
+        technology. Not a price tracker. Not the official voice. The best
+        maintained map of the BCH world.
+      </p>
+
+      <div class="mt-10 flex flex-wrap gap-3">
+        <a
+          href="/use"
+          class="px-6 py-3 rounded-md bg-bch-500 text-canvas text-sm font-semibold hover:bg-bch-400 transition-colors glow-bch">
+          Get started with BCH
+        </a>
+        <a
+          href="#pathways"
+          class="px-6 py-3 rounded-md border border-line-mid text-sm font-medium text-fg-mid hover:border-bch-500 hover:text-bch-400 transition-colors">
+          Explore the site
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {/* Big-number live technical strip — the BCHN Dirty aesthetic move */}
+  <section class="border-y border-line bg-surface/70 backdrop-blur">
+    <div class="max-w-6xl mx-auto px-6 py-8 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-6">
+      <BlockCounter variant="strip" />
+
+      {/* Median fee — static for Phase 1 */}
+      <div class="flex flex-col">
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] uppercase tracking-[0.2em] text-fg-dim font-mono font-semibold">
+            // Median fee
+          </span>
+          <span
+            class="text-[9px] uppercase tracking-[0.15em] font-mono font-semibold px-1.5 py-0.5 rounded border border-neon-500/60 text-neon-300"
+            title="Effectively at BCH's network minimum. Live wiring lands in Phase 2.">
+            ≈ Min relay
+          </span>
+        </div>
+        <div class="mt-2 font-mono font-bold text-4xl md:text-5xl tabular tracking-tight text-neon-400 text-glow-neon">
+          {medianFee.value}
+          <span class="text-fg-dim text-lg ml-2">{medianFee.suffix}</span>
+        </div>
+      </div>
+
+      {
+        secondaryStats.map((s) => (
+          <div class="flex flex-col">
+            <div class="text-[10px] uppercase tracking-[0.2em] text-fg-dim font-mono font-semibold">
+              // {s.label}
+            </div>
+            <div
+              class:list={[
+                "mt-2 font-mono font-bold text-4xl md:text-5xl tabular tracking-tight",
+                s.accent === "bch" && "text-bch-500 text-glow-bch",
+                s.accent === "neon" && "text-neon-400 text-glow-neon",
+              ]}>
+              <span data-net-mempool={s.target === "mempool" ? "" : undefined} data-net-tx24h={s.target === "tx24h" ? "" : undefined}>
+                —
+              </span>
+              {s.suffix && <span class="text-fg-dim text-lg ml-2">{s.suffix}</span>}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* Pathways */}
+  <section id="pathways" class="max-w-6xl mx-auto px-6 py-24">
+    <div class="flex items-baseline justify-between flex-wrap gap-4">
+      <div>
+        <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">// Pathways</div>
+        <h2 class="mt-2 text-3xl md:text-4xl font-bold tracking-tight text-fg">Choose your path</h2>
+      </div>
+      <p class="text-fg-mute max-w-md">Everyone arrives at BCH with a different question.</p>
+    </div>
+
+    <div class="mt-10 grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {pathways.map((p) => <PathwayCard {...p} />)}
+    </div>
+  </section>
+
+  {/* Transaction Lab teaser */}
+  <section class="max-w-6xl mx-auto px-6 pb-24">
+    <div class="relative rounded-xl border border-line bg-surface overflow-hidden">
+      {/* purple neon accent stripe */}
+      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-neon-500 to-transparent opacity-60"></div>
+
+      {/* purple corner brackets — marks this as the "special/future" section */}
+      <span class="absolute top-3 left-3 w-3 h-3 border-l border-t border-neon-500/70 z-10 pointer-events-none" aria-hidden="true"></span>
+      <span class="absolute top-3 right-3 w-3 h-3 border-r border-t border-neon-500/70 z-10 pointer-events-none" aria-hidden="true"></span>
+      <span class="absolute bottom-3 left-3 w-3 h-3 border-l border-b border-neon-500/70 z-10 pointer-events-none" aria-hidden="true"></span>
+      <span class="absolute bottom-3 right-3 w-3 h-3 border-r border-b border-neon-500/70 z-10 pointer-events-none" aria-hidden="true"></span>
+
+      <div class="grid md:grid-cols-5 gap-0">
+        <div class="md:col-span-3 p-8 md:p-12">
+          <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+            // Coming in Phase 3
+          </div>
+          <h2 class="mt-2 text-3xl md:text-4xl font-bold tracking-tight text-fg">
+            The Transaction<br />Laboratory.
+          </h2>
+          <p class="mt-5 text-fg-mid max-w-lg leading-relaxed">
+            Watch a Bitcoin Cash transaction take its full journey — from
+            broadcast to mempool to miner to confirmation. Three modes:
+            <strong class="text-bch-400 font-semibold">Simulated</strong> for learning,
+            <strong class="text-bch-400 font-semibold">Chipnet</strong> for trying it live, and
+            <strong class="text-bch-400 font-semibold">Mainnet</strong> for watching your
+            real transaction unfold.
+          </p>
+
+          <div class="mt-6 flex flex-wrap gap-2 text-xs font-mono">
+            <span class="px-2.5 py-1 rounded border border-line text-fg-mute bg-canvas">Layered views</span>
+            <span class="px-2.5 py-1 rounded border border-line text-fg-mute bg-canvas">CashTokens native</span>
+            <span class="px-2.5 py-1 rounded border border-line text-fg-mute bg-canvas">Opcode step-through</span>
+            <span class="px-2.5 py-1 rounded border border-line text-fg-mute bg-canvas">UTXO tracing</span>
+          </div>
+        </div>
+
+        <div class="md:col-span-2 bg-canvas border-t md:border-t-0 md:border-l border-line p-8 flex items-center">
+          <TxJourneyPreview />
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

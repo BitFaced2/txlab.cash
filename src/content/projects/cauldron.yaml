@@ -1,0 +1,19 @@
+name: Cauldron
+tagline: The first DEX on Bitcoin Cash — AMM for CashTokens with sub-cent swap fees.
+description: |
+  Cauldron is a non-custodial AMM DEX for swapping CashTokens on Bitcoin Cash.
+  Built as a series of open-source smart contracts by Riften Labs, it
+  standardizes liquidity provisioning and swaps for fungible CashTokens.
+  Includes a browser-based non-custodial wallet.
+category: defi
+website: https://www.cauldron.quest
+documentation: https://docs.riftenlabs.com/cauldron/
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - web
+custody: non-custodial
+capabilities:
+  cashtokens: true
+  testnet: true
+featured: true

@@ -1,0 +1,18 @@
+name: BCH Bull
+tagline: Non-custodial leverage and hedging on BCH against BTC, ETH, gold, and fiat.
+description: |
+  BCH Bull is a non-custodial, permissionless web app built on the AnyHedge
+  protocol. It lets users take BCH long positions up to 5–7.77x leverage or
+  hedge BCH against BTC, ETH, gold, and fiat currencies. Every position lives
+  on the BCH mainchain as a smart contract — no borrowed assets, no margin
+  calls, no custodial intermediaries.
+category: defi
+website: https://www.bchbull.com
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - web
+custody: non-custodial
+capabilities:
+  testnet: true
+featured: true

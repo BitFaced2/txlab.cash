@@ -1,0 +1,124 @@
+---
+/**
+ * Running BCH network stats.
+ * - Block height in this component's visual (variant `strip` or `compact`)
+ * - Also paints [data-net-mempool] and [data-net-tx24h] anywhere on the page
+ *   from the same polled payload — one fetch, three updated stats.
+ *
+ * Data: polls a public REST endpoint every 20s.
+ * TODO Phase 2: swap to self-hosted Chaingraph GraphQL subscription for realtime.
+ */
+
+interface Props {
+  variant?: "strip" | "compact";
+}
+
+const { variant = "strip" } = Astro.props;
+---
+
+{
+  variant === "strip" && (
+    <div class="flex flex-col" data-block-counter>
+      <div class="flex items-center gap-2">
+        <span class="text-[10px] uppercase tracking-[0.2em] text-fg-dim font-mono font-semibold">
+          // Block
+        </span>
+        <span class="relative flex h-1.5 w-1.5" aria-hidden="true">
+          <span
+            class="absolute inline-flex h-full w-full rounded-full bg-bch-500 opacity-70"
+            style="animation: var(--animate-pulse-dot); box-shadow: 0 0 6px var(--color-bch-500);"
+          />
+          <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-bch-500" />
+        </span>
+      </div>
+      <div
+        class="mt-2 font-mono font-bold text-4xl md:text-5xl tabular tracking-tight text-neon-400 text-glow-neon"
+        data-block-height>
+        —
+      </div>
+    </div>
+  )
+}
+
+{
+  variant === "compact" && (
+    <div class="flex items-center gap-3" data-block-counter>
+      <span class="relative flex h-2 w-2 shrink-0" aria-hidden="true">
+        <span
+          class="absolute inline-flex h-full w-full rounded-full bg-bch-500 opacity-70"
+          style="animation: var(--animate-pulse-dot); box-shadow: 0 0 8px var(--color-bch-500);"
+        />
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-bch-500" />
+      </span>
+      <div class="flex flex-col items-end leading-none">
+        <span
+          class="font-mono font-bold text-xl md:text-[22px] tabular tracking-tight text-neon-400 text-glow-neon"
+          data-block-height>
+          —
+        </span>
+        <span class="font-mono uppercase tracking-[0.25em] text-fg-dim font-semibold mt-1 text-[9px]">
+          Block
+        </span>
+      </div>
+    </div>
+  )
+}
+
+<script>
+  const ENDPOINT = "https://api.blockchair.com/bitcoin-cash/stats";
+  const POLL_MS = 20_000;
+  const nf = new Intl.NumberFormat("en-US");
+
+  type Stats = { blocks: number | null; mempool: number | null; tx24h: number | null };
+
+  async function fetchStats(): Promise<Stats | null> {
+    try {
+      const res = await fetch(ENDPOINT, { cache: "no-store" });
+      if (!res.ok) return null;
+      const json = await res.json();
+      const d = json?.data;
+      if (!d) return null;
+      return {
+        blocks: typeof d.best_block_height === "number" ? d.best_block_height : null,
+        mempool: typeof d.mempool_transactions === "number" ? d.mempool_transactions : null,
+        tx24h: typeof d.transactions_24h === "number" ? d.transactions_24h : null,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  function paintValue(selector: string, value: number) {
+    const formatted = nf.format(value);
+    document.querySelectorAll<HTMLElement>(selector).forEach((el) => {
+      if (el.dataset.previous === formatted) return;
+      el.textContent = formatted;
+      el.dataset.previous = formatted;
+      el.classList.remove("block-flash");
+      void el.offsetWidth; /* reflow so the animation restarts */
+      el.classList.add("block-flash");
+    });
+  }
+
+  async function tick() {
+    const stats = await fetchStats();
+    if (!stats) return;
+    if (stats.blocks !== null) paintValue("[data-block-height]", stats.blocks);
+    if (stats.mempool !== null) paintValue("[data-net-mempool]", stats.mempool);
+    if (stats.tx24h !== null) paintValue("[data-net-tx24h]", stats.tx24h);
+  }
+
+  tick();
+  setInterval(tick, POLL_MS);
+</script>
+
+<style>
+  @keyframes block-flash-kf {
+    0%   { color: #ffffff; text-shadow: 0 0 24px var(--color-neon-300), 0 0 8px var(--color-neon-500); }
+    60%  { color: var(--color-neon-300); }
+    100% { color: var(--color-neon-400); text-shadow: 0 0 24px rgb(from var(--color-neon-500) r g b / 0.4); }
+  }
+  :global(.block-flash) {
+    animation: block-flash-kf 900ms ease-out;
+  }
+</style>

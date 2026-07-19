@@ -1,0 +1,115 @@
+---
+import "../styles/global.css";
+import Logo from "../components/Logo.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = "A lab for exploring the Bitcoin Cash network — plus the best maintained map of the BCH world.",
+} = Astro.props;
+
+const pathname = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+const nav = [
+  { href: "/use", label: "Use" },
+  { href: "/build", label: "Build" },
+  { href: "/run", label: "Run" },
+  { href: "/grow", label: "Grow" },
+  { href: "/projects", label: "Directory" },
+];
+---
+
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#0B0F0D" />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://rsms.me/" />
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    />
+  </head>
+  <body class="min-h-full bg-canvas text-fg antialiased">
+    <header class="border-b border-line bg-canvas/85 backdrop-blur-md sticky top-0 z-20">
+      <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <a
+          href="/"
+          class="hover:text-bch-400 transition-colors">
+          <Logo variant="full" size="sm" />
+        </a>
+        <nav class="flex items-center gap-8 text-[13px] font-medium">
+          {
+            nav.map((item) => (
+              <a
+                href={item.href}
+                class="link-underline text-fg-mute hover:text-fg transition-colors uppercase tracking-wider"
+                data-active={isActive(item.href) ? "true" : "false"}>
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="border-t border-line mt-32 bg-surface/60">
+      <div class="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-8 text-sm">
+        <div>
+          <Logo variant="full" size="md" />
+          <p class="mt-4 text-fg-mute leading-relaxed max-w-xs">
+            The best maintained map of the Bitcoin Cash world.
+          </p>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-fg-dim font-semibold font-mono">// The site</div>
+          <ul class="mt-3 space-y-1.5">
+            <li><a href="/editorial-principles" class="prose-link text-fg-mid">Editorial principles</a></li>
+            <li><a href="/about" class="prose-link text-fg-mid">About</a></li>
+            <li><a href="/contribute" class="prose-link text-fg-mid">Contribute</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase tracking-[0.2em] text-fg-dim font-semibold font-mono">// Open source</div>
+          <ul class="mt-3 space-y-1.5">
+            <li><a href="https://github.com/" class="prose-link text-fg-mid">GitHub</a></li>
+            <li><a href="/api" class="prose-link text-fg-mid">Public API</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-line">
+        <div class="max-w-6xl mx-auto px-6 py-5 text-xs text-fg-dim flex flex-wrap items-center justify-between gap-3 font-mono">
+          <span class="inline-flex items-center gap-2">
+            <img
+              src="/bitcoin-cash-circle.svg"
+              alt=""
+              width="16"
+              height="16"
+              class="opacity-90"
+            />
+            <span>Built for Bitcoin Cash. Community-run. Not the official voice.</span>
+          </span>
+          <span>MIT licensed</span>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

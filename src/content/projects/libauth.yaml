@@ -1,0 +1,17 @@
+name: Libauth
+tagline: Zero-dependency TypeScript library for BCH — VM, transactions, contracts.
+description: |
+  Libauth is a pure-TypeScript library for building on Bitcoin Cash. It ships
+  a full BCH VM implementation, transaction encoding/decoding, address
+  formats, key management, and contract execution — all with zero
+  dependencies. Runs identically in Node and the browser.
+category: library
+website: https://libauth.org
+repository: https://github.com/bitauth/libauth
+license: MIT
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - cli
+  - web
+featured: true

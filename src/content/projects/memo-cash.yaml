@@ -1,0 +1,14 @@
+name: memo.cash
+tagline: On-chain microblogging built with OP_RETURN — messages live on BCH itself.
+description: |
+  memo.cash is a microblogging platform where posts, likes, and follows are
+  encoded as on-chain BCH transactions via OP_RETURN. A pure BCH-native
+  social protocol — accounts and content are cryptographically owned, not
+  hosted.
+category: social
+website: https://memo.cash
+freshness: maintained
+lastVerified: '2026-07-18'
+platforms:
+  - web
+custody: non-custodial

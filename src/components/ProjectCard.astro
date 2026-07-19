@@ -1,0 +1,146 @@
+---
+import type { CollectionEntry } from "astro:content";
+import FreshnessBadge from "./FreshnessBadge.astro";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const p = project.data;
+
+/** Turn the capabilities object into a compact list of visible chips. */
+const capabilityLabels: Record<string, string> = {
+  cashtokens: "CashTokens",
+  nfts: "NFTs",
+  cashfusion: "CashFusion",
+  rpa: "RPA",
+  multisig: "Multisig",
+  merchantMode: "Merchant",
+  walletConnect: "WalletConnect",
+  cashConnect: "CashConnect",
+  testnet: "Testnet",
+  watchOnly: "Watch-only",
+  hardwareWalletSupport: "Hardware",
+  fiatPurchase: "Fiat buy",
+};
+
+const activeCapabilities = Object.entries(p.capabilities)
+  .filter(([, v]) => v === true)
+  .map(([k]) => capabilityLabels[k] ?? k);
+
+const visibleCaps = activeCapabilities.slice(0, 4);
+const hiddenCount = Math.max(0, activeCapabilities.length - visibleCaps.length);
+
+const platformLabels: Record<string, string> = {
+  ios: "iOS",
+  android: "Android",
+  "desktop-linux": "Linux",
+  "desktop-macos": "macOS",
+  "desktop-windows": "Windows",
+  web: "Web",
+  "browser-extension": "Extension",
+  hardware: "Hardware",
+  cli: "CLI",
+  server: "Server",
+};
+const platforms = p.platforms.map((x) => platformLabels[x] ?? x);
+
+const custodyLabel =
+  p.custody === "non-custodial"
+    ? "Non-custodial"
+    : p.custody === "custodial"
+      ? "Custodial"
+      : p.custody === "hybrid"
+        ? "Hybrid"
+        : null;
+
+const verifiedDate = new Date(p.lastVerified).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+---
+
+<article class="group relative flex flex-col p-6 rounded-lg border border-line bg-surface hover:border-bch-500/70 hover:bg-elevated transition-all duration-200 glow-bch-hover">
+  {/* Corner brackets */}
+  <span class="absolute top-2 left-2 w-2.5 h-2.5 border-l border-t border-line-mid group-hover:border-bch-500 transition-colors" aria-hidden="true"></span>
+  <span class="absolute top-2 right-2 w-2.5 h-2.5 border-r border-t border-line-mid group-hover:border-bch-500 transition-colors" aria-hidden="true"></span>
+  <span class="absolute bottom-2 left-2 w-2.5 h-2.5 border-l border-b border-line-mid group-hover:border-bch-500 transition-colors" aria-hidden="true"></span>
+  <span class="absolute bottom-2 right-2 w-2.5 h-2.5 border-r border-b border-line-mid group-hover:border-bch-500 transition-colors" aria-hidden="true"></span>
+
+  {/* Top row: category label + freshness badge */}
+  <div class="flex items-start justify-between gap-3">
+    <span class="text-[10px] uppercase tracking-[0.2em] text-fg-dim font-mono font-semibold">
+      // {p.category.replace("-", " ")}
+    </span>
+    <FreshnessBadge state={p.freshness} />
+  </div>
+
+  {/* Name */}
+  <h3 class="mt-4 font-semibold text-xl text-fg group-hover:text-bch-400 transition-colors leading-tight">
+    {p.name}
+  </h3>
+
+  {/* Tagline */}
+  <p class="mt-2 text-sm text-fg-mid leading-relaxed">{p.tagline}</p>
+
+  {/* Capability chips */}
+  {
+    activeCapabilities.length > 0 && (
+      <div class="mt-4 flex flex-wrap gap-1.5">
+        {visibleCaps.map((cap) => (
+          <span class="px-2 py-0.5 rounded border border-line text-[10px] font-mono text-fg-mute uppercase tracking-wider">
+            {cap}
+          </span>
+        ))}
+        {hiddenCount > 0 && (
+          <span class="px-2 py-0.5 rounded text-[10px] font-mono text-fg-dim uppercase tracking-wider">
+            +{hiddenCount}
+          </span>
+        )}
+      </div>
+    )
+  }
+
+  {/* Meta line: platforms · custody · license */}
+  {
+    (platforms.length > 0 || custodyLabel || p.license) && (
+      <div class="mt-4 text-xs text-fg-mute font-mono">
+        {[platforms.slice(0, 4).join(" · "), custodyLabel, p.license]
+          .filter(Boolean)
+          .join(" · ")}
+      </div>
+    )
+  }
+
+  {/* Divider + footer row */}
+  <div class="mt-auto pt-4">
+    <div class="border-t border-line pt-3 flex items-center justify-between text-xs font-mono">
+      <div class="flex gap-3">
+        {p.website && (
+          <a
+            href={p.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="prose-link text-fg-mid inline-flex items-center gap-1">
+            Website
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7" /><path d="M7 7h10v10" /></svg>
+          </a>
+        )}
+        {p.repository && (
+          <a
+            href={p.repository}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="prose-link text-fg-mid inline-flex items-center gap-1">
+            Repo
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7" /><path d="M7 7h10v10" /></svg>
+          </a>
+        )}
+      </div>
+      <span class="text-fg-dim">Verified {verifiedDate}</span>
+    </div>
+  </div>
+
+</article>

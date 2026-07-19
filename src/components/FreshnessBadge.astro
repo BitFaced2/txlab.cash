@@ -1,0 +1,92 @@
+---
+/**
+ * Freshness badge for a registry entry.
+ * A directory that admits when info is stale is worth more than a bigger link dump.
+ */
+
+type Freshness =
+  | "active"
+  | "maintained"
+  | "experimental"
+  | "seeking-maintainers"
+  | "archived"
+  | "unverified";
+
+interface Props {
+  state: Freshness;
+}
+
+const { state } = Astro.props;
+
+const map: Record<
+  Freshness,
+  { label: string; dot: string; text: string; border: string; pulse: boolean }
+> = {
+  active: {
+    label: "Active",
+    dot: "bg-bch-500",
+    text: "text-bch-400",
+    border: "border-bch-500/40",
+    pulse: true,
+  },
+  maintained: {
+    label: "Maintained",
+    dot: "bg-bch-500",
+    text: "text-bch-400",
+    border: "border-bch-500/30",
+    pulse: false,
+  },
+  experimental: {
+    label: "Experimental",
+    dot: "bg-neon-500",
+    text: "text-neon-300",
+    border: "border-neon-500/40",
+    pulse: false,
+  },
+  "seeking-maintainers": {
+    label: "Seeking maintainers",
+    dot: "bg-warn",
+    text: "text-warn",
+    border: "border-warn/40",
+    pulse: false,
+  },
+  archived: {
+    label: "Archived",
+    dot: "bg-fg-dim",
+    text: "text-fg-mute",
+    border: "border-fg-dim/40",
+    pulse: false,
+  },
+  unverified: {
+    label: "Unverified",
+    dot: "bg-transparent border border-fg-mute",
+    text: "text-fg-mute",
+    border: "border-fg-dim/40",
+    pulse: false,
+  },
+};
+
+const s = map[state];
+---
+
+<span
+  class:list={[
+    "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border font-mono text-[10px] uppercase tracking-[0.15em] font-semibold",
+    s.text,
+    s.border,
+  ]}>
+  {
+    s.pulse ? (
+      <span class="relative flex h-1.5 w-1.5" aria-hidden="true">
+        <span
+          class:list={["absolute inline-flex h-full w-full rounded-full opacity-70", s.dot]}
+          style="animation: var(--animate-pulse-dot);"
+        />
+        <span class:list={["relative inline-flex rounded-full h-1.5 w-1.5", s.dot]} />
+      </span>
+    ) : (
+      <span class:list={["h-1.5 w-1.5 rounded-full shrink-0", s.dot]} aria-hidden="true" />
+    )
+  }
+  {s.label}
+</span>

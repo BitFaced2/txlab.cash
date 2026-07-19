@@ -1,0 +1,78 @@
+---
+/**
+ * Animated preview of a transaction's journey.
+ * A neon-green packet travels through 4 stations: Broadcast → Mempool → Block → Confirmed.
+ */
+
+const stations = [
+  { x: 40,  label: "Broadcast" },
+  { x: 180, label: "Mempool" },
+  { x: 320, label: "Block" },
+  { x: 460, label: "Confirmed" },
+];
+---
+
+<div class="relative">
+  <svg
+    viewBox="0 0 500 120"
+    class="w-full h-auto"
+    role="img"
+    aria-label="Preview of a transaction's journey">
+    <defs>
+      <filter id="glow-bch">
+        <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+        <feMerge>
+          <feMergeNode in="coloredBlur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+
+    {/* connecting path */}
+    <path
+      id="tx-path"
+      d="M 40 50 Q 110 50, 180 50 Q 250 50, 320 50 Q 390 50, 460 50"
+      fill="none"
+      stroke="var(--color-line-mid)"
+      stroke-width="1.5"
+      stroke-dasharray="3 4"
+    />
+
+    {/* neon packet */}
+    <circle
+      r="6"
+      fill="var(--color-bch-500)"
+      filter="url(#glow-bch)"
+      style="offset-path: path('M 40 50 Q 110 50, 180 50 Q 250 50, 320 50 Q 390 50, 460 50'); animation: var(--animate-tx-flow);"
+    />
+
+    {/* stations */}
+    {
+      stations.map((s) => (
+        <>
+          <rect
+            x={s.x - 10}
+            y={40}
+            width={20}
+            height={20}
+            rx={2}
+            fill="var(--color-surface)"
+            stroke="var(--color-bch-500)"
+            stroke-opacity="0.5"
+            stroke-width={1.25}
+          />
+          <text
+            x={s.x}
+            y={82}
+            text-anchor="middle"
+            font-family="var(--font-mono)"
+            font-size="9"
+            fill="var(--color-fg-mute)"
+            letter-spacing="1">
+            {s.label.toUpperCase()}
+          </text>
+        </>
+      ))
+    }
+  </svg>
+</div>

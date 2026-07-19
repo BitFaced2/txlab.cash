@@ -1,0 +1,16 @@
+name: Bitauth IDE
+tagline: In-browser IDE for BCH covenants — write, test, debug, and share contracts.
+description: |
+  Bitauth IDE is a browser-based development environment for authoring
+  Bitcoin Cash contract templates. It runs a full VM in the browser (via
+  Libauth), lets you step through opcode execution, and produces shareable
+  contract templates that any compatible wallet can use.
+category: tool
+website: https://ide.bitauth.com
+repository: https://github.com/bitauth/bitauth-ide
+license: MIT
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - web
+featured: true

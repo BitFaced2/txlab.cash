@@ -1,0 +1,16 @@
+name: Bitcoin Verde
+tagline: Java-based full-node implementation of Bitcoin Cash.
+description: |
+  Bitcoin Verde is a full-node implementation of the Bitcoin Cash protocol
+  written from scratch in Java. Provides an alternative to BCHN's C++
+  codebase, contributing to node implementation diversity — a key resilience
+  property for the network.
+category: node
+website: https://bitcoinverde.org
+freshness: maintained
+lastVerified: '2026-07-18'
+platforms:
+  - server
+  - desktop-linux
+  - desktop-macos
+  - desktop-windows

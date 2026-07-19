@@ -1,0 +1,93 @@
+---
+/**
+ * txlab.cash brand mark + wordmark.
+ * The flask outline uses currentColor so it inherits from the parent's text color.
+ * Internal green elements stay fixed BCH green.
+ */
+
+interface Props {
+  variant?: "full" | "mark";
+  size?: "sm" | "md" | "lg";
+  class?: string;
+}
+
+const { variant = "full", size = "sm", class: className = "" } = Astro.props;
+
+const markSizeClass =
+  size === "sm" ? "w-7 h-7" : size === "md" ? "w-10 h-10" : "w-16 h-16";
+
+const textSizeClass =
+  size === "sm" ? "text-[15px]" : size === "md" ? "text-lg" : "text-2xl";
+---
+
+<span class:list={["inline-flex items-center gap-2.5 text-fg", className]}>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 64 64"
+    fill="none"
+    class:list={[markSizeClass, "shrink-0"]}
+    role="img"
+    aria-label="txlab.cash">
+    <g
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none">
+      <line x1="25" y1="6" x2="39" y2="6" />
+      <path
+        d="M 25 6 L 25 20 Q 25 22 24 24 L 10 54 Q 9 58 13 58 L 51 58 Q 55 58 54 54 L 40 24 Q 39 22 39 20 L 39 6"
+      />
+    </g>
+    <path
+      d="M 15 46 Q 22 42 32 46 Q 42 50 49 46 L 53 55 Q 54 58 51 58 L 13 58 Q 10 58 11 55 Z"
+      fill="var(--color-bch-500)"
+      opacity="0.9"
+    />
+    <circle cx="22" cy="52" r="1.1" fill="var(--color-bch-500)" opacity="0.4" />
+    <circle cx="34" cy="49" r="0.8" fill="var(--color-bch-500)" opacity="0.4" />
+    <circle cx="43" cy="53" r="1.2" fill="var(--color-bch-500)" opacity="0.4" />
+    <line
+      x1="32" y1="10" x2="32" y2="34"
+      stroke="var(--color-bch-500)"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-dasharray="1.2 3"
+    />
+    <circle cx="32" cy="37" r="3" fill="none" stroke="var(--color-bch-500)" stroke-width="2" />
+    <circle cx="32" cy="37" r="1" fill="var(--color-bch-500)" />
+    <g stroke="var(--color-bch-500)" stroke-width="2" stroke-linecap="round">
+      <line x1="29.5" y1="35" x2="18" y2="26" />
+      <line x1="29.5" y1="39" x2="18" y2="42" />
+      <line x1="34.5" y1="35" x2="46" y2="26" />
+      <line x1="34.5" y1="39" x2="46" y2="42" />
+    </g>
+    <g stroke="var(--color-bch-500)" stroke-width="2" fill="none">
+      <rect x="8"  y="22" width="8" height="8" rx="1" />
+      <rect x="8"  y="38" width="8" height="8" rx="1" />
+      <rect x="48" y="22" width="8" height="8" rx="1" />
+      <rect x="48" y="38" width="8" height="8" rx="1" />
+    </g>
+    <g fill="var(--color-bch-500)">
+      <circle cx="12" cy="26" r="1" />
+      <circle cx="12" cy="42" r="1" />
+      <circle cx="52" cy="26" r="1" />
+      <circle cx="52" cy="42" r="1" />
+    </g>
+  </svg>
+
+  {
+    variant === "full" && (
+      <span class="flex flex-col leading-none">
+        <span class:list={["font-mono font-semibold tracking-tight", textSizeClass]}>
+          txlab<span class="text-bch-500">.cash</span>
+        </span>
+        {size !== "sm" && (
+          <span class="mt-1 font-mono uppercase tracking-[0.25em] text-fg-dim text-[9px]">
+            Transaction Lab
+          </span>
+        )}
+      </span>
+    )
+  }
+</span>

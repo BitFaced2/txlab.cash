@@ -1,0 +1,21 @@
+name: BCHN Dirty
+tagline: Cypherpunk-themed skin of the Bitcoin Cash Node GUI wallet.
+description: |
+  BCHN Dirty is a themed build of the BCHN reference wallet with a
+  cypherpunk aesthetic — neon BCH green, dark neon purple, near-black
+  background. Same underlying full-node behavior, different visual language.
+  The palette (cypher.qss) is the source of txlab.cash's own theme.
+category: wallet
+website: https://github.com/BitFaced2/bchn-dirty
+repository: https://github.com/BitFaced2/bchn-dirty
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - desktop-linux
+  - desktop-macos
+  - desktop-windows
+custody: non-custodial
+capabilities:
+  cashtokens: true
+  multisig: true
+  watchOnly: true

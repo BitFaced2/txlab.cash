@@ -1,0 +1,16 @@
+name: CashScript
+tagline: High-level smart-contract language for Bitcoin Cash — Solidity-like syntax.
+description: |
+  CashScript is a high-level smart-contract language that compiles down to
+  Bitcoin Cash Script. Its syntax draws from Solidity to lower the barrier
+  for developers coming from Ethereum. Compiler is JS/TS-native and
+  integrates with Libauth for tx construction.
+category: library
+website: https://cashscript.org
+repository: https://github.com/CashScript/cashscript
+license: MIT
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - cli
+featured: true

@@ -1,0 +1,251 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ProjectCard from "../../components/ProjectCard.astro";
+import { getCollection } from "astro:content";
+
+const all = await getCollection("projects");
+
+/* Order: featured first, then active/maintained, then everything else, then archived — alphabetical within each. */
+const freshnessRank: Record<string, number> = {
+  active: 0,
+  maintained: 1,
+  experimental: 2,
+  "seeking-maintainers": 3,
+  unverified: 4,
+  archived: 5,
+};
+
+const projects = all.sort((a, b) => {
+  if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
+  const ra = freshnessRank[a.data.freshness] ?? 99;
+  const rb = freshnessRank[b.data.freshness] ?? 99;
+  if (ra !== rb) return ra - rb;
+  return a.data.name.localeCompare(b.data.name);
+});
+
+const total = projects.length;
+const active = projects.filter((p) => p.data.freshness === "active").length;
+
+/* Newest last-verified date across the whole registry — signals when the collection was last touched. */
+const lastSweep = projects
+  .map((p) => p.data.lastVerified)
+  .sort()
+  .at(-1);
+const lastSweepFormatted = lastSweep
+  ? new Date(lastSweep).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  : "—";
+---
+
+<BaseLayout title="Projects — txlab.cash">
+  <section class="max-w-6xl mx-auto px-6 pt-16 pb-8">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // Directory
+    </div>
+    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">
+      Bitcoin Cash <span class="text-bch-500 font-mono font-medium tracking-tight">projects</span>.
+    </h1>
+    <p class="mt-5 text-lg text-fg-mid max-w-2xl leading-relaxed">
+      A living map of what's being built, run, and used on BCH. Every entry
+      carries a freshness state — so you know what's alive and what's not.
+    </p>
+
+    <div class="mt-8 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-fg-mute">
+      <span>
+        // <span class="text-fg">{total}</span> project{total === 1 ? "" : "s"}
+      </span>
+      <span>
+        <span class="inline-flex items-center gap-1.5">
+          <span class="h-1.5 w-1.5 rounded-full bg-bch-500" aria-hidden="true"></span>
+          <span class="text-fg">{active}</span> active
+        </span>
+      </span>
+      <span>// Last sweep: {lastSweepFormatted}</span>
+    </div>
+  </section>
+
+  <section class="pb-16">
+    <div class="relative" data-scroll-row-wrapper>
+      <div class="scroll-row" data-scroll-row>
+        <div class="scroll-row-track">
+          {/* Copy 1 — visual clone for infinite scroll (aria-hidden) */}
+          {projects.map((p) => (
+            <div class="scroll-row-item" aria-hidden="true">
+              <ProjectCard project={p} />
+            </div>
+          ))}
+          {/* Copy 2 — canonical copy (screen-reader accessible) */}
+          {projects.map((p, i) => (
+            <div class="scroll-row-item" data-copy-start={i === 0 ? "" : undefined}>
+              <ProjectCard project={p} />
+            </div>
+          ))}
+          {/* Copy 3 — visual clone for infinite scroll (aria-hidden) */}
+          {projects.map((p) => (
+            <div class="scroll-row-item" aria-hidden="true">
+              <ProjectCard project={p} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Scroll buttons (desktop) */}
+      <button
+        type="button"
+        data-scroll-prev
+        aria-label="Scroll left"
+        class="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full items-center justify-center border border-line-mid bg-canvas/80 backdrop-blur text-fg hover:border-bch-500 hover:text-bch-400 hover:bg-elevated transition-all disabled:opacity-25 disabled:pointer-events-none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+      </button>
+      <button
+        type="button"
+        data-scroll-next
+        aria-label="Scroll right"
+        class="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full items-center justify-center border border-line-mid bg-canvas/80 backdrop-blur text-fg hover:border-bch-500 hover:text-bch-400 hover:bg-elevated transition-all disabled:opacity-25 disabled:pointer-events-none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+      </button>
+    </div>
+
+  </section>
+
+  <script>
+    const CARD_STEP = 356; /* 340px card + 16px gap */
+    const DRAG_THRESHOLD = 6; /* px before a mousedown is treated as a drag, not a click */
+
+    document.querySelectorAll<HTMLElement>("[data-scroll-row-wrapper]").forEach((wrapper) => {
+      const row = wrapper.querySelector<HTMLElement>("[data-scroll-row]");
+      const prev = wrapper.querySelector<HTMLButtonElement>("[data-scroll-prev]");
+      const next = wrapper.querySelector<HTMLButtonElement>("[data-scroll-next]");
+      if (!row || !prev || !next) return;
+
+      /* ---- Infinite-loop setup ---- */
+      const firstItem = row.querySelector<HTMLElement>(".scroll-row-item");
+      const copyStart = row.querySelector<HTMLElement>("[data-copy-start]");
+      let copyWidth = 0;
+
+      const measure = () => {
+        if (!firstItem || !copyStart) return;
+        copyWidth = copyStart.offsetLeft - firstItem.offsetLeft;
+      };
+
+      measure();
+      /* Start scroll at the beginning of Copy 2 (the canonical copy) */
+      if (copyStart) row.scrollLeft = copyStart.offsetLeft;
+
+      /* Silent jump-back so scroll position always sits inside the middle copy.
+         Called during drag (to keep scrollLeft bounded) and on scrollend (post-inertia). */
+      const rewrap = (): number => {
+        if (copyWidth === 0) return 0;
+        const start = firstItem?.offsetLeft ?? 0;
+        /* effective position within the tripled track, offset from Copy 1 start */
+        const p = row.scrollLeft - start;
+        if (p < copyWidth * 0.5) {
+          row.scrollLeft += copyWidth;
+          return copyWidth;
+        }
+        if (p > copyWidth * 2.5) {
+          row.scrollLeft -= copyWidth;
+          return -copyWidth;
+        }
+        return 0;
+      };
+
+      /* ---- Scroll buttons ---- */
+      const scrollByAmount = (delta: number) => {
+        row.scrollBy({ left: delta, behavior: "smooth" });
+      };
+      prev.addEventListener("click", () => scrollByAmount(-CARD_STEP * 2));
+      next.addEventListener("click", () => scrollByAmount(CARD_STEP * 2));
+
+      /* scrollend fires after inertia settles — safest place to silently jump */
+      row.addEventListener("scrollend", () => rewrap());
+
+      window.addEventListener("resize", measure);
+
+      /* ---- Click-drag scrolling ---- */
+      let isPointerDown = false;
+      let hasDragged = false;
+      let startX = 0;
+      let startScroll = 0;
+
+      const onPointerDown = (e: PointerEvent) => {
+        if (e.pointerType !== "mouse" || e.button !== 0) return;
+        if ((e.target as HTMLElement).closest("[data-scroll-prev],[data-scroll-next]")) return;
+        isPointerDown = true;
+        hasDragged = false;
+        startX = e.clientX;
+        startScroll = row.scrollLeft;
+      };
+
+      const onPointerMove = (e: PointerEvent) => {
+        if (!isPointerDown) return;
+        const dx = e.clientX - startX;
+        if (!hasDragged && Math.abs(dx) < DRAG_THRESHOLD) return;
+        if (!hasDragged) {
+          hasDragged = true;
+          row.classList.add("is-dragging");
+          row.setPointerCapture(e.pointerId);
+        }
+        row.scrollLeft = startScroll - dx;
+
+        /* Bound scroll position mid-drag so users can drag indefinitely. */
+        const shift = rewrap();
+        if (shift !== 0) startScroll += shift;
+      };
+
+      const endDrag = (e: PointerEvent) => {
+        if (!isPointerDown) return;
+        const dragged = hasDragged;
+        isPointerDown = false;
+        hasDragged = false;
+        row.classList.remove("is-dragging");
+        try { row.releasePointerCapture(e.pointerId); } catch {}
+
+        if (dragged) {
+          const suppress = (evt: MouseEvent) => {
+            evt.preventDefault();
+            evt.stopPropagation();
+          };
+          row.addEventListener("click", suppress, { capture: true, once: true });
+        }
+      };
+
+      row.addEventListener("pointerdown", onPointerDown);
+      row.addEventListener("pointermove", onPointerMove);
+      row.addEventListener("pointerup", endDrag);
+      row.addEventListener("pointercancel", endDrag);
+      row.addEventListener("dragstart", (e) => e.preventDefault());
+    });
+  </script>
+
+  <section class="max-w-6xl mx-auto px-6 pb-24">
+    <div class="rounded-xl border border-line bg-surface p-8 md:p-10">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+        // Contribute
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Missing something? Seeing stale data?
+      </h2>
+      <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+        The registry lives in a public repo as version-controlled YAML. Open a
+        PR to add a project, update a freshness state, or flag a stale entry.
+        No paid placement, ever.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a
+          href="https://github.com/"
+          class="px-4 py-2 rounded-md bg-bch-500 text-canvas text-sm font-semibold hover:bg-bch-400 transition-colors">
+          Submit a project
+        </a>
+        <a
+          href="https://github.com/"
+          class="px-4 py-2 rounded-md border border-line-mid text-sm font-medium text-fg-mid hover:border-bch-500 hover:text-bch-400 transition-colors">
+          Read the schema
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

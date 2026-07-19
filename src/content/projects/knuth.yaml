@@ -1,0 +1,14 @@
+name: Knuth
+tagline: High-performance multi-crypto node built in modern C++.
+description: |
+  Knuth is a full-node implementation built in modern C++ with a focus on
+  performance and modularity. Contributes to Bitcoin Cash node implementation
+  diversity alongside BCHN and Bitcoin Verde.
+category: node
+website: https://kth.cash
+repository: https://github.com/k-nuth
+freshness: maintained
+lastVerified: '2026-07-18'
+platforms:
+  - server
+  - desktop-linux

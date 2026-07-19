@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Solid canvas so it reads well in browser tabs regardless of theme -->
+  <rect width="64" height="64" rx="10" fill="#0B0F0D" />
+
+  <!-- Flask outline (light fg on dark canvas) -->
+  <g stroke="#E8ECEA" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <line x1="25" y1="8" x2="39" y2="8" />
+    <path d="M 25 8 L 25 20 Q 25 22 24 24 L 12 52 Q 11 56 15 56 L 49 56 Q 53 56 52 52 L 40 24 Q 39 22 39 20 L 39 8" />
+  </g>
+
+  <!-- Liquid -->
+  <path
+    d="M 17 46 Q 23 42 32 46 Q 41 50 47 46 L 51 53 Q 52 56 49 56 L 15 56 Q 12 56 13 53 Z"
+    fill="#0AC18E"
+    opacity="0.9"
+  />
+
+  <!-- Tx-flow dashed line -->
+  <line x1="32" y1="12" x2="32" y2="34" stroke="#0AC18E" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="1.2 3" />
+
+  <!-- Central node -->
+  <circle cx="32" cy="37" r="3" fill="none" stroke="#0AC18E" stroke-width="2" />
+  <circle cx="32" cy="37" r="1" fill="#0AC18E" />
+
+  <!-- Wires -->
+  <g stroke="#0AC18E" stroke-width="2" stroke-linecap="round">
+    <line x1="29.5" y1="35" x2="18" y2="28" />
+    <line x1="29.5" y1="39" x2="18" y2="42" />
+    <line x1="34.5" y1="35" x2="46" y2="28" />
+    <line x1="34.5" y1="39" x2="46" y2="42" />
+  </g>
+
+  <!-- UTXO squares -->
+  <g stroke="#0AC18E" stroke-width="2" fill="none">
+    <rect x="10" y="24" width="7" height="7" rx="1" />
+    <rect x="10" y="38" width="7" height="7" rx="1" />
+    <rect x="47" y="24" width="7" height="7" rx="1" />
+    <rect x="47" y="38" width="7" height="7" rx="1" />
+  </g>
+</svg>

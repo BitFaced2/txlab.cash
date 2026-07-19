@@ -1,0 +1,13 @@
+name: read.cash
+tagline: Long-form blogging platform with native BCH tipping.
+description: |
+  read.cash is a blogging platform where readers can tip authors in BCH per
+  post or per paragraph. One of the longest-running BCH-native content
+  economies — used extensively for BCH ecosystem writing.
+category: social
+website: https://read.cash
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - web
+custody: hybrid

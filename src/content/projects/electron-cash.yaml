@@ -1,0 +1,30 @@
+name: Electron Cash
+tagline: Cross-platform Bitcoin Cash SPV wallet with CashTokens, WalletConnect and CashConnect support.
+description: |
+  Electron Cash is a long-running open-source Bitcoin Cash wallet available
+  across desktop and Android. It uses SPV verification against ElectrumX-style
+  servers, supports hardware wallets, multisig, and full CashTokens
+  capabilities including NFTs and mutable commitments.
+category: wallet
+website: https://electroncash.org
+repository: https://github.com/Electron-Cash/Electron-Cash
+license: MIT
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - desktop-linux
+  - desktop-macos
+  - desktop-windows
+  - android
+custody: non-custodial
+capabilities:
+  cashtokens: true
+  nfts: true
+  cashfusion: true
+  multisig: true
+  walletConnect: true
+  cashConnect: true
+  testnet: true
+  watchOnly: true
+  hardwareWalletSupport: true
+featured: true

@@ -1,0 +1,16 @@
+name: Fulcrum
+tagline: Fast SPV backend server for Electron Cash and other BCH wallets.
+description: |
+  Fulcrum is a high-performance blockchain server that exposes an
+  ElectrumX-compatible API for BCH SPV wallets. Written in C++ for speed,
+  it's the backend most Electron Cash instances connect to.
+category: indexer
+repository: https://github.com/cculianu/Fulcrum
+license: GPL-3.0
+freshness: maintained
+lastVerified: '2026-07-18'
+platforms:
+  - server
+  - desktop-linux
+  - desktop-macos
+  - desktop-windows

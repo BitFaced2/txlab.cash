@@ -1,0 +1,17 @@
+name: Chaingraph
+tagline: Multi-node BCH blockchain indexer with a GraphQL API and live subscriptions.
+description: |
+  Chaingraph is an open-source multi-node blockchain indexer that exposes a
+  GraphQL API for querying BCH blocks, transactions, tokens, and metadata.
+  Unlike single-node indexers, its schema differentiates which nodes have
+  acknowledged each block, maintaining a full timeline of validations,
+  re-orgs, and double-spend observations. Runs on Kubernetes.
+category: indexer
+website: https://chaingraph.cash
+repository: https://github.com/bitauth/chaingraph
+license: MIT
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - server
+featured: true

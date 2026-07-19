@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="txlab.cash">
+  <!--
+    txlab.cash brand mark: Erlenmeyer flask with a central tx-flow line,
+    a routing node inside, and 4 UTXO squares connected outside the flask.
+    Outline uses currentColor so it adapts to fg on dark or ink on light.
+    Internal green stays fixed BCH green.
+  -->
+
+  <!-- Flask outline -->
+  <g stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- Top cap of neck -->
+    <line x1="25" y1="6" x2="39" y2="6" />
+    <!-- Left side: neck → shoulder → angled body → bottom -->
+    <path d="M 25 6 L 25 20 Q 25 22 24 24 L 10 54 Q 9 58 13 58 L 51 58 Q 55 58 54 54 L 40 24 Q 39 22 39 20 L 39 6" />
+  </g>
+
+  <!-- Green liquid at the bottom of the flask, subtle wave -->
+  <path
+    d="M 15 46 Q 22 42 32 46 Q 42 50 49 46 L 53 55 Q 54 58 51 58 L 13 58 Q 10 58 11 55 Z"
+    fill="#0AC18E"
+    opacity="0.9"
+  />
+  <!-- Bubbles -->
+  <circle cx="22" cy="52" r="1.1" fill="#0AC18E" opacity="0.4" />
+  <circle cx="34" cy="49" r="0.8" fill="#0AC18E" opacity="0.4" />
+  <circle cx="43" cy="53" r="1.2" fill="#0AC18E" opacity="0.4" />
+
+  <!-- Central vertical tx-flow line (dashed) through the neck to the node -->
+  <line
+    x1="32" y1="10" x2="32" y2="34"
+    stroke="#0AC18E"
+    stroke-width="1.8"
+    stroke-linecap="round"
+    stroke-dasharray="1.2 3"
+  />
+
+  <!-- Central routing node -->
+  <circle cx="32" cy="37" r="3" fill="none" stroke="#0AC18E" stroke-width="2" />
+  <circle cx="32" cy="37" r="1" fill="#0AC18E" />
+
+  <!-- Wires from node → UTXO boxes on both sides (cross through flask walls) -->
+  <g stroke="#0AC18E" stroke-width="2" stroke-linecap="round">
+    <line x1="29.5" y1="35" x2="18" y2="26" />
+    <line x1="29.5" y1="39" x2="18" y2="42" />
+    <line x1="34.5" y1="35" x2="46" y2="26" />
+    <line x1="34.5" y1="39" x2="46" y2="42" />
+  </g>
+
+  <!-- UTXO squares (2 left, 2 right) -->
+  <g stroke="#0AC18E" stroke-width="2" fill="none">
+    <rect x="8"  y="22" width="8" height="8" rx="1" />
+    <rect x="8"  y="38" width="8" height="8" rx="1" />
+    <rect x="48" y="22" width="8" height="8" rx="1" />
+    <rect x="48" y="38" width="8" height="8" rx="1" />
+  </g>
+  <!-- Center dots inside UTXO squares -->
+  <g fill="#0AC18E">
+    <circle cx="12" cy="26" r="1" />
+    <circle cx="12" cy="42" r="1" />
+    <circle cx="52" cy="26" r="1" />
+    <circle cx="52" cy="42" r="1" />
+  </g>
+</svg>

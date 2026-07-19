@@ -1,0 +1,24 @@
+name: Qubes
+tagline: Sovereign AI agents with a Bitcoin Cash NFT identity you actually own.
+description: |
+  Qubes lets users create AI agents whose identity lives as a CashToken NFT
+  on Bitcoin Cash — mintable permissionlessly through a CashScript P2SH
+  covenant. Each agent carries a signed memory chain (conversations,
+  reflections, skills, relationships) encrypted locally, works with any AI
+  provider (Anthropic, OpenAI, local Ollama), and cannot be revoked by any
+  central authority. The SDK is MIT; the desktop app ships under a
+  source-available license.
+category: tool
+website: https://github.com/BitFaced2/qubes
+repository: https://github.com/BitFaced2/qubes
+license: MIT (SDK) · Source Available (app)
+freshness: active
+lastVerified: '2026-07-18'
+platforms:
+  - desktop-linux
+  - desktop-macos
+  - desktop-windows
+custody: non-custodial
+capabilities:
+  cashtokens: true
+  nfts: true
