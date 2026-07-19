@@ -1,0 +1,1007 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Transaction Lab — txlab.cash">
+  <div class="lab-page">
+    {/* ─────────────────────── Header bar ─────────────────────── */}
+    <div class="lab-header">
+      <div class="lab-header-left">
+        <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+          // Transaction Lab
+        </div>
+        <h1 class="lab-title">The <span class="text-bch-500 font-mono">Diorama</span></h1>
+      </div>
+
+      <div class="lab-header-right">
+        <div class="mode-chips" role="tablist">
+          <span class="chip chip-active" role="tab" aria-selected="true">Mode 1 · Simulated</span>
+          <span class="chip chip-soon" role="tab">Mode 2 · Chipnet</span>
+          <span class="chip chip-soon" role="tab">Mode 3 · Mainnet</span>
+        </div>
+        <div class="controls">
+          <button type="button" class="btn btn-primary" data-send-btn>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
+            Send BCH
+          </button>
+          <button type="button" class="btn" data-pause-btn aria-pressed="false">
+            <svg data-pause-icon width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            <svg data-play-icon width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="display:none"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+            <span data-pause-label>Pause</span>
+          </button>
+          <label class="speed-label">
+            <span class="text-[10px] font-mono text-fg-mute uppercase tracking-wider">Speed</span>
+            <input type="range" data-speed min="0.5" max="6" step="0.5" value="1" class="speed-slider"/>
+            <span class="text-[10px] font-mono text-fg-mid" data-speed-value>1×</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    {/* ─────────────────────── Diorama ─────────────────────── */}
+    <div class="diorama-frame">
+      <svg
+        class="diorama"
+        viewBox="0 0 1400 900"
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="Animated diorama showing the life cycle of a Bitcoin Cash transaction">
+
+        {/* ─── Definitions ─── */}
+        <defs>
+          <pattern id="lab-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="var(--color-line)" stroke-width="0.5" opacity="0.6"/>
+          </pattern>
+          <radialGradient id="ambient-glow" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stop-color="var(--color-bch-500)" stop-opacity="0.05"/>
+            <stop offset="100%" stop-color="var(--color-bch-500)" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="forge-glow" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffb347"/>
+            <stop offset="50%" stop-color="#ff5533"/>
+            <stop offset="100%" stop-color="#7a1a1a"/>
+          </linearGradient>
+          <radialGradient id="anvil-heat" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffb347" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#ffb347" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="cooler-water" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="var(--color-bch-400)" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="var(--color-bch-500)" stop-opacity="0.7"/>
+          </linearGradient>
+          <linearGradient id="coffee-machine" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="var(--color-line-mid)"/>
+            <stop offset="100%" stop-color="var(--color-line)"/>
+          </linearGradient>
+          <linearGradient id="elevator-cab-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="var(--color-elevated)"/>
+            <stop offset="100%" stop-color="var(--color-line-mid)"/>
+          </linearGradient>
+          <filter id="tx-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="1.5" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* ─── Background ─── */}
+        <rect width="1400" height="900" fill="var(--color-canvas)"/>
+        <rect width="1400" height="900" fill="url(#lab-grid)" opacity="0.4"/>
+        <ellipse cx="700" cy="500" rx="900" ry="500" fill="url(#ambient-glow)"/>
+
+        {/* ─── Floor labels + separators ─── */}
+        <line x1="0" y1="260" x2="1150" y2="260" stroke="var(--color-line-mid)" stroke-width="1" stroke-dasharray="6 4" opacity="0.6"/>
+        <line x1="0" y1="680" x2="1150" y2="680" stroke="var(--color-line-mid)" stroke-width="1" stroke-dasharray="6 4" opacity="0.6"/>
+
+        <text x="24" y="28" fill="var(--color-fg-dim)" font-family="ui-monospace, monospace" font-size="12" font-weight="600" letter-spacing="2">// WALLET FLOOR</text>
+        <text x="24" y="290" fill="var(--color-fg-dim)" font-family="ui-monospace, monospace" font-size="12" font-weight="600" letter-spacing="2">// MEMPOOL LOUNGE</text>
+        <text x="24" y="710" fill="var(--color-fg-dim)" font-family="ui-monospace, monospace" font-size="12" font-weight="600" letter-spacing="2">// VAULT (BLOCKCHAIN)</text>
+
+        {/* ─────────────────── WALLET FLOOR ─────────────────── */}
+        {/* Wallet 1 */}
+        <g class="wallet" transform="translate(180, 155)">
+          <rect x="-72" y="60" width="144" height="8" rx="1" fill="var(--color-line-mid)"/>
+          <rect x="-64" y="68" width="6" height="62" fill="var(--color-line-mid)"/>
+          <rect x="58" y="68" width="6" height="62" fill="var(--color-line-mid)"/>
+          <rect x="-22" y="42" width="44" height="18" rx="2" fill="var(--color-elevated)" stroke="var(--color-line-mid)" stroke-width="0.5"/>
+          <rect x="-18" y="16" width="36" height="26" rx="2" fill="var(--color-canvas)" stroke="var(--color-line-mid)" stroke-width="0.5"/>
+          <text x="0" y="30" text-anchor="middle" fill="var(--color-fg-mute)" font-size="4.5" font-family="ui-monospace, monospace">balance</text>
+          <text x="0" y="38" text-anchor="middle" fill="var(--color-bch-400)" font-size="7" font-weight="600" font-family="ui-monospace, monospace">2.50 BCH</text>
+          <g class="user-blob">
+            <ellipse cx="0" cy="0" rx="24" ry="22" fill="var(--color-fg-mid)"/>
+            <circle cx="-8" cy="-3" r="2" fill="var(--color-canvas)" class="blob-eye"/>
+            <circle cx="8" cy="-3" r="2" fill="var(--color-canvas)" class="blob-eye"/>
+            <path d="M -5 7 Q 0 10 5 7" stroke="var(--color-canvas)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </g>
+        </g>
+
+        {/* Wallet 2 */}
+        <g class="wallet" transform="translate(400, 155)">
+          <rect x="-72" y="60" width="144" height="8" rx="1" fill="var(--color-line-mid)"/>
+          <rect x="-64" y="68" width="6" height="62" fill="var(--color-line-mid)"/>
+          <rect x="58" y="68" width="6" height="62" fill="var(--color-line-mid)"/>
+          <rect x="-22" y="42" width="44" height="18" rx="2" fill="var(--color-elevated)" stroke="var(--color-line-mid)" stroke-width="0.5"/>
+          <rect x="-18" y="16" width="36" height="26" rx="2" fill="var(--color-canvas)" stroke="var(--color-line-mid)" stroke-width="0.5"/>
+          <text x="0" y="30" text-anchor="middle" fill="var(--color-fg-mute)" font-size="4.5" font-family="ui-monospace, monospace">balance</text>
+          <text x="0" y="38" text-anchor="middle" fill="var(--color-bch-400)" font-size="7" font-weight="600" font-family="ui-monospace, monospace">0.87 BCH</text>
+          <g class="user-blob">
+            <ellipse cx="0" cy="0" rx="24" ry="22" fill="var(--color-fg-mid)"/>
+            <circle cx="-8" cy="-3" r="2" fill="var(--color-canvas)" class="blob-eye"/>
+            <circle cx="8" cy="-3" r="2" fill="var(--color-canvas)" class="blob-eye"/>
+            <path d="M -5 7 Q 0 10 5 7" stroke="var(--color-canvas)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </g>
+        </g>
+
+        {/* Wallet 3 */}
+        <g class="wallet" transform="translate(620, 155)">
+          <rect x="-72" y="60" width="144" height="8" rx="1" fill="var(--color-line-mid)"/>
+          <rect x="-64" y="68" width="6" height="62" fill="var(--color-line-mid)"/>
+          <rect x="58" y="68" width="6" height="62" fill="var(--color-line-mid)"/>
+          <rect x="-22" y="42" width="44" height="18" rx="2" fill="var(--color-elevated)" stroke="var(--color-line-mid)" stroke-width="0.5"/>
+          <rect x="-18" y="16" width="36" height="26" rx="2" fill="var(--color-canvas)" stroke="var(--color-line-mid)" stroke-width="0.5"/>
+          <text x="0" y="30" text-anchor="middle" fill="var(--color-fg-mute)" font-size="4.5" font-family="ui-monospace, monospace">balance</text>
+          <text x="0" y="38" text-anchor="middle" fill="var(--color-bch-400)" font-size="7" font-weight="600" font-family="ui-monospace, monospace">14.2 BCH</text>
+          <g class="user-blob">
+            <ellipse cx="0" cy="0" rx="24" ry="22" fill="var(--color-fg-mid)"/>
+            <circle cx="-8" cy="-3" r="2" fill="var(--color-canvas)" class="blob-eye"/>
+            <circle cx="8" cy="-3" r="2" fill="var(--color-canvas)" class="blob-eye"/>
+            <path d="M -5 7 Q 0 10 5 7" stroke="var(--color-canvas)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </g>
+        </g>
+
+        {/* NFT Foundry */}
+        <g class="foundry" transform="translate(880, 145)">
+          <text x="0" y="-40" fill="var(--color-neon-400)" font-family="ui-monospace, monospace" font-size="9" font-weight="600" letter-spacing="1.5">// NFT FOUNDRY</text>
+
+          {/* Furnace */}
+          <rect x="-70" y="-5" width="60" height="90" rx="4" fill="var(--color-line-mid)" stroke="var(--color-line)" stroke-width="1"/>
+          <rect x="-62" y="25" width="44" height="34" rx="2" fill="url(#forge-glow)" class="forge-fire"/>
+          <path d="M -55 15 Q -50 5 -45 15 Q -40 5 -35 15" fill="none" stroke="#ffb347" stroke-width="1.5" stroke-linecap="round" class="forge-smoke"/>
+
+          {/* Anvil (dark) */}
+          <g transform="translate(30, 65)">
+            <ellipse cx="0" cy="20" rx="35" ry="4" fill="url(#anvil-heat)" opacity="0.6" class="anvil-heat"/>
+            <path d="M -22 20 L -22 8 L -10 4 L 10 4 L 22 8 L 22 20 Z" fill="var(--color-line-mid)" stroke="var(--color-line)"/>
+            <rect x="-12" y="-2" width="24" height="8" rx="1" fill="var(--color-line-mid)"/>
+          </g>
+
+          {/* Blacksmith */}
+          <g class="blacksmith" data-blacksmith transform="translate(75, 45)">
+            <g class="blacksmith-body">
+              <ellipse cx="0" cy="0" rx="22" ry="24" fill="var(--color-fg-mid)"/>
+              <path d="M -14 6 L -10 30 L 10 30 L 14 6 Z" fill="var(--color-line-mid)"/>
+              <circle cx="-6" cy="-4" r="1.8" fill="var(--color-canvas)" class="blob-eye"/>
+              <circle cx="6" cy="-4" r="1.8" fill="var(--color-canvas)" class="blob-eye"/>
+              <path d="M -3 4 Q 0 6 3 4" stroke="var(--color-canvas)" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+            </g>
+            <g class="hammer-arm" data-hammer-arm transform="translate(-6, 6)">
+              <line x1="0" y1="0" x2="-30" y2="-8" stroke="var(--color-fg-mid)" stroke-width="6" stroke-linecap="round"/>
+              <g transform="translate(-32, -10)">
+                <rect x="-2" y="-14" width="4" height="18" fill="var(--color-fg-dim)"/>
+                <rect x="-10" y="-20" width="20" height="10" rx="1" fill="var(--color-line-mid)" stroke="var(--color-line)" stroke-width="0.5"/>
+              </g>
+            </g>
+          </g>
+
+          {/* Spark burst on hammer strike */}
+          <g class="hammer-sparks" data-hammer-sparks transform="translate(30, 60)" opacity="0">
+            <g class="sparks">
+              <line x1="0" y1="0" x2="-20" y2="-15" stroke="#ffb347" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="0" y1="0" x2="20" y2="-15" stroke="#ffb347" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="0" y1="0" x2="-25" y2="-5" stroke="#ffb347" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="0" y1="0" x2="25" y2="-5" stroke="#ffb347" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="0" y1="0" x2="0" y2="-25" stroke="#ffb347" stroke-width="1.5" stroke-linecap="round"/>
+            </g>
+          </g>
+        </g>
+
+        {/* ─────────────────── MEMPOOL LOUNGE ─────────────────── */}
+        {/* Coffee machine */}
+        <g transform="translate(220, 500)">
+          <rect x="-24" y="20" width="80" height="80" fill="var(--color-line-mid)" rx="2"/>
+          <rect x="-18" y="-40" width="60" height="60" fill="url(#coffee-machine)" rx="4" stroke="var(--color-line)" stroke-width="0.5"/>
+          <rect x="-8" y="-20" width="20" height="14" fill="var(--color-canvas)" stroke="var(--color-line)" stroke-width="0.5"/>
+          <circle cx="2" cy="-13" r="2" fill="var(--color-neon-400)" class="coffee-light">
+            <animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/>
+          </circle>
+          <path d="M -5 4 Q 0 10 5 4 L 5 12 L -5 12 Z" fill="var(--color-elevated)"/>
+          <text x="14" y="122" fill="var(--color-fg-dim)" font-size="7" font-family="ui-monospace, monospace" text-anchor="middle">// coffee</text>
+        </g>
+
+        {/* Water cooler */}
+        <g transform="translate(450, 490)">
+          <ellipse cx="0" cy="-40" rx="18" ry="8" fill="var(--color-line-mid)"/>
+          <path d="M -18 -40 Q -18 -8 -14 4 L 14 4 Q 18 -8 18 -40 Z" fill="url(#cooler-water)" opacity="0.7"/>
+          <rect x="-14" y="4" width="28" height="90" rx="2" fill="var(--color-line-mid)"/>
+          <rect x="-6" y="30" width="12" height="6" rx="1" fill="var(--color-bch-500)"/>
+          <circle cx="0" cy="20" r="2" fill="var(--color-bch-400)" opacity="0.7">
+            <animate attributeName="cy" values="18;30;18" dur="3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.7;0.2;0.7" dur="3s" repeatCount="indefinite"/>
+          </circle>
+          <text x="0" y="112" fill="var(--color-fg-dim)" font-size="7" font-family="ui-monospace, monospace" text-anchor="middle">// water</text>
+        </g>
+
+        {/* Couch (long, dark) */}
+        <g transform="translate(760, 560)">
+          <rect x="-90" y="-25" width="180" height="14" rx="3" fill="var(--color-line-mid)"/>
+          <rect x="-90" y="-10" width="180" height="20" rx="2" fill="var(--color-elevated)"/>
+          <rect x="-92" y="-30" width="4" height="40" fill="var(--color-line-mid)"/>
+          <rect x="88" y="-30" width="4" height="40" fill="var(--color-line-mid)"/>
+        </g>
+
+        {/* Plants (couple of small ones) */}
+        <g transform="translate(180, 605)">
+          <path d="M -10 0 L 10 0 L 8 30 L -8 30 Z" fill="var(--color-line-mid)"/>
+          <path d="M 0 0 Q -12 -20 -8 -25 M 0 0 Q 12 -18 5 -30 M 0 0 Q 0 -22 -3 -28" stroke="var(--color-bch-500)" stroke-width="3" stroke-linecap="round" fill="none"/>
+        </g>
+        <g transform="translate(1030, 605)">
+          <path d="M -10 0 L 10 0 L 8 30 L -8 30 Z" fill="var(--color-line-mid)"/>
+          <path d="M 0 0 Q -12 -20 -8 -25 M 0 0 Q 12 -18 5 -30 M 0 0 Q 0 -22 -3 -28" stroke="var(--color-bch-500)" stroke-width="3" stroke-linecap="round" fill="none"/>
+        </g>
+
+        {/* Doorman at the entrance (left side of lounge) */}
+        <g class="doorman" data-doorman transform="translate(80, 540)">
+          <text x="0" y="-90" fill="var(--color-neon-400)" font-family="ui-monospace, monospace" font-size="8" text-anchor="middle" letter-spacing="1">// DOORMAN</text>
+          {/* door frame */}
+          <rect x="-30" y="-70" width="60" height="130" rx="2" fill="none" stroke="var(--color-line-mid)" stroke-width="2" stroke-dasharray="4 3"/>
+          {/* doorman body */}
+          <g class="doorman-body">
+            <ellipse cx="0" cy="0" rx="20" ry="22" fill="var(--color-fg-mid)"/>
+            {/* bowler hat */}
+            <ellipse cx="0" cy="-22" rx="20" ry="3" fill="var(--color-canvas)"/>
+            <path d="M -14 -22 Q -14 -34 0 -34 Q 14 -34 14 -22 Z" fill="var(--color-canvas)"/>
+            <circle cx="-6" cy="-3" r="1.8" fill="var(--color-canvas)" class="blob-eye"/>
+            <circle cx="6" cy="-3" r="1.8" fill="var(--color-canvas)" class="blob-eye"/>
+            <path d="M -3 5 Q 0 7 3 5" stroke="var(--color-canvas)" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+            {/* whistle */}
+            <g transform="translate(14, 6)">
+              <rect x="0" y="-2" width="10" height="6" rx="1" fill="var(--color-neon-400)"/>
+              <circle cx="10" cy="1" r="2" fill="var(--color-neon-400)"/>
+            </g>
+          </g>
+        </g>
+
+        {/* Tx characters container (dynamic) */}
+        <g data-txs-container></g>
+
+        {/* Block-cycle chime clock */}
+        <g class="block-clock" data-block-clock transform="translate(1080, 305)">
+          <text x="0" y="-14" fill="var(--color-fg-dim)" font-family="ui-monospace, monospace" font-size="8" text-anchor="middle" letter-spacing="1">// NEXT BLOCK</text>
+          <circle cx="0" cy="12" r="20" fill="var(--color-surface)" stroke="var(--color-line-mid)" stroke-width="1"/>
+          <line x1="0" y1="12" x2="0" y2="-2" stroke="var(--color-bch-500)" stroke-width="1.5" stroke-linecap="round" class="clock-hand" data-clock-hand/>
+          <circle cx="0" cy="12" r="2" fill="var(--color-bch-500)"/>
+          <text x="0" y="46" fill="var(--color-fg-mid)" font-family="ui-monospace, monospace" font-size="7" text-anchor="middle" data-clock-label>0 / 10s</text>
+        </g>
+
+        {/* ─────────────────── ELEVATOR SHAFT ─────────────────── */}
+        <g class="elevator-shaft" transform="translate(1170, 130)">
+          {/* Cable + top */}
+          <rect x="0" y="0" width="200" height="750" fill="var(--color-elevated)" stroke="var(--color-line-mid)" stroke-width="1"/>
+          <line x1="100" y1="0" x2="100" y2="720" stroke="var(--color-line)" stroke-dasharray="2 4" opacity="0.6"/>
+          <line x1="1" y1="130" x2="199" y2="130" stroke="var(--color-line-mid)" stroke-dasharray="4 3" opacity="0.6"/>
+          <line x1="1" y1="550" x2="199" y2="550" stroke="var(--color-line-mid)" stroke-dasharray="4 3" opacity="0.6"/>
+          <text x="10" y="10" fill="var(--color-fg-dim)" font-family="ui-monospace, monospace" font-size="9" letter-spacing="1">// ELEVATOR</text>
+          <text x="10" y="145" fill="var(--color-fg-dim)" font-family="ui-monospace, monospace" font-size="7" letter-spacing="1">mempool ↕</text>
+          <text x="10" y="565" fill="var(--color-fg-dim)" font-family="ui-monospace, monospace" font-size="7" letter-spacing="1">vault ↕</text>
+
+          {/* Elevator cab */}
+          <g class="elevator-cab" data-elevator-cab transform="translate(20, 250)">
+            <rect x="0" y="0" width="160" height="120" rx="2" fill="url(#elevator-cab-grad)" stroke="var(--color-bch-500)" stroke-width="1" opacity="0.9"/>
+            <line x1="80" y1="4" x2="80" y2="116" stroke="var(--color-canvas)" stroke-width="1" class="cab-door-line"/>
+            <rect x="4" y="4" width="152" height="6" fill="var(--color-bch-500)" opacity="0.4"/>
+            <text x="80" y="70" text-anchor="middle" fill="var(--color-fg-mid)" font-family="ui-monospace, monospace" font-size="10" data-cab-label>CANDIDATE</text>
+            {/* Cab occupants (dynamic dots) */}
+            <g data-cab-occupants transform="translate(80, 90)"></g>
+          </g>
+        </g>
+
+        {/* ─────────────────── VAULT (BLOCKCHAIN) ─────────────────── */}
+        <g data-block-stack transform="translate(0, 700)">
+          {/* dynamic blocks land here */}
+        </g>
+
+        {/* Vault floor line */}
+        <line x1="0" y1="895" x2="1400" y2="895" stroke="var(--color-line-mid)" stroke-width="1" opacity="0.4"/>
+      </svg>
+
+      {/* Live status readout */}
+      <div class="lab-readout">
+        <div><span class="label">// block height</span> <span data-readout-height>892,000</span></div>
+        <div><span class="label">// mempool</span> <span data-readout-mempool>0 txs</span></div>
+        <div><span class="label">// last block sealed</span> <span data-readout-sealed>—</span></div>
+      </div>
+    </div>
+  </div>
+
+  {/* ─────────────────── Legend / notes below the diorama ─────────────────── */}
+  <section class="max-w-4xl mx-auto px-6 pt-8 pb-24">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // Legend
+    </div>
+    <div class="mt-3 grid gap-4 md:grid-cols-3">
+      <div class="rounded-lg border border-line bg-surface p-4">
+        <div class="flex items-center gap-2">
+          <span class="inline-block h-3 w-3 rounded-full bg-bch-500"></span>
+          <span class="text-sm text-fg">Plain BCH tx</span>
+        </div>
+        <p class="mt-1 text-xs text-fg-mute leading-relaxed">
+          Green blob. The bread and butter — one signer, one recipient.
+        </p>
+      </div>
+      <div class="rounded-lg border border-line bg-surface p-4">
+        <div class="flex items-center gap-2">
+          <span class="inline-block h-3 w-3 rounded-full bg-neon-400"></span>
+          <span class="text-sm text-fg">Fungible-token swarm</span>
+        </div>
+        <p class="mt-1 text-xs text-fg-mute leading-relaxed">
+          Small colored ducklings behind the tx — CashTokens travel with the UTXO.
+        </p>
+      </div>
+      <div class="rounded-lg border border-line bg-surface p-4">
+        <div class="flex items-center gap-2">
+          <span class="inline-block h-3 w-3 rounded-full" style="background:linear-gradient(135deg, var(--color-bch-500), var(--color-neon-400))"></span>
+          <span class="text-sm text-fg">NFT pet</span>
+        </div>
+        <p class="mt-1 text-xs text-fg-mute leading-relaxed">
+          One unique companion. Crown on top = the tx holds minting authority.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ─────────────────── Script ─────────────────── */}
+  <script>
+    /* eslint-disable */
+    const SVG_NS = "http://www.w3.org/2000/svg";
+
+    /* ── Layout constants (all in SVG viewBox units) ── */
+    const LOUNGE = { minX: 140, maxX: 1080, minY: 380, maxY: 640 };
+    const ELEVATOR_ENTRANCE = { x: 1180, y: 550 };
+    const WALLET_SPAWN = [
+      { x: 180, y: 215 }, { x: 400, y: 215 }, { x: 620, y: 215 },
+    ];
+    const FOUNDRY_SPAWN = { x: 940, y: 230 };
+    const BLOCK_INTERVAL = 10; /* simulated seconds */
+    const TX_SPAWN_INTERVAL_MIN = 1.5;
+    const TX_SPAWN_INTERVAL_MAX = 3.5;
+    const HAMMER_INTERVAL_MIN = 12;
+    const HAMMER_INTERVAL_MAX = 22;
+    const MAX_LOUNGE = 22;
+
+    /* ── State ── */
+    const state = {
+      time: 0,
+      speed: 1,
+      paused: false,
+      nextTxId: 1,
+      blockHeight: 892000,
+      blockClock: 0,
+      nextTxSpawnAt: 1.5,
+      nextHammerAt: 6,
+      phase: "running", /* 'running' | 'boarding' | 'descending' | 'landing' */
+      phaseUntil: 0,
+      lastSealedCount: 0,
+      txs: [],
+      blocks: [],
+    };
+
+    /* ── DOM handles ── */
+    const container = document.querySelector<SVGGElement>("[data-txs-container]")!;
+    const cab = document.querySelector<SVGGElement>("[data-elevator-cab]")!;
+    const cabLabel = document.querySelector<SVGTextElement>("[data-cab-label]")!;
+    const cabOccupants = document.querySelector<SVGGElement>("[data-cab-occupants]")!;
+    const clockHand = document.querySelector<SVGLineElement>("[data-clock-hand]")!;
+    const clockLabel = document.querySelector<SVGTextElement>("[data-clock-label]")!;
+    const blockStack = document.querySelector<SVGGElement>("[data-block-stack]")!;
+    const hammerArm = document.querySelector<SVGGElement>("[data-hammer-arm]")!;
+    const hammerSparks = document.querySelector<SVGGElement>("[data-hammer-sparks]")!;
+    const readoutHeight = document.querySelector<HTMLElement>("[data-readout-height]")!;
+    const readoutMempool = document.querySelector<HTMLElement>("[data-readout-mempool]")!;
+    const readoutSealed = document.querySelector<HTMLElement>("[data-readout-sealed]")!;
+    const sendBtn = document.querySelector<HTMLButtonElement>("[data-send-btn]")!;
+    const pauseBtn = document.querySelector<HTMLButtonElement>("[data-pause-btn]")!;
+    const pauseIcon = document.querySelector<SVGElement>("[data-pause-icon]")!;
+    const playIcon = document.querySelector<SVGElement>("[data-play-icon]")!;
+    const pauseLabel = document.querySelector<HTMLElement>("[data-pause-label]")!;
+    const speedInput = document.querySelector<HTMLInputElement>("[data-speed]")!;
+    const speedValue = document.querySelector<HTMLElement>("[data-speed-value]")!;
+
+    /* ── Utilities ── */
+    const rand = (a: number, b: number) => a + Math.random() * (b - a);
+    const randi = (a: number, b: number) => Math.floor(rand(a, b + 1));
+    const pick = <T,>(arr: T[]) => arr[randi(0, arr.length - 1)];
+    const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+    const hex = (n: number) => "0123456789abcdef"[n & 15];
+    const shortId = () => {
+      let s = "";
+      for (let i = 0; i < 6; i++) s += hex(randi(0, 15));
+      return s;
+    };
+
+    /* Category color: deterministic-from-id shortcut (real BCH uses first bytes of category) */
+    const hashHue = (s: string) => {
+      let h = 0;
+      for (const c of s) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
+      return h % 360;
+    };
+
+    /* ── Roll a tx type ── */
+    const rollTxType = () => {
+      const r = Math.random();
+      if (r < 0.05) return "nft";
+      if (r < 0.25) return "fungible";
+      return "plain";
+    };
+
+    /* ── Spawn a Tx character ── */
+    interface Tx {
+      id: number;
+      txid: string;
+      x: number;
+      y: number;
+      tx: number;
+      ty: number;
+      waitUntil: number;
+      phase: "traveling" | "lounging" | "boarding" | "boarded";
+      type: "plain" | "fungible" | "nft" | "nft-mint";
+      tokenHue: number;
+      tokenCount: number;
+      isUser: boolean;
+      bornAt: number;
+      el: SVGGElement;
+      wiggle: number;
+    }
+
+    function spawnTx(spawn: { x: number; y: number }, opts: Partial<Tx> = {}) {
+      if (state.txs.length >= MAX_LOUNGE) return null;
+
+      const type = opts.type ?? rollTxType();
+      const tokenHue = opts.tokenHue ?? hashHue(shortId());
+      const tokenCount = type === "fungible" ? randi(3, 6) : type === "nft" || type === "nft-mint" ? 1 : 0;
+
+      const g = document.createElementNS(SVG_NS, "g");
+      g.classList.add("tx-char");
+      if (opts.isUser) g.classList.add("tx-user");
+      if (type === "nft-mint") g.classList.add("tx-minting");
+
+      const bodyColor = "var(--color-bch-500)";
+      const highlightRing = opts.isUser
+        ? `<circle cx="0" cy="0" r="20" fill="none" stroke="var(--color-neon-300)" stroke-width="1.5" stroke-dasharray="3 3" class="user-ring"/>`
+        : "";
+      const petMarkup = buildPetMarkup(type, tokenHue, tokenCount);
+
+      g.innerHTML = `
+        ${highlightRing}
+        <g class="tx-body">
+          <ellipse cx="0" cy="0" rx="13" ry="12" fill="${bodyColor}" filter="url(#tx-glow)"/>
+          <circle cx="-4" cy="-2" r="1.4" fill="var(--color-canvas)" class="tx-eye"/>
+          <circle cx="4" cy="-2" r="1.4" fill="var(--color-canvas)" class="tx-eye"/>
+          <path d="M -3 3 Q 0 5 3 3" stroke="var(--color-canvas)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+          ${type === "nft-mint" ? `<path d="M -6 -13 L -3 -9 L 0 -14 L 3 -9 L 6 -13 L 6 -9 L -6 -9 Z" fill="var(--color-neon-400)"/>` : ""}
+        </g>
+        ${petMarkup}
+      `;
+      container.appendChild(g);
+
+      const tx: Tx = {
+        id: state.nextTxId++,
+        txid: shortId(),
+        x: spawn.x,
+        y: spawn.y,
+        tx: rand(LOUNGE.minX + 20, LOUNGE.maxX - 20),
+        ty: rand(LOUNGE.minY + 20, LOUNGE.maxY - 20),
+        waitUntil: 0,
+        phase: "traveling",
+        type,
+        tokenHue,
+        tokenCount,
+        isUser: !!opts.isUser,
+        bornAt: state.time,
+        el: g,
+        wiggle: rand(0, Math.PI * 2),
+      };
+      state.txs.push(tx);
+      return tx;
+    }
+
+    function buildPetMarkup(type: string, hue: number, count: number) {
+      if (type === "plain") return "";
+      if (type === "fungible") {
+        const petColor = `hsl(${hue}, 70%, 60%)`;
+        let out = `<g class="pets pets-fungible">`;
+        for (let i = 0; i < count; i++) {
+          const dx = -14 - i * 6;
+          const dy = 6 + (i % 2 === 0 ? 0 : -2);
+          out += `<circle cx="${dx}" cy="${dy}" r="3" fill="${petColor}" opacity="0.9" style="animation-delay:${i * 100}ms"/>`;
+        }
+        out += `</g>`;
+        return out;
+      }
+      /* NFT / NFT-mint */
+      const petColor = `hsl(${hue}, 75%, 55%)`;
+      return `
+        <g class="pets pets-nft" transform="translate(-18, 5)">
+          <path d="M -5 5 L -5 -5 L 5 -5 L 5 5 Z" fill="${petColor}"/>
+          <circle cx="-1.5" cy="-1.5" r="1" fill="var(--color-canvas)"/>
+          <circle cx="1.5" cy="-1.5" r="1" fill="var(--color-canvas)"/>
+        </g>
+      `;
+    }
+
+    /* ── Position update ── */
+    function updateTx(tx: Tx, dt: number) {
+      if (tx.phase === "boarded") return;
+
+      /* Choose a wander target if idle */
+      if (tx.phase === "lounging" && state.time > tx.waitUntil) {
+        tx.tx = rand(LOUNGE.minX + 20, LOUNGE.maxX - 20);
+        tx.ty = rand(LOUNGE.minY + 20, LOUNGE.maxY - 20);
+        tx.waitUntil = state.time + rand(3, 8);
+      }
+
+      const dx = tx.tx - tx.x;
+      const dy = tx.ty - tx.y;
+      const dist = Math.hypot(dx, dy);
+      const speed = tx.phase === "boarding" ? 90 : tx.phase === "traveling" ? 60 : 24;
+      const step = speed * dt;
+
+      if (dist < 2) {
+        if (tx.phase === "traveling") tx.phase = "lounging";
+        if (tx.phase === "boarding") {
+          tx.phase = "boarded";
+          tx.el.style.opacity = "0";
+        }
+      } else {
+        tx.x += (dx / dist) * Math.min(step, dist);
+        tx.y += (dy / dist) * Math.min(step, dist);
+      }
+      tx.wiggle += dt * 3;
+      const bob = tx.phase === "lounging" ? Math.sin(tx.wiggle) * 1.2 : 0;
+      tx.el.setAttribute("transform", `translate(${tx.x.toFixed(1)}, ${(tx.y + bob).toFixed(1)})`);
+    }
+
+    /* ── Send helpers (block cycle) ── */
+    function boardEverything() {
+      state.phase = "boarding";
+      state.phaseUntil = state.time + 1.8;
+      state.txs.forEach((tx) => {
+        if (tx.phase === "boarded") return;
+        tx.phase = "boarding";
+        /* Line up on a shallow arc leading into the elevator */
+        tx.tx = ELEVATOR_ENTRANCE.x + rand(-30, 20);
+        tx.ty = ELEVATOR_ENTRANCE.y + rand(-24, 24);
+        tx.waitUntil = state.time + 999;
+      });
+    }
+
+    function descendCab() {
+      state.phase = "descending";
+      state.phaseUntil = state.time + 1.5;
+      cabLabel.textContent = `#${(state.blockHeight + 1).toLocaleString()}`;
+      /* Fill cab with dots for occupants */
+      cabOccupants.innerHTML = "";
+      const n = Math.min(state.txs.length, 10);
+      for (let i = 0; i < n; i++) {
+        const c = document.createElementNS(SVG_NS, "circle");
+        const col = Math.floor(i / 2);
+        c.setAttribute("cx", String(-25 + col * 12));
+        c.setAttribute("cy", String(i % 2 === 0 ? -4 : 4));
+        c.setAttribute("r", "3");
+        c.setAttribute("fill", "var(--color-bch-400)");
+        cabOccupants.appendChild(c);
+      }
+      cab.classList.add("descending");
+    }
+
+    function landBlock() {
+      state.phase = "landing";
+      state.phaseUntil = state.time + 1.2;
+      state.blockHeight += 1;
+      const sealedCount = state.txs.length;
+      state.lastSealedCount = sealedCount;
+      readoutSealed.textContent = `#${state.blockHeight.toLocaleString()} · ${sealedCount} tx${sealedCount === 1 ? "" : "s"}`;
+
+      /* Add new block to stack (grows leftward, oldest on right slides off) */
+      const block = { height: state.blockHeight, count: sealedCount };
+      state.blocks.unshift(block);
+      if (state.blocks.length > 8) state.blocks.pop();
+      renderBlocks();
+
+      /* Retire the sealed txs */
+      state.txs.forEach((tx) => tx.el.remove());
+      state.txs = [];
+
+      readoutHeight.textContent = state.blockHeight.toLocaleString();
+    }
+
+    function renderBlocks() {
+      blockStack.innerHTML = "";
+      const startX = 100;
+      const gap = 130;
+      state.blocks.forEach((b, i) => {
+        const g = document.createElementNS(SVG_NS, "g");
+        g.setAttribute("transform", `translate(${startX + i * gap}, 40)`);
+        const highlight = i === 0;
+        g.innerHTML = `
+          <rect x="-52" y="-40" width="104" height="130" rx="4" fill="var(--color-surface)" stroke="${highlight ? "var(--color-bch-500)" : "var(--color-line-mid)"}" stroke-width="${highlight ? 2 : 1}" ${highlight ? 'filter="url(#tx-glow)"' : ""} class="block-tile" style="animation:${highlight ? "block-arrive 0.9s ease-out both" : "none"}"/>
+          <text x="0" y="-16" text-anchor="middle" fill="var(--color-fg-dim)" font-family="ui-monospace, monospace" font-size="7">#</text>
+          <text x="0" y="4" text-anchor="middle" fill="${highlight ? "var(--color-bch-400)" : "var(--color-fg-mid)"}" font-family="ui-monospace, monospace" font-size="10" font-weight="600">${b.height.toLocaleString()}</text>
+          <text x="0" y="26" text-anchor="middle" fill="var(--color-fg-mute)" font-family="ui-monospace, monospace" font-size="7">${b.count} tx${b.count === 1 ? "" : "s"}</text>
+          <text x="0" y="72" text-anchor="middle" fill="var(--color-fg-dim)" font-family="ui-monospace, monospace" font-size="6">SEALED</text>
+        `;
+        blockStack.appendChild(g);
+      });
+    }
+
+    function returnCab() {
+      state.phase = "running";
+      cabLabel.textContent = "CANDIDATE";
+      cab.classList.remove("descending");
+      cabOccupants.innerHTML = "";
+    }
+
+    /* ── Foundry hammer swing → mint an NFT tx ── */
+    function swingHammer() {
+      hammerArm.classList.add("swinging");
+      hammerSparks.setAttribute("opacity", "0");
+      setTimeout(() => {
+        hammerSparks.setAttribute("opacity", "1");
+        hammerSparks.classList.add("sparking");
+        setTimeout(() => {
+          hammerSparks.classList.remove("sparking");
+          hammerSparks.setAttribute("opacity", "0");
+          spawnTx(FOUNDRY_SPAWN, { type: "nft-mint" });
+        }, 400);
+      }, 350);
+      setTimeout(() => hammerArm.classList.remove("swinging"), 750);
+    }
+
+    /* ── Main loop ── */
+    let lastFrame = performance.now();
+    function loop(now: number) {
+      const rawDt = Math.min((now - lastFrame) / 1000, 0.1);
+      lastFrame = now;
+      const dt = state.paused ? 0 : rawDt * state.speed;
+      state.time += dt;
+
+      /* Phase state machine */
+      if (dt > 0) {
+        if (state.phase === "running") {
+          state.blockClock += dt;
+          if (state.blockClock >= BLOCK_INTERVAL) {
+            state.blockClock = 0;
+            boardEverything();
+          }
+        } else if (state.time >= state.phaseUntil) {
+          if (state.phase === "boarding") descendCab();
+          else if (state.phase === "descending") landBlock();
+          else if (state.phase === "landing") returnCab();
+        }
+
+        /* Spawn new txs (only in running phase) */
+        if (state.phase === "running" && state.time >= state.nextTxSpawnAt) {
+          spawnTx(pick(WALLET_SPAWN));
+          state.nextTxSpawnAt = state.time + rand(TX_SPAWN_INTERVAL_MIN, TX_SPAWN_INTERVAL_MAX);
+        }
+
+        /* Hammer swings occasionally */
+        if (state.phase === "running" && state.time >= state.nextHammerAt) {
+          swingHammer();
+          state.nextHammerAt = state.time + rand(HAMMER_INTERVAL_MIN, HAMMER_INTERVAL_MAX);
+        }
+      }
+
+      /* Move every tx */
+      state.txs.forEach((tx) => updateTx(tx, dt));
+
+      /* Clock hand + readouts */
+      const clockPct = state.blockClock / BLOCK_INTERVAL;
+      const angle = clockPct * Math.PI * 2 - Math.PI / 2;
+      const handLen = 14;
+      const hx = Math.cos(angle) * handLen;
+      const hy = Math.sin(angle) * handLen + 12;
+      clockHand.setAttribute("x2", hx.toFixed(1));
+      clockHand.setAttribute("y2", hy.toFixed(1));
+      clockLabel.textContent = `${state.blockClock.toFixed(1).padStart(4, " ")}s / ${BLOCK_INTERVAL}s`;
+      readoutMempool.textContent = `${state.txs.filter((t) => t.phase !== "boarded").length} txs`;
+
+      requestAnimationFrame(loop);
+    }
+
+    /* ── Controls ── */
+    sendBtn.addEventListener("click", () => {
+      spawnTx(pick(WALLET_SPAWN), { isUser: true, type: rollTxType() });
+    });
+
+    pauseBtn.addEventListener("click", () => {
+      state.paused = !state.paused;
+      pauseBtn.setAttribute("aria-pressed", String(state.paused));
+      pauseIcon.style.display = state.paused ? "none" : "inline-block";
+      playIcon.style.display = state.paused ? "inline-block" : "none";
+      pauseLabel.textContent = state.paused ? "Play" : "Pause";
+    });
+
+    speedInput.addEventListener("input", () => {
+      state.speed = parseFloat(speedInput.value);
+      speedValue.textContent = `${state.speed}×`;
+    });
+
+    /* ── Kick off ── */
+    /* Seed a few starter txs so lounge isn't empty on load */
+    for (let i = 0; i < 6; i++) {
+      const seeded = spawnTx(pick(WALLET_SPAWN));
+      if (seeded) {
+        seeded.x = rand(LOUNGE.minX + 40, LOUNGE.maxX - 40);
+        seeded.y = rand(LOUNGE.minY + 40, LOUNGE.maxY - 40);
+        seeded.phase = "lounging";
+        seeded.waitUntil = state.time + rand(0, 4);
+      }
+    }
+    /* Seed a few blocks */
+    for (let i = 3; i > 0; i--) {
+      state.blocks.push({ height: state.blockHeight - i + 1, count: randi(4, 14) });
+    }
+    renderBlocks();
+    readoutHeight.textContent = state.blockHeight.toLocaleString();
+
+    requestAnimationFrame(loop);
+  </script>
+
+  <style>
+    .lab-page {
+      display: flex;
+      flex-direction: column;
+      background: var(--color-canvas);
+    }
+
+    .lab-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 2rem;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 1.25rem 1.5rem 0.75rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .lab-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--color-fg);
+      margin: 0.25rem 0 0;
+    }
+    .lab-header-right {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .mode-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+    .chip {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid var(--color-line);
+      color: var(--color-fg-mute);
+      white-space: nowrap;
+    }
+    .chip-active {
+      border-color: var(--color-bch-500);
+      color: var(--color-bch-400);
+      box-shadow: 0 0 12px -4px var(--color-bch-500);
+    }
+    .chip-soon { opacity: 0.55; }
+
+    .controls { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      border: 1px solid var(--color-line-mid);
+      background: var(--color-surface);
+      color: var(--color-fg-mid);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 150ms;
+    }
+    .btn:hover { border-color: var(--color-bch-500); color: var(--color-bch-400); }
+    .btn-primary {
+      background: var(--color-bch-500);
+      color: var(--color-canvas);
+      border-color: var(--color-bch-500);
+      font-weight: 600;
+      font-family: var(--font-sans);
+    }
+    .btn-primary:hover { background: var(--color-bch-400); color: var(--color-canvas); }
+
+    .speed-label { display: inline-flex; align-items: center; gap: 0.5rem; }
+    .speed-slider {
+      width: 90px;
+      accent-color: var(--color-bch-500);
+    }
+
+    .diorama-frame {
+      position: relative;
+      max-width: 1400px;
+      margin: 0.5rem auto 0;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+    .diorama {
+      width: 100%;
+      height: auto;
+      max-height: calc(100vh - 180px);
+      display: block;
+      border: 1px solid var(--color-line-mid);
+      border-radius: 8px;
+      background: var(--color-canvas);
+    }
+
+    .lab-readout {
+      position: absolute;
+      bottom: 12px;
+      right: 24px;
+      display: flex;
+      gap: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-fg-mid);
+      background: var(--color-canvas);
+      padding: 0.5rem 0.85rem;
+      border: 1px solid var(--color-line-mid);
+      border-radius: 4px;
+      backdrop-filter: blur(4px);
+    }
+    .lab-readout .label {
+      color: var(--color-fg-dim);
+      margin-right: 0.35rem;
+    }
+
+    /* ── Idle animations for wallet + doorman + blacksmith blobs ── */
+    .wallet .user-blob,
+    .doorman-body,
+    .blacksmith-body {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: blob-breathe 3.2s ease-in-out infinite;
+    }
+    .wallet:nth-of-type(2) .user-blob { animation-delay: -0.7s; }
+    .wallet:nth-of-type(3) .user-blob { animation-delay: -1.4s; }
+    .doorman-body { animation-delay: -2s; }
+    .blob-eye {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: blob-blink 5.2s ease-in-out infinite;
+    }
+    .wallet:nth-of-type(2) .blob-eye { animation-delay: -1.5s; }
+    .wallet:nth-of-type(3) .blob-eye { animation-delay: -3s; }
+    .doorman-body .blob-eye { animation-delay: -2.6s; }
+    .blacksmith-body .blob-eye { animation-delay: -0.8s; }
+
+    @keyframes blob-breathe {
+      0%, 100% { transform: scale(1, 1); }
+      50%      { transform: scale(1.03, 0.97); }
+    }
+    @keyframes blob-blink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      95%           { transform: scaleY(0.1); }
+    }
+
+    /* Forge fire flicker */
+    .forge-fire { animation: fire-flicker 0.9s ease-in-out infinite; transform-box: fill-box; transform-origin: center bottom; }
+    @keyframes fire-flicker {
+      0%, 100% { opacity: 0.9; transform: scaleY(1); }
+      50%      { opacity: 1; transform: scaleY(1.08); }
+    }
+
+    /* Anvil heat pulse */
+    .anvil-heat { animation: heat-pulse 2.4s ease-in-out infinite; }
+    @keyframes heat-pulse {
+      0%, 100% { opacity: 0.4; }
+      50%      { opacity: 0.8; }
+    }
+
+    /* Hammer swing */
+    .hammer-arm {
+      transform-box: fill-box;
+      transform-origin: 6px 6px;
+      transition: transform 200ms ease-out;
+    }
+    .hammer-arm.swinging {
+      animation: hammer-swing 0.75s cubic-bezier(0.55, 0.06, 0.68, 0.19);
+    }
+    @keyframes hammer-swing {
+      0%   { transform: rotate(0deg); }
+      35%  { transform: rotate(-55deg); }
+      65%  { transform: rotate(45deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    /* Hammer sparks burst */
+    .hammer-sparks.sparking .sparks { animation: spark-burst 0.5s ease-out; transform-box: fill-box; transform-origin: 0 0; }
+    @keyframes spark-burst {
+      0%   { transform: scale(0.2); opacity: 0; }
+      40%  { opacity: 1; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    /* Doorman idle sway */
+    .doorman-body { animation: blob-breathe 3.2s ease-in-out infinite, doorman-sway 6s ease-in-out infinite; }
+    @keyframes doorman-sway {
+      0%, 100% { transform: rotate(-3deg); }
+      50%      { transform: rotate(3deg); }
+    }
+
+    /* Tx characters — user highlight ring */
+    .tx-user .user-ring {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: user-ring-spin 6s linear infinite;
+    }
+    @keyframes user-ring-spin {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    /* NFT-minting glow */
+    .tx-minting .tx-body ellipse {
+      animation: nft-mint-glow 1.5s ease-in-out infinite;
+    }
+    @keyframes nft-mint-glow {
+      0%, 100% { fill: var(--color-bch-500); }
+      50%      { fill: var(--color-neon-400); }
+    }
+    /* Fungible pet ducklings sway */
+    .pets-fungible circle {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: duckling-sway 1.4s ease-in-out infinite;
+    }
+    @keyframes duckling-sway {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-1.5px); }
+    }
+    /* NFT pet idle */
+    .pets-nft { transform-box: fill-box; transform-origin: center; animation: nft-hop 1.8s ease-in-out infinite; }
+    @keyframes nft-hop {
+      0%, 100% { transform: translate(-18px, 5px); }
+      50%      { transform: translate(-18px, 2px); }
+    }
+
+    /* Cab descent */
+    .elevator-cab {
+      transition: transform 1.4s cubic-bezier(0.65, 0, 0.35, 1);
+    }
+    .elevator-cab.descending {
+      transform: translate(20px, 570px);
+    }
+
+    /* New block arriving */
+    @keyframes block-arrive {
+      0%   { opacity: 0; transform: translateY(-40px) scale(0.8); }
+      60%  { opacity: 1; transform: translateY(6px) scale(1.05); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .wallet .user-blob, .doorman-body, .blacksmith-body,
+      .blob-eye, .forge-fire, .anvil-heat,
+      .pets-fungible circle, .pets-nft, .tx-user .user-ring,
+      .tx-minting .tx-body ellipse {
+        animation: none !important;
+      }
+      .elevator-cab { transition: none; }
+    }
+  </style>
+</BaseLayout>
