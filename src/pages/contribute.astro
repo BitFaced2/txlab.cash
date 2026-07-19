@@ -1,0 +1,160 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Contribute — txlab.cash">
+  <section class="max-w-3xl mx-auto px-6 pt-16 pb-10">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // The site
+    </div>
+    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">
+      Contribute to <span class="text-bch-500 font-mono font-medium tracking-tight">txlab.cash</span>.
+    </h1>
+    <p class="mt-5 text-lg text-fg-mid leading-relaxed">
+      The site is a public repo. Registry entries are YAML. Pages are Astro.
+      Contributions arrive as pull requests — no forms, no editorial board,
+      no waiting on gatekeepers.
+    </p>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 pb-14 space-y-6">
+    <article class="rounded-lg border border-line bg-surface p-6 md:p-7">
+      <div class="flex items-baseline gap-3">
+        <span class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+          // 01
+        </span>
+        <h2 class="text-xl font-semibold tracking-tight text-fg">Add a project</h2>
+      </div>
+      <p class="mt-3 text-fg-mid leading-relaxed">
+        Create a new YAML file in{" "}
+        <code class="font-mono text-bch-400">src/content/projects/</code>{" "}
+        following the existing entries as a template. Required fields:
+        <code class="font-mono text-fg">name</code>,
+        <code class="font-mono text-fg">tagline</code>,
+        <code class="font-mono text-fg">description</code>,
+        <code class="font-mono text-fg">category</code>,
+        <code class="font-mono text-fg">freshness</code>,
+        <code class="font-mono text-fg">lastVerified</code>.
+        The schema is the source of truth for what's accepted.
+      </p>
+      <div class="mt-4 flex flex-wrap gap-3 text-xs font-mono">
+        <a
+          href="https://github.com/BitFaced2/txlab.cash/blob/main/src/content.config.ts"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="prose-link text-fg-mid">
+          Registry schema →
+        </a>
+        <a
+          href="https://github.com/BitFaced2/txlab.cash/tree/main/src/content/projects"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="prose-link text-fg-mid">
+          Example entries →
+        </a>
+      </div>
+    </article>
+
+    <article class="rounded-lg border border-line bg-surface p-6 md:p-7">
+      <div class="flex items-baseline gap-3">
+        <span class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+          // 02
+        </span>
+        <h2 class="text-xl font-semibold tracking-tight text-fg">Update a freshness state</h2>
+      </div>
+      <p class="mt-3 text-fg-mid leading-relaxed">
+        Registry entries have six freshness states:
+        <code class="font-mono text-bch-400">active</code>,
+        <code class="font-mono text-bch-400">maintained</code>,
+        <code class="font-mono text-bch-400">experimental</code>,
+        <code class="font-mono text-bch-400">seeking-maintainers</code>,
+        <code class="font-mono text-bch-400">archived</code>,
+        <code class="font-mono text-bch-400">unverified</code>.
+        If you know an entry's state is stale — change it, bump{" "}
+        <code class="font-mono text-fg">lastVerified</code> to today, open a PR.
+      </p>
+    </article>
+
+    <article class="rounded-lg border border-line bg-surface p-6 md:p-7">
+      <div class="flex items-baseline gap-3">
+        <span class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+          // 03
+        </span>
+        <h2 class="text-xl font-semibold tracking-tight text-fg">Fix a page</h2>
+      </div>
+      <p class="mt-3 text-fg-mid leading-relaxed">
+        Typo, dead link, factual error, awkward phrasing — every page in the
+        site is an <code class="font-mono text-bch-400">.astro</code> file
+        under <code class="font-mono text-bch-400">src/pages/</code>. Edit,
+        commit, open a PR.
+      </p>
+    </article>
+
+    <article class="rounded-lg border border-line bg-surface p-6 md:p-7">
+      <div class="flex items-baseline gap-3">
+        <span class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+          // 04
+        </span>
+        <h2 class="text-xl font-semibold tracking-tight text-fg">Translate</h2>
+      </div>
+      <p class="mt-3 text-fg-mid leading-relaxed">
+        i18n scaffolding lands in a future phase — but the writing style
+        (short paragraphs, plain sentences, minimal idiom) is deliberate, so
+        translations don't fight against the text. Interested in owning a
+        language? Open an issue.
+      </p>
+    </article>
+
+    <article class="rounded-lg border border-line bg-surface p-6 md:p-7">
+      <div class="flex items-baseline gap-3">
+        <span class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+          // 05
+        </span>
+        <h2 class="text-xl font-semibold tracking-tight text-fg">Report something wrong</h2>
+      </div>
+      <p class="mt-3 text-fg-mid leading-relaxed">
+        Not everyone wants to write a PR — that's fine. Open an issue with
+        what's wrong and where, and a maintainer will pick it up.
+      </p>
+      <div class="mt-4">
+        <a
+          href="https://github.com/BitFaced2/txlab.cash/issues/new"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-xs font-mono prose-link text-fg-mid">
+          Open an issue →
+        </a>
+      </div>
+    </article>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 pb-24">
+    <div class="rounded-xl border border-line bg-surface p-8 md:p-10">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+        // Repo
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Get started
+      </h2>
+      <p class="mt-3 text-fg-mid leading-relaxed">
+        Clone, run <code class="font-mono text-bch-400">npm install</code>{" "}
+        then <code class="font-mono text-bch-400">npm run dev</code>. The dev
+        server hot-reloads as you edit YAML and pages.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a
+          href="https://github.com/BitFaced2/txlab.cash"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="px-4 py-2 rounded-md bg-bch-500 text-canvas text-sm font-semibold hover:bg-bch-400 transition-colors">
+          Repo on GitHub
+        </a>
+        <a
+          href="/editorial-principles"
+          class="px-4 py-2 rounded-md border border-line-mid text-sm font-medium text-fg-mid hover:border-bch-500 hover:text-bch-400 transition-colors">
+          Editorial principles
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

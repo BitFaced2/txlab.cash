@@ -1,15 +1,142 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { getCollection } from "astro:content";
+
+const all = await getCollection("projects");
+
+const byName = (a: { data: { name: string } }, b: { data: { name: string } }) =>
+  a.data.name.localeCompare(b.data.name);
+
+const libraries = all.filter((p) => p.data.category === "library").sort(byName);
+const devTools = all
+  .filter(
+    (p) =>
+      p.data.category === "tool" &&
+      // Anything without user custody = dev-oriented
+      p.data.custody === undefined,
+  )
+  .sort(byName);
+const indexers = all.filter((p) => p.data.category === "indexer").sort(byName);
 ---
 
 <BaseLayout title="Build on BCH — txlab.cash">
-  <section class="max-w-4xl mx-auto px-6 py-20">
-    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">// Pathway 02</div>
-    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">Build on BCH</h1>
-    <p class="mt-6 text-lg text-fg-mid leading-relaxed">
-      For developers — CashScript contracts, CashTokens, Libauth, SDK
-      comparison, chipnet tools, reference applications, and security patterns.
+  <section class="max-w-4xl mx-auto px-6 pt-16 pb-10">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // Pathway 02
+    </div>
+    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">
+      For developers who want to <span class="text-bch-500 font-mono font-medium tracking-tight">deploy</span>.
+    </h1>
+    <p class="mt-5 text-lg text-fg-mid max-w-2xl leading-relaxed">
+      BCH is a scriptable UTXO chain. Write covenants in CashScript, sign with
+      Libauth, index with Chaingraph — no EVM, no gas market, no bridges.
     </p>
-    <p class="mt-6 text-sm text-fg-mute font-mono">// Phase 1 in progress — content landing here soon.</p>
+
+    <div class="mt-8 rounded-lg border border-line bg-surface p-5">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+        // Post-Layla · May 15 2026
+      </div>
+      <p class="mt-2 text-sm text-fg-mid leading-relaxed">
+        Bounded loops, Pay-to-Script, <code class="font-mono text-bch-400">OP_DEFINE</code> / <code class="font-mono text-bch-400">OP_INVOKE</code>,
+        and bitwise ops are live. What used to require unrolled scripts or
+        off-chain math is now a few lines of CashScript.
+      </p>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-6 pb-14">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // 01 · Contracts
+    </div>
+    <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">Libraries &amp; IDE</h2>
+    <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+      Start here: CashScript for high-level contracts, Libauth for signing and
+      script evaluation, Bitauth IDE for interactive debugging.
+    </p>
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {libraries.map((p) => <ProjectCard project={p} />)}
+      {devTools.map((p) => <ProjectCard project={p} />)}
+    </div>
+  </section>
+
+  {indexers.length > 0 && (
+    <section class="max-w-6xl mx-auto px-6 pb-14">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+        // 02 · Data &amp; indexing
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Get at the data
+      </h2>
+      <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+        UTXO queries, token history, mempool state — self-hosted indexers so
+        you're not paying rent to a chain-data API.
+      </p>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {indexers.map((p) => <ProjectCard project={p} />)}
+      </div>
+    </section>
+  )}
+
+  <section class="max-w-6xl mx-auto px-6 pb-14">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // 03 · Reading
+    </div>
+    <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">Where to read next</h2>
+    <div class="mt-6 grid gap-4 md:grid-cols-2">
+      <a
+        href="https://cashscript.org"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group rounded-lg border border-line bg-surface p-5 hover:border-bch-500/70 hover:bg-elevated transition-all">
+        <div class="text-[10px] uppercase tracking-[0.2em] text-fg-dim font-mono font-semibold">
+          // Docs
+        </div>
+        <div class="mt-2 font-semibold text-fg group-hover:text-bch-400 transition-colors">
+          cashscript.org
+        </div>
+        <p class="mt-1 text-sm text-fg-mid">
+          Language reference, contract examples, testnet how-to.
+        </p>
+      </a>
+      <a
+        href="https://libauth.org"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group rounded-lg border border-line bg-surface p-5 hover:border-bch-500/70 hover:bg-elevated transition-all">
+        <div class="text-[10px] uppercase tracking-[0.2em] text-fg-dim font-mono font-semibold">
+          // Docs
+        </div>
+        <div class="mt-2 font-semibold text-fg group-hover:text-bch-400 transition-colors">
+          libauth.org
+        </div>
+        <p class="mt-1 text-sm text-fg-mid">
+          Signing, script evaluation, WIF/BIP32 — pure TypeScript.
+        </p>
+      </a>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-6 pb-24">
+    <div class="rounded-xl border border-line bg-surface p-8 md:p-10">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+        // Next
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Test on chipnet before mainnet
+      </h2>
+      <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+        Chipnet is BCH's staging network — new upgrades ship there ~6 months
+        before mainnet. If your contract exercises new opcodes, exercise it
+        there first.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a
+          href="/projects"
+          class="px-4 py-2 rounded-md border border-line-mid text-sm font-medium text-fg-mid hover:border-bch-500 hover:text-bch-400 transition-colors">
+          Full directory
+        </a>
+      </div>
+    </div>
   </section>
 </BaseLayout>

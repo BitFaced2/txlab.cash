@@ -1,0 +1,87 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const principles = [
+  {
+    n: "01",
+    title: "Proof before promotion",
+    body: "Every claim links to a source — a repo, a commit, a spec, a running node. If we can't link to evidence, we don't publish the claim. Marketing copy stays out.",
+  },
+  {
+    n: "02",
+    title: "Visible freshness",
+    body: "Every registry entry carries a freshness state and a last-verified date. A project is only as useful as its honesty about whether it's alive, and the site is only as useful as its honesty about the projects.",
+  },
+  {
+    n: "03",
+    title: "No paid placement",
+    body: "Position, ordering, and category are never for sale. There is no sponsorship tier, no boosted card, no affiliate cut. This is enforced by the fact that the registry is a public YAML file — anyone can audit what changed and why.",
+  },
+  {
+    n: "04",
+    title: "Tech, not tribal warfare",
+    body: "We describe what BCH does. We don't take shots at BTC, BSV, or eCash to make BCH look better. When another chain does something interesting, we say so. Our case for BCH is that it's programmable cash — that stands on its own.",
+  },
+  {
+    n: "05",
+    title: "Community-run, not official",
+    body: "There is no txlab.cash foundation, no protocol authority behind this site. Everything here is a curated view maintained by contributors. Where we lack expertise we say so, and we defer to the projects and specs themselves.",
+  },
+  {
+    n: "06",
+    title: "Built for translation",
+    body: "The site is structured for i18n from day one — short paragraphs, plain sentences, minimal idiom. English is the source language, but nothing in the site's architecture assumes English is the only one.",
+  },
+  {
+    n: "07",
+    title: "Correction is a feature",
+    body: "Errors happen. When they do, the fix is a PR — visible, timestamped, and attributable. Every page has a repo link. If you see something wrong, the correction path is one click.",
+  },
+];
+---
+
+<BaseLayout title="Editorial principles — txlab.cash">
+  <section class="max-w-3xl mx-auto px-6 pt-16 pb-10">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // The site
+    </div>
+    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">
+      Editorial <span class="text-bch-500 font-mono font-medium tracking-tight">principles</span>.
+    </h1>
+    <p class="mt-5 text-lg text-fg-mid leading-relaxed">
+      A short list of rules the site tries to live by. They're here so you can
+      hold us to them — and so contributors have a shared baseline.
+    </p>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 pb-24">
+    <ol class="space-y-8">
+      {principles.map((p) => (
+        <li class="relative rounded-lg border border-line bg-surface p-6 md:p-7">
+          <div class="flex items-baseline gap-3">
+            <span class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+              // {p.n}
+            </span>
+            <h2 class="text-xl font-semibold tracking-tight text-fg">{p.title}</h2>
+          </div>
+          <p class="mt-3 text-fg-mid leading-relaxed">{p.body}</p>
+        </li>
+      ))}
+    </ol>
+
+    <div class="mt-12 rounded-lg border border-line bg-surface p-6">
+      <p class="text-sm text-fg-mid leading-relaxed">
+        These principles live in the repo alongside the code. If you think one
+        of them is wrong — or missing — open a PR against{" "}
+        <a
+          href="https://github.com/BitFaced2/txlab.cash/blob/main/src/pages/editorial-principles.astro"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="prose-link text-fg">
+          this page
+        </a>{" "}
+        and make the case.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

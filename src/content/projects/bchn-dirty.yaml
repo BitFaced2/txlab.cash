@@ -5,7 +5,7 @@ description: |
   cypherpunk aesthetic — neon BCH green, dark neon purple, near-black
   background. Same underlying full-node behavior, different visual language.
   The palette (cypher.qss) is the source of txlab.cash's own theme.
-category: wallet
+category: node
 website: https://github.com/BitFaced2/bchn-dirty
 repository: https://github.com/BitFaced2/bchn-dirty
 freshness: active

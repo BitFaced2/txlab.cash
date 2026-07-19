@@ -1,15 +1,129 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { getCollection } from "astro:content";
+
+const all = await getCollection("projects");
+
+const byName = (a: { data: { name: string } }, b: { data: { name: string } }) =>
+  a.data.name.localeCompare(b.data.name);
+
+const wallets = all.filter((p) => p.data.category === "wallet").sort(byName);
+const defi = all.filter((p) => p.data.category === "defi").sort(byName);
+const social = all.filter((p) => p.data.category === "social").sort(byName);
+const userTools = all
+  .filter((p) => p.data.category === "tool" && p.data.custody !== undefined)
+  .sort(byName);
 ---
 
 <BaseLayout title="Use BCH — txlab.cash">
-  <section class="max-w-4xl mx-auto px-6 py-20">
-    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">// Pathway 01</div>
-    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">Use BCH</h1>
-    <p class="mt-6 text-lg text-fg-mid leading-relaxed">
-      For people who want to transact — choose a wallet, send your first
-      transaction, understand fees and privacy, find merchants who accept BCH.
+  <section class="max-w-4xl mx-auto px-6 pt-16 pb-10">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // Pathway 01
+    </div>
+    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">
+      For people who want to <span class="text-bch-500 font-mono font-medium tracking-tight">transact</span>.
+    </h1>
+    <p class="mt-5 text-lg text-fg-mid max-w-2xl leading-relaxed">
+      Pick a wallet, send your first BCH, and see what the network can do today
+      — from custodial tip bots to non-custodial synthetic assets.
     </p>
-    <p class="mt-6 text-sm text-fg-mute font-mono">// Phase 1 in progress — content landing here soon.</p>
+
+    <div class="mt-8 rounded-lg border border-line bg-surface p-5 font-mono text-xs text-fg-mute">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-semibold">
+        // Custody, in one line
+      </div>
+      <p class="mt-2 text-fg-mid leading-relaxed">
+        <span class="text-bch-400">Non-custodial</span> = you hold the keys.
+        <span class="text-neon-400">Custodial</span> = someone else does.
+        Both are useful; the difference is who bears the loss when things go wrong.
+      </p>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-6 pb-14">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // 01 · Wallets
+    </div>
+    <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">Pick a wallet</h2>
+    <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+      Every wallet in this list is non-custodial and open-source. Pick one by
+      platform first, features second.
+    </p>
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {wallets.map((p) => <ProjectCard project={p} />)}
+    </div>
+  </section>
+
+  {defi.length > 0 && (
+    <section class="max-w-6xl mx-auto px-6 pb-14">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+        // 02 · DeFi &amp; on-chain apps
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Do more than send
+      </h2>
+      <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+        CashTokens and covenants let BCH host stablecoin-like assets, on-chain
+        swaps, and synthetic exposure — no bridge, no wrapped token.
+      </p>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {defi.map((p) => <ProjectCard project={p} />)}
+      </div>
+    </section>
+  )}
+
+  {social.length > 0 && (
+    <section class="max-w-6xl mx-auto px-6 pb-14">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+        // 03 · Social &amp; tipping
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Publish, post, tip
+      </h2>
+      <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+        The oldest use of programmable cash: rewarding somebody for something
+        good. These make it a one-click reflex.
+      </p>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {social.map((p) => <ProjectCard project={p} />)}
+      </div>
+    </section>
+  )}
+
+  {userTools.length > 0 && (
+    <section class="max-w-6xl mx-auto px-6 pb-14">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+        // 04 · Tools
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        User-facing tools
+      </h2>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {userTools.map((p) => <ProjectCard project={p} />)}
+      </div>
+    </section>
+  )}
+
+  <section class="max-w-6xl mx-auto px-6 pb-24">
+    <div class="rounded-xl border border-line bg-surface p-8 md:p-10">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+        // Next
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Try a transaction without spending anything
+      </h2>
+      <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+        The Transaction Lab lets you build, sign, and inspect a BCH transaction
+        in three modes: simulated, chipnet, and mainnet. Coming next.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a
+          href="/projects"
+          class="px-4 py-2 rounded-md border border-line-mid text-sm font-medium text-fg-mid hover:border-bch-500 hover:text-bch-400 transition-colors">
+          Browse the directory
+        </a>
+      </div>
+    </div>
   </section>
 </BaseLayout>

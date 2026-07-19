@@ -1,16 +1,241 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { getCollection } from "astro:content";
+
+const all = await getCollection("projects");
+
+const byName = (a: { data: { name: string } }, b: { data: { name: string } }) =>
+  a.data.name.localeCompare(b.data.name);
+
+/* BCHN Dirty is a themed BCHN build — keep it last so canonical node
+   implementations lead the section. */
+const nodes = all
+  .filter((p) => p.data.category === "node")
+  .sort((a, b) => {
+    if (a.data.name === "BCHN Dirty") return 1;
+    if (b.data.name === "BCHN Dirty") return -1;
+    return byName(a, b);
+  });
+const indexers = all.filter((p) => p.data.category === "indexer").sort(byName);
+
+/* Consensus upgrades — most recent first. Non-consensus years omitted.
+   Codenames follow the BCH community's naming; unnamed years use the date. */
+const upgrades: {
+  date: string;
+  name: string;
+  summary: string;
+  activated: boolean;
+}[] = [
+  {
+    date: "2026-05-15",
+    name: "Layla",
+    summary:
+      "Bounded loops, Pay-to-Script, OP_DEFINE / OP_INVOKE, bitwise ops.",
+    activated: true,
+  },
+  {
+    date: "2025-05-15",
+    name: "VM Limits",
+    summary:
+      "Larger scripts, higher opcount ceiling — unlocks the covenant patterns Layla builds on.",
+    activated: true,
+  },
+  {
+    date: "2024-05-15",
+    name: "ABLA",
+    summary:
+      "Adaptive Block Size Limit Algorithm — block limit grows with sustained demand.",
+    activated: true,
+  },
+  {
+    date: "2023-05-15",
+    name: "CashTokens",
+    summary:
+      "Native fungible tokens and NFTs, P2SH32 — no wrappers, no bridge, no ERC-20 shim.",
+    activated: true,
+  },
+  {
+    date: "2020-11-15",
+    name: "Axion",
+    summary:
+      "ASERT difficulty adjustment. IFP removed. BCHA / eCash forked here.",
+    activated: true,
+  },
+  {
+    date: "2020-05-15",
+    name: "Phonon",
+    summary: "OP_REVERSEBYTES, sigchecks — script cost accounting.",
+    activated: true,
+  },
+  {
+    date: "2019-11-15",
+    name: "Graviton",
+    summary:
+      "Schnorr signatures for OP_CHECKMULTISIG, minimal data push enforcement.",
+    activated: true,
+  },
+  {
+    date: "2019-05-15",
+    name: "Great Wall",
+    summary: "Schnorr signatures, SegWit-recovery script.",
+    activated: true,
+  },
+  {
+    date: "2018-11-15",
+    name: "Magnetic Anomaly",
+    summary:
+      "CTOR (canonical tx ordering), OP_CHECKDATASIG. BSV forked here.",
+    activated: true,
+  },
+  {
+    date: "2018-05-15",
+    name: "May 2018 upgrade",
+    summary:
+      "32 MB blocks, OP_RETURN 220 bytes, re-enabled opcodes (OP_CAT, OP_SPLIT, arithmetic).",
+    activated: true,
+  },
+  {
+    date: "2017-11-13",
+    name: "Emergency DAA",
+    summary: "New difficulty adjustment algorithm to stabilise block times.",
+    activated: true,
+  },
+  {
+    date: "2017-08-01",
+    name: "Genesis fork",
+    summary:
+      "BCH forks from BTC. 8 MB blocks, no SegWit, no RBF, original transaction semantics.",
+    activated: true,
+  },
+];
+
+const fmtUpgradeDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 ---
 
 <BaseLayout title="Run BCH — txlab.cash">
-  <section class="max-w-4xl mx-auto px-6 py-20">
-    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">// Pathway 03</div>
-    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">Run BCH</h1>
-    <p class="mt-6 text-lg text-fg-mid leading-relaxed">
-      For infrastructure operators — full-node implementations (BCHN, Bitcoin
-      Verde, Knuth), install recipes, network statistics, upgrade readiness,
-      and mining information.
+  <section class="max-w-4xl mx-auto px-6 pt-16 pb-10">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // Pathway 03
+    </div>
+    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">
+      For operators who want to <span class="text-bch-500 font-mono font-medium tracking-tight">serve</span>.
+    </h1>
+    <p class="mt-5 text-lg text-fg-mid max-w-2xl leading-relaxed">
+      Run a full node so nobody has to trust anybody about the ledger. Run an
+      indexer so your app doesn't rent chain data by the API call.
     </p>
-    <p class="mt-6 text-sm text-fg-mute font-mono">// Phase 1 in progress — content landing here soon.</p>
+
+    <div class="mt-8 rounded-lg border border-line bg-surface p-5 font-mono text-xs text-fg-mute">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-semibold">
+        // Node diversity is a feature
+      </div>
+      <p class="mt-2 text-fg-mid leading-relaxed">
+        BCH has three independent full-node implementations in three different
+        languages. Consensus bugs get caught by disagreement, not audit alone —
+        pick the stack you'd rather debug at 3am.
+      </p>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-6 pb-14">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // 01 · Full nodes
+    </div>
+    <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">Node implementations</h2>
+    <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+      All three validate the same consensus rules from different codebases.
+      BCHN is the reference client; Verde (Java) and Knuth (C++) are
+      independent re-implementations.
+    </p>
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {nodes.map((p) => <ProjectCard project={p} />)}
+    </div>
+  </section>
+
+  {indexers.length > 0 && (
+    <section class="max-w-6xl mx-auto px-6 pb-14">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+        // 02 · Indexers
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Index the chain
+      </h2>
+      <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+        Fulcrum for Electrum-protocol wallets; Chaingraph for GraphQL queries
+        over UTXOs, CashTokens, and mempool state.
+      </p>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {indexers.map((p) => <ProjectCard project={p} />)}
+      </div>
+    </section>
+  )}
+
+  <section class="max-w-6xl mx-auto px-6 pb-14">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // 03 · Upgrades
+    </div>
+    <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">Consensus history</h2>
+    <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+      BCH upgrades on a scheduled cadence — most on May 15, historically also
+      November 15. If you're behind the latest activation, you're off
+      consensus. Upgrade.
+    </p>
+
+    <ol class="mt-6 relative border-l border-line-mid ml-3">
+      {upgrades.map((u, i) => (
+        <li class="pl-6 pb-6 relative">
+          <span
+            class:list={[
+              "absolute -left-[7px] top-1.5 h-3 w-3 rounded-full border-2 border-canvas",
+              i === 0 ? "bg-bch-500 shadow-[0_0_12px_var(--color-bch-500)]" : "bg-line-mid",
+            ]}
+            aria-hidden="true"></span>
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span class="text-fg font-semibold">{u.name}</span>
+            <span class="text-xs font-mono text-fg-mute">
+              {fmtUpgradeDate(u.date)}
+            </span>
+            {i === 0 && (
+              <span class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+                // Current
+              </span>
+            )}
+          </div>
+          <p class="mt-1 text-sm text-fg-mid leading-relaxed">{u.summary}</p>
+        </li>
+      ))}
+    </ol>
+
+    <p class="mt-4 text-xs text-fg-mute font-mono">
+      // Full CHIP tracker with activation status and node-version compatibility — coming in phase 2.
+    </p>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-6 pb-24">
+    <div class="rounded-xl border border-line bg-surface p-8 md:p-10">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+        // Next
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Install recipes are coming
+      </h2>
+      <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+        Copy-paste one-liners for BCHN + Fulcrum on Debian, Docker Compose for
+        Chaingraph, systemd units — all in the next content sweep.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a
+          href="/projects"
+          class="px-4 py-2 rounded-md border border-line-mid text-sm font-medium text-fg-mid hover:border-bch-500 hover:text-bch-400 transition-colors">
+          Full directory
+        </a>
+      </div>
+    </div>
   </section>
 </BaseLayout>

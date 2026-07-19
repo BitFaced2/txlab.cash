@@ -1,15 +1,141 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { getCollection } from "astro:content";
+
+const all = await getCollection("projects");
+
+const byName = (a: { data: { name: string } }, b: { data: { name: string } }) =>
+  a.data.name.localeCompare(b.data.name);
+
+const social = all.filter((p) => p.data.category === "social").sort(byName);
 ---
 
 <BaseLayout title="Grow BCH — txlab.cash">
-  <section class="max-w-4xl mx-auto px-6 py-20">
-    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">// Pathway 04</div>
-    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">Grow BCH</h1>
-    <p class="mt-6 text-lg text-fg-mid leading-relaxed">
-      For contributors — active Flipstarter campaigns, open-source issues,
-      bounties, translation asks, community events, and volunteer opportunities.
+  <section class="max-w-4xl mx-auto px-6 pt-16 pb-10">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // Pathway 04
+    </div>
+    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">
+      For contributors who want to <span class="text-bch-500 font-mono font-medium tracking-tight">ship</span>.
+    </h1>
+    <p class="mt-5 text-lg text-fg-mid max-w-2xl leading-relaxed">
+      BCH is community-run. There's no foundation writing checks — every wallet,
+      indexer, and doc page comes from someone deciding it should exist.
     </p>
-    <p class="mt-6 text-sm text-fg-mute font-mono">// Phase 1 in progress — content landing here soon.</p>
+
+    <div class="mt-8 rounded-lg border border-line bg-surface p-5 font-mono text-xs text-fg-mute">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-semibold">
+        // A quiet rule
+      </div>
+      <p class="mt-2 text-fg-mid leading-relaxed">
+        The people who moved BCH forward didn't wait for permission — they
+        published, they merged, they shipped. Start there.
+      </p>
+    </div>
+  </section>
+
+  {social.length > 0 && (
+    <section class="max-w-6xl mx-auto px-6 pb-14">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+        // 01 · Publish
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Write, post, tip
+      </h2>
+      <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+        BCH-native publishing platforms and tipping bots — where content and
+        the currency to reward it live on the same chain.
+      </p>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {social.map((p) => <ProjectCard project={p} />)}
+      </div>
+    </section>
+  )}
+
+  <section class="max-w-6xl mx-auto px-6 pb-14">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // 02 · Contribute code
+    </div>
+    <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">Contribute to open source</h2>
+    <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+      Every project in the directory is open source. Good first issues, docs
+      patches, and bug reports are as valuable as feature PRs.
+    </p>
+    <div class="mt-6 grid gap-4 md:grid-cols-2">
+      <a
+        href="https://github.com/topics/bitcoin-cash"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group rounded-lg border border-line bg-surface p-5 hover:border-bch-500/70 hover:bg-elevated transition-all">
+        <div class="text-[10px] uppercase tracking-[0.2em] text-fg-dim font-mono font-semibold">
+          // GitHub topic
+        </div>
+        <div class="mt-2 font-semibold text-fg group-hover:text-bch-400 transition-colors">
+          #bitcoin-cash
+        </div>
+        <p class="mt-1 text-sm text-fg-mid">
+          Every repo tagged with the topic — sortable by recent activity.
+        </p>
+      </a>
+      <a
+        href="/projects"
+        class="group rounded-lg border border-line bg-surface p-5 hover:border-bch-500/70 hover:bg-elevated transition-all">
+        <div class="text-[10px] uppercase tracking-[0.2em] text-fg-dim font-mono font-semibold">
+          // Directory
+        </div>
+        <div class="mt-2 font-semibold text-fg group-hover:text-bch-400 transition-colors">
+          Full project registry
+        </div>
+        <p class="mt-1 text-sm text-fg-mid">
+          Every entry links to its repo, tagged by freshness — start with what's alive.
+        </p>
+      </a>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-6 pb-14">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // 03 · Contribute here
+    </div>
+    <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">Improve this site</h2>
+    <div class="mt-6 rounded-lg border border-line bg-surface p-6">
+      <p class="text-fg-mid leading-relaxed">
+        txlab.cash lives in a public repo. The registry is YAML, the pages are
+        Astro. Open a PR to add a project, correct a freshness state, translate
+        a page, or fix a typo — no paid placement, ever.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a
+          href="https://github.com/BitFaced2/txlab.cash"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="px-4 py-2 rounded-md bg-bch-500 text-canvas text-sm font-semibold hover:bg-bch-400 transition-colors">
+          Repo on GitHub
+        </a>
+        <a
+          href="https://github.com/BitFaced2/txlab.cash/blob/main/src/content.config.ts"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="px-4 py-2 rounded-md border border-line-mid text-sm font-medium text-fg-mid hover:border-bch-500 hover:text-bch-400 transition-colors">
+          Registry schema
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-6 pb-24">
+    <div class="rounded-xl border border-line bg-surface p-8 md:p-10">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+        // Next
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Flipstarters &amp; bounties
+      </h2>
+      <p class="mt-3 text-fg-mid max-w-2xl leading-relaxed">
+        An active Flipstarter feed and bounty board is coming in phase 2 —
+        pledgable milestones for BCH tooling and infrastructure work.
+      </p>
+    </div>
   </section>
 </BaseLayout>

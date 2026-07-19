@@ -1,0 +1,126 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="About — txlab.cash">
+  <section class="max-w-3xl mx-auto px-6 pt-16 pb-10">
+    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+      // The site
+    </div>
+    <h1 class="mt-2 text-4xl md:text-5xl font-bold tracking-tight text-fg">
+      What is <span class="text-bch-500 font-mono font-medium tracking-tight">txlab.cash</span>?
+    </h1>
+    <p class="mt-5 text-lg text-fg-mid leading-relaxed">
+      A tech-focused hub for the Bitcoin Cash network — plus the best
+      maintained map of the projects being built, run, and used on it.
+    </p>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 pb-14 space-y-8 text-fg-mid leading-relaxed">
+    <div>
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+        // The pitch
+      </div>
+      <p class="mt-2">
+        Come for the Lab, stay for the Map.
+      </p>
+      <p class="mt-3">
+        The Transaction Lab is where you build, sign, and inspect a BCH
+        transaction — in three modes: simulated (learn), chipnet (try safely),
+        mainnet (watch your own). No wallet install, no keys leaving your
+        browser, no fake abstractions.
+      </p>
+      <p class="mt-3">
+        The Map is a curated registry of what's alive on BCH — every entry
+        tagged with a freshness state and a last-verified date, so you know
+        what's maintained and what isn't.
+      </p>
+    </div>
+
+    <div>
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+        // What we are not
+      </div>
+      <p class="mt-2">
+        <strong class="text-fg">Not a price site.</strong> There is no ticker,
+        no market cap, no "will BCH moon" — the questions the ecosystem has
+        already answered a thousand times.
+      </p>
+      <p class="mt-3">
+        <strong class="text-fg">Not the official voice of BCH.</strong> There
+        is no such thing. BCH is a network with independent node
+        implementations, independent wallet teams, and independent client
+        libraries. This site is one community-run view — useful, we hope, but
+        not authoritative.
+      </p>
+      <p class="mt-3">
+        <strong class="text-fg">Not for sale.</strong> No sponsored placements,
+        no boosted cards, no affiliate cuts. See the{" "}
+        <a href="/editorial-principles" class="prose-link text-fg">editorial principles</a>{" "}
+        for the full commitment.
+      </p>
+    </div>
+
+    <div>
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+        // Who runs it
+      </div>
+      <p class="mt-2">
+        The site was started and is maintained by{" "}
+        <a
+          href="https://github.com/BitFaced2"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="prose-link text-fg">BitFaced</a>. The registry, pages, and
+        design tokens all live in{" "}
+        <a
+          href="https://github.com/BitFaced2/txlab.cash"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="prose-link text-fg">a public repo</a>{" "}
+        — every project entry is a YAML file you can audit, correct, or
+        translate via pull request.
+      </p>
+      <p class="mt-3">
+        The design language borrows from{" "}
+        <a
+          href="https://github.com/BitFaced2/bchn-dirty"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="prose-link text-fg">BCHN Dirty</a>'s
+        <code class="font-mono text-bch-400">cypher.qss</code> palette — one
+        visual identity across the BCH tooling built here.
+      </p>
+    </div>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-6 pb-24">
+    <div class="rounded-xl border border-line bg-surface p-8 md:p-10">
+      <div class="text-[10px] uppercase tracking-[0.2em] text-neon-400 font-mono font-semibold">
+        // Next
+      </div>
+      <h2 class="mt-2 text-2xl font-bold tracking-tight text-fg">
+        Something to add? Something wrong?
+      </h2>
+      <p class="mt-3 text-fg-mid leading-relaxed">
+        The site is a work in progress. If you see a project that's missing,
+        a freshness state that's wrong, or a page that could be clearer —
+        the fastest way to fix it is a PR.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a
+          href="/contribute"
+          class="px-4 py-2 rounded-md bg-bch-500 text-canvas text-sm font-semibold hover:bg-bch-400 transition-colors">
+          How to contribute
+        </a>
+        <a
+          href="https://github.com/BitFaced2/txlab.cash"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="px-4 py-2 rounded-md border border-line-mid text-sm font-medium text-fg-mid hover:border-bch-500 hover:text-bch-400 transition-colors">
+          Repo on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
