@@ -1,0 +1,153 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Ride Prototype — Transaction Lab — txlab.cash">
+  <div class="ride-page">
+    <div class="ride-header">
+      <div>
+        <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
+          // Transaction Lab — format prototype
+        </div>
+        <h1 class="ride-title">The <span class="text-bch-500 font-mono">Ride</span></h1>
+        <p class="ride-hint">
+          dark-ride format test: one act, room scale, camera on rails ·
+          <a href="/lab" class="prose-link">back to the diorama</a>
+        </p>
+      </div>
+      <div class="ride-controls">
+        <span class="act-label" data-act-label>ACT 3 / 6 · VALIDATION HALL</span>
+        <button type="button" class="btn" data-replay>↺ Replay</button>
+      </div>
+    </div>
+
+    <div class="ride-frame">
+      <div class="ride-host" data-ride-canvas></div>
+      <div class="ride-caption" data-caption></div>
+      <div class="ride-fade" data-fade></div>
+    </div>
+  </div>
+
+  <script>
+    import { bootRide } from "../lab/ride";
+    bootRide();
+  </script>
+
+  <style is:global>
+    .ride-page {
+      display: flex;
+      flex-direction: column;
+      background: var(--color-canvas);
+      min-height: calc(100vh - 4rem);
+    }
+    .ride-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 2rem;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 1.25rem 1.5rem 0.75rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .ride-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--color-fg);
+      margin: 0.25rem 0 0;
+    }
+    .ride-hint {
+      margin: 0.35rem 0 0;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-fg-mute);
+      letter-spacing: 0.05em;
+    }
+    .ride-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .act-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--color-fg-mute);
+      text-transform: uppercase;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      border: 1px solid var(--color-line-mid);
+      background: var(--color-surface);
+      color: var(--color-fg-mid);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 150ms;
+    }
+    .btn:hover { border-color: var(--color-bch-500); color: var(--color-bch-400); }
+
+    .ride-frame {
+      position: relative;
+      max-width: 1400px;
+      margin: 0.5rem auto 3rem;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+    .ride-host {
+      width: 100%;
+      aspect-ratio: 1400 / 900;
+      border: 1px solid var(--color-line-mid);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #070a09;
+      position: relative;
+    }
+    .ride-canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .ride-caption {
+      position: absolute;
+      left: 50%;
+      bottom: 40px;
+      transform: translateX(-50%) translateY(8px);
+      max-width: 720px;
+      width: calc(100% - 8rem);
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--color-fg);
+      background: rgb(from var(--color-canvas) r g b / 0.88);
+      border: 1px solid var(--color-line-mid);
+      border-radius: 8px;
+      padding: 0.8rem 1.4rem;
+      opacity: 0;
+      transition: opacity 400ms ease, transform 400ms ease;
+      pointer-events: none;
+    }
+    .ride-caption.cap-show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .ride-fade {
+      position: absolute;
+      inset: 0 1.5rem;
+      border-radius: 8px;
+      background: #05080a;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms linear;
+    }
+  </style>
+</BaseLayout>
