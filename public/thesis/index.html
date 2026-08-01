@@ -26,15 +26,22 @@
   html{scroll-behavior:smooth}
   body{
     background:var(--bg); color:var(--ink);
+    background-image:radial-gradient(rgba(120,190,165,.05) 1px, transparent 1.4px);
+    background-size:36px 36px;
     font-family:var(--serif); font-size:19px; line-height:1.78;
     -webkit-font-smoothing:antialiased;
   }
   ::selection{background:var(--accent); color:#04110c}
+  ::-webkit-scrollbar{width:10px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:#1e2a25;border-radius:5px;border:2px solid var(--bg)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
   a{color:var(--accent-hi); text-decoration:none}
   a:hover{text-decoration:underline}
 
   #bar{position:fixed;top:0;left:0;height:3px;width:0;
-    background:linear-gradient(90deg,var(--accent),var(--accent-hi));z-index:10}
+    background:linear-gradient(90deg,var(--accent),var(--accent-hi));z-index:10;
+    box-shadow:0 0 14px rgba(10,193,142,.55)}
 
   .wrap{max-width:680px;margin:0 auto;padding:0 22px}
 
@@ -44,7 +51,8 @@
   .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.28em;
     text-transform:uppercase;color:var(--accent);margin-bottom:26px}
   h1{font-size:clamp(52px,10vw,104px);line-height:.98;letter-spacing:-.02em;font-weight:400}
-  h1 .zero{color:var(--accent);font-style:italic}
+  h1 .zero{color:var(--accent);font-style:italic;text-shadow:0 0 34px rgba(10,193,142,.4)}
+  .stamp{margin-top:16px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--dim)}
   .sub{margin-top:26px;font-size:clamp(19px,2.6vw,24px);color:var(--muted);font-style:italic}
   .byline{margin-top:44px;font-family:var(--mono);font-size:13px;color:var(--dim)}
   .byline a{color:var(--muted)}
@@ -72,16 +80,20 @@
   /* ---------- the line ---------- */
   .thesis{margin:72px 0;padding:64px 28px;text-align:center;position:relative;
     background:linear-gradient(180deg,#0e1a15,#0b0f0e);border:1px solid var(--line);border-radius:16px}
+  .thesis{box-shadow:0 20px 80px -30px rgba(10,193,142,.28)}
   .thesis:before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
-    width:72px;height:3px;background:var(--accent);border-radius:0 0 4px 4px}
+    width:72px;height:3px;background:var(--accent);border-radius:0 0 4px 4px;
+    box-shadow:0 0 18px rgba(10,193,142,.7)}
   .thesis p{font-size:clamp(26px,4.4vw,40px);line-height:1.35;margin:0;letter-spacing:-.01em}
   .thesis .hl{color:var(--accent-hi)}
 
   /* ---------- receipts ---------- */
   .receipt{border:1px solid var(--line);border-radius:14px;background:var(--panel);
     padding:20px 22px;margin:30px 0}
-  a.receipt{display:block;color:inherit;text-decoration:none;transition:border-color .15s}
-  a.receipt:hover{border-color:var(--accent);text-decoration:none}
+  a.receipt{display:block;color:inherit;text-decoration:none;
+    transition:border-color .15s, box-shadow .2s, transform .15s}
+  a.receipt:hover{border-color:var(--accent);text-decoration:none;
+    box-shadow:0 6px 30px -12px rgba(10,193,142,.35);transform:translateY(-1px)}
   .receipt .ext{float:right;color:var(--dim);font-weight:400}
   a.receipt:hover .ext{color:var(--accent-hi)}
   .receipt .rh{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-bottom:10px}
@@ -104,7 +116,7 @@
   .halving{margin:36px 0;padding:28px 18px;border:1px solid var(--line);border-radius:14px;
     background:var(--panel);text-align:center;font-family:var(--mono)}
   .halving .seq{font-size:clamp(14px,2.3vw,20px);color:var(--accent-hi);letter-spacing:.04em}
-  .halving .seq b{color:#fff;font-weight:700}
+  .halving .seq b{color:#fff;font-weight:700;text-shadow:0 0 16px rgba(255,255,255,.5)}
   .halving .cap{margin-top:12px;font-size:12px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase}
   .convo{margin:36px 0;font-family:var(--mono);font-size:15px;line-height:2.1;
     border-left:3px solid var(--line);padding-left:22px}
@@ -130,7 +142,8 @@
   .tl{position:relative;margin-bottom:38px}
   .tl:last-child{margin-bottom:0}
   .tl:before{content:"";position:absolute;left:-38px;top:6px;width:12px;height:12px;
-    border-radius:50%;background:var(--bg);border:3px solid var(--accent)}
+    border-radius:50%;background:var(--bg);border:3px solid var(--accent);
+    box-shadow:0 0 12px rgba(10,193,142,.55)}
   .tl .yr{font-family:var(--mono);font-size:13px;letter-spacing:.26em;color:var(--accent)}
   .tl h3{font-size:22px;font-weight:400;margin:6px 0 8px;letter-spacing:-.01em}
   .tl p{font-size:16.5px;line-height:1.7;margin-bottom:8px}
@@ -145,6 +158,20 @@
     color:var(--ink);line-height:1.6;margin-bottom:14px}
   .qrcard .qlinks{font-family:var(--mono);font-size:12.5px}
   .qrcard .qlinks a{color:var(--accent-hi)}
+
+  .ledg{margin:36px 0 8px}
+  .li{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .li:last-child{border-bottom:0}
+  .cbx{width:23px;height:23px;flex:0 0 auto;margin-top:3px;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:14px;font-weight:700}
+  .li.done .cbx{border:1.5px solid var(--accent);color:var(--accent);
+    background:rgba(10,193,142,.08);box-shadow:0 0 10px rgba(10,193,142,.25)}
+  .li.pend .cbx{border:1.5px solid #33413b;color:transparent}
+  .lq{font-size:16.5px;line-height:1.6;margin-bottom:5px}
+  .lq a{font-family:var(--mono);font-size:12px;white-space:nowrap}
+  .lr{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-bottom:0;line-height:1.6}
+  .li.pend .lr{color:var(--dim)}
 
   .obj{border-left:3px solid var(--line);padding:4px 0 4px 22px;margin:30px 0}
   .obj .oq{font-style:italic;color:var(--muted);margin-bottom:12px}
@@ -174,6 +201,7 @@
     <h1>Rise to <span class="zero">Zero</span></h1>
     <p class="sub">Why &ldquo;number go up forever&rdquo; is the bear case.</p>
     <p class="byline">by <a href="https://x.com/Bit_Faced">@Bit_Faced</a> &nbsp;·&nbsp; 2017–2026 &nbsp;·&nbsp; still being argued</p>
+    <p class="stamp">the chain split at block 478,559 · aug 1 2017 &nbsp;→&nbsp; this page · aug 1 2026</p>
     <p class="scrollhint">↓ scroll</p>
   </div>
 </header>
@@ -413,6 +441,14 @@
 
   <p>Bitcoin was built to be the horse that got peer-to-peer cash inside the city walls.</p>
   <p><strong>BTC <em>is</em> the Trojan Horse. And it's filled with dollars.</strong></p>
+
+  <p>And I'm not saying that in hindsight:</p>
+
+  <a class="receipt" href="https://x.com/Bit_Faced/status/1330555545728806920">
+    <div class="rh"><b>@Bit_Faced</b> · Nov 22, 2020 — before Tesla, before Saylor's leverage, before the ETFs <span class="ext">view post ↗</span></div>
+    <div class="rt"><p>Institutional money is a Trojan Horse. #Bitcoin</p></div>
+  </a>
+
   <p class="mutenote">So how do you tell a money from a merchandise? The verbs.</p>
 </section>
 
@@ -455,15 +491,15 @@
     <div class="tl">
       <span class="yr">2017</span>
       <h3>The believer</h3>
-      <p>Bought in at $200. Ran a BIP148 UASF node for the small-block side that July. By December, I was certain the fork was &ldquo;an aggressive attack on the Bitcoin network. I will never support it.&rdquo;</p>
-      <div class="rcs"><a href="https://x.com/Bit_Faced/status/881966466836434946">the node ↗</a> · <a href="https://x.com/Bit_Faced/status/941344132898938880">the certainty ↗</a></div>
+      <p>Bought in at $200. Ran a BIP148 UASF node for the small-block side that July. Two days after the chain split, I dumped every BCH I had: &ldquo;I put my $ where my trust is. #core.&rdquo; By December, I was certain the fork was &ldquo;an aggressive attack on the Bitcoin network. I will never support it.&rdquo;</p>
+      <div class="rcs"><a href="https://x.com/Bit_Faced/status/881966466836434946">the node ↗</a> · <a href="https://x.com/Bit_Faced/status/892979398298804224">the dump ↗</a> · <a href="https://x.com/Bit_Faced/status/941344132898938880">the certainty ↗</a></div>
     </div>
 
     <div class="tl">
       <span class="yr">2018</span>
       <h3>The soldier</h3>
-      <p>Spent January writing a fairy tale in the replies about how &ldquo;Bcash&rdquo; stabbed Bitcoin with a fork. I was very sure. Being sure is cheap.</p>
-      <div class="rcs"><a href="https://x.com/Bit_Faced/status/954120519695167488">the fairy tale ↗</a></div>
+      <p>Spent January writing a fairy tale in the replies about how &ldquo;Bcash&rdquo; stabbed Bitcoin with a fork. By September I had published its obituary: &ldquo;#bcash is done. It will not exist soon. #itsover.&rdquo; I was very sure. Being sure is cheap.</p>
+      <div class="rcs"><a href="https://x.com/Bit_Faced/status/954120519695167488">the fairy tale ↗</a> · <a href="https://x.com/Bit_Faced/status/1035766942659952640">the obituary ↗</a></div>
     </div>
 
     <div class="tl">
@@ -526,6 +562,71 @@
 
 <hr class="sep">
 
+<section id="ledger">
+  <span class="secnum">Appendix · The predictions ledger</span>
+  <h2>Called shots.</h2>
+  <p class="mutenote">Dated claims, checked off as reality catches up. The empty boxes are pending — feel free to bet against them.</p>
+
+  <div class="ledg">
+    <div class="li done"><span class="cbx">✓</span><div>
+      <p class="lq">&ldquo;Tether is top 10 on CoinMarketCap. I'm going to bed.&rdquo; <a href="https://x.com/Bit_Faced/status/1012933697614434304">Jun 2018 ↗</a></p>
+      <p class="lr">Tether became the actual currency of the entire crypto economy.</p>
+    </div></div>
+    <div class="li done"><span class="cbx">✓</span><div>
+      <p class="lq">Bitcoiners will end up on custodial Lightning — &ldquo;PayPal 2.0.&rdquo; <a href="https://x.com/Bit_Faced/status/1204127566501687296">Dec 2019 ↗</a></p>
+      <p class="lr">By 2023, ~95% of Lightning zaps ran through custodial wallets.</p>
+    </div></div>
+    <div class="li done"><span class="cbx">✓</span><div>
+      <p class="lq">BTC will be &ldquo;used by nation-states and millionaires. But it will never be used as money.&rdquo; <a href="https://x.com/Bit_Faced/status/1264217422199959558">May 2020 ↗</a></p>
+      <p class="lr">El Salvador, the ETFs, the strategic reserve. Still nobody's money.</p>
+    </div></div>
+    <div class="li done"><span class="cbx">✓</span><div>
+      <p class="lq">&ldquo;When they start freezing bank accounts&hellip; you'll wish you had some Bitcoin Cash.&rdquo; <a href="https://x.com/Bit_Faced/status/1436168704350375937">Sep 2021 ↗</a></p>
+      <p class="lr">Canada froze protester accounts five months later.</p>
+    </div></div>
+    <div class="li done"><span class="cbx">✓</span><div>
+      <p class="lq">El Salvador's rollout &ldquo;will be a custodial nightmare banking network.&rdquo; <a href="https://x.com/Bit_Faced/status/1437811946447847429">Sep 2021 ↗</a></p>
+      <p class="lr">Chivo was custodial from day one. Usage collapsed 99.96%.</p>
+    </div></div>
+    <div class="li done"><span class="cbx">✓</span><div>
+      <p class="lq">&ldquo;Nation-states making BTC legal tender will kill BTC. Don't say I didn't warn you.&rdquo; <a href="https://x.com/Bit_Faced/status/1491467991426506759">Feb 2022 ↗</a></p>
+      <p class="lr">El Salvador rescinded legal tender in 2025.</p>
+    </div></div>
+    <div class="li done"><span class="cbx">✓</span><div>
+      <p class="lq">&ldquo;Can you stake Luna from prison? Asking for a friend.&rdquo; <a href="https://x.com/Bit_Faced/status/1530906991048241154">May 2022 ↗</a></p>
+      <p class="lr">Do Kwon went to prison.</p>
+    </div></div>
+    <div class="li done"><span class="cbx">✓</span><div>
+      <p class="lq">Told SBF, directly, that he was &ldquo;flat out wrong&rdquo; about Bitcoin. <a href="https://x.com/Bit_Faced/status/1537607706948911104">Jun 2022 ↗</a></p>
+      <p class="lr">FTX imploded five months later. SBF went to prison too.</p>
+    </div></div>
+    <div class="li done"><span class="cbx">✓</span><div>
+      <p class="lq">&ldquo;250k+ unconfirmed transactions is the new normal. It will be millions soon.&rdquo; <a href="https://x.com/Bit_Faced/status/1683112459836563457">Jul 2023 ↗</a></p>
+      <p class="lr">The 2023–24 mempool blowups set all-time congestion records.</p>
+    </div></div>
+    <div class="li done"><span class="cbx">✓</span><div>
+      <p class="lq">ETF week: &ldquo;The Trojan horse is in the city. In your pursuit of dollars, you gleefully ushered it in.&rdquo; <a href="https://x.com/Bit_Faced/status/1746129043739603083">Jan 2024 ↗</a></p>
+      <p class="lr">BlackRock became the largest holder in history within two years.</p>
+    </div></div>
+    <div class="li done"><span class="cbx">✓</span><div>
+      <p class="lq">&ldquo;BTC is going to fork again. And I'm going to laugh at both sides.&rdquo; <a href="https://x.com/Bit_Faced/status/1969964565128696164">Sep 2025 ↗</a></p>
+      <p class="lr">Core v. Knots split months later. He laughed at both sides.</p>
+    </div></div>
+    <div class="li pend"><span class="cbx">✓</span><div>
+      <p class="lq">&ldquo;Saylor will go bankrupt when the market inevitably crashes.&rdquo; <a href="https://x.com/Bit_Faced/status/1869370785443504139">Dec 2024 ↗</a></p>
+      <p class="lr">Pending. The leverage is still stacking.</p>
+    </div></div>
+    <div class="li pend"><span class="cbx">✓</span><div>
+      <p class="lq">&ldquo;BIP110 will be a hilarious failure. All bark. No hash.&rdquo; <a href="https://x.com/Bit_Faced/status/2022336897885024567">Feb 2026 ↗</a></p>
+      <p class="lr">Pending. The bark continues.</p>
+    </div></div>
+    <div class="li pend"><span class="cbx">✓</span><div>
+      <p class="lq">&ldquo;BCH will surpass both XMR and ZEC in privacy over the next 18 months.&rdquo; Jan 2026</p>
+      <p class="lr">Pending. Yes — I know exactly what &ldquo;18 months&rdquo; means around here. That's the joke.</p>
+    </div></div>
+  </div>
+</section>
+
 <section id="objections">
   <span class="secnum">Appendix · Standing objections</span>
   <h2>Shoot at the right premise.</h2>
@@ -580,9 +681,11 @@
     </div>
     <div class="vlog">
       <b>changelog</b><br>
+      v1.3 · Aug 1, 2026 · predictions ledger, conversion receipts, cypherpunk polish<br>
       v1.2 · Aug 1, 2026 · added the faucet — proof of spend<br>
       v1.1 · Aug 1, 2026 · added the decade timeline + stablecoin objection<br>
       v1.0 · Aug 1, 2026 · first published, nine years to the day after the split<br>
+      <a href="https://x.com/Bit_Faced/status/1351258717396860931">jan 18, 2021 — &ldquo;what's the best way to archive a twitter account?&rdquo; — this page began here ↗</a>
       <span id="yr"></span>
     </div>
   </div>
