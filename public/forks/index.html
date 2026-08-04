@@ -30,7 +30,7 @@
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--mono)}
-  #wrap{position:fixed;inset:0;overflow:auto;cursor:grab;touch-action:pan-x pan-y;
+  #wrap{position:fixed;inset:0;overflow:auto;cursor:grab;touch-action:none;
     background-color:var(--bg);
     background-image:radial-gradient(rgba(10,193,142,.06) 1px,transparent 1.3px);
     background-size:30px 30px;}
@@ -550,10 +550,12 @@ EVENTS.forEach(ev=>{
 /* ================= INTERACTION ================= */
 const tip=document.getElementById('tip');
 function fmtDate(d){if(!d)return'';const[Y,M,Dy]=d.split('-');return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+M-1]+' '+(Dy?+Dy+', ':'')+Y;}
+const CAN_HOVER=matchMedia('(hover:hover)').matches; /* touch taps fake mouseenter but never mouseleave — the tooltip would stick over the panel */
 function interact(g,data,tipData){
   g.classList.add('clickable');
   const hid=data.id||data.chain;
   g.addEventListener('mouseenter',e=>{
+    if(!CAN_HOVER)return;
     tip.innerHTML=`<div class="tn">${tipData.name}${tipData.tick?' ('+tipData.tick+')':''}</div><div class="td">${fmtDate(tipData.date)}${tipData.block?' · block '+tipData.block:''}</div>`;
     tip.style.opacity=1;moveTip(e);
     if(hid&&GLOWS[hid]&&!selPath.includes(hid))GLOWS[hid].setAttribute('opacity',.14);});
@@ -615,6 +617,7 @@ function openPanel(n){
     ${n.v?`<div class="vbadge">✔ VERIFIED ON MY OWN NODE · ${n.v}</div>`:''}
     ${n.uv?`<div class="uv">⚠ ${n.uv}</div>`:''}
     ${(window.LORE||{})[n.id||n.name]?`<div class="lore"><h4>THE FULL STORY</h4>${window.LORE[n.id||n.name].map(p=>`<p>${p}</p>`).join('')}</div>`:''}`;
+  tip.style.opacity=0;
   panel.classList.add('open');
 }
 function closePanel(){panel.classList.remove('open');setSelected(null);}
@@ -690,17 +693,45 @@ document.getElementById('zhome').onclick=home;
 wrap.addEventListener('wheel',e=>{e.preventDefault();
   if(e.shiftKey){wrap.scrollLeft+=e.deltaY+e.deltaX;}
   else{setScale(scale*(e.deltaY<0?1.12:1/1.12),e.clientX,e.clientY);}},{passive:false});
-/* touch: one finger pans natively (touch-action), two fingers pinch-zoom */
-let pinch=null;
+/* touch: fully JS-driven (touch-action:none). Native pan can't be cancelled once a scroll
+   gesture is in flight, so it kept scrolling during pinches and dragged the zoom anchor
+   off the fingers — instead we pan one finger ourselves (with momentum) and pinch two. */
+let pinch=null,tpan=null,mom=null;
 const tdist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+const tmid=t=>[(t[0].clientX+t[1].clientX)/2,(t[0].clientY+t[1].clientY)/2];
+function startPan(t){tpan={x:t.clientX,y:t.clientY,vx:0,vy:0,t:performance.now()};}
 wrap.addEventListener('touchstart',e=>{
-  if(e.touches.length===2)pinch={d:tdist(e.touches),s:scale};},{passive:true});
+  if(mom){cancelAnimationFrame(mom);mom=null;}
+  tip.style.opacity=0;
+  if(e.touches.length===1)startPan(e.touches[0]);
+  else if(e.touches.length===2){tpan=null;
+    const[cx,cy]=tmid(e.touches);
+    pinch={d:tdist(e.touches),s:scale,cx,cy};}},{passive:true});
 wrap.addEventListener('touchmove',e=>{
-  if(pinch&&e.touches.length===2){e.preventDefault();
-    const cx=(e.touches[0].clientX+e.touches[1].clientX)/2,
-          cy=(e.touches[0].clientY+e.touches[1].clientY)/2;
-    setScale(pinch.s*tdist(e.touches)/pinch.d,cx,cy);}},{passive:false});
-wrap.addEventListener('touchend',()=>{pinch=null;});
+  if(pinch&&e.touches.length===2){
+    const[cx,cy]=tmid(e.touches);
+    setScale(pinch.s*tdist(e.touches)/pinch.d,cx,cy);
+    wrap.scrollLeft-=cx-pinch.cx;wrap.scrollTop-=cy-pinch.cy;
+    pinch.cx=cx;pinch.cy=cy;
+  }else if(tpan&&e.touches.length===1){
+    const t=e.touches[0],now=performance.now(),dt=Math.max(1,now-tpan.t),
+          dx=t.clientX-tpan.x,dy=t.clientY-tpan.y;
+    wrap.scrollLeft-=dx;wrap.scrollTop-=dy;
+    tpan.vx=.7*(dx/dt)+.3*tpan.vx;tpan.vy=.7*(dy/dt)+.3*tpan.vy;
+    tpan.x=t.clientX;tpan.y=t.clientY;tpan.t=now;
+  }},{passive:true});
+wrap.addEventListener('touchend',e=>{
+  if(pinch){if(e.touches.length<2){pinch=null;if(e.touches.length===1)startPan(e.touches[0]);}return;}
+  if(tpan&&e.touches.length===0){
+    let{vx,vy}=tpan;tpan=null;
+    if(Math.hypot(vx,vy)>.08){
+      let last=performance.now();
+      const step=now=>{const dt=now-last;last=now;
+        wrap.scrollLeft-=vx*dt;wrap.scrollTop-=vy*dt;
+        const k=Math.pow(.95,dt/16.7);vx*=k;vy*=k;
+        mom=Math.hypot(vx,vy)>.02?requestAnimationFrame(step):null;};
+      mom=requestAnimationFrame(step);}}});
+wrap.addEventListener('touchcancel',()=>{pinch=null;tpan=null;});
 let drag=null,dragMoved=false;
 wrap.addEventListener('mousedown',e=>{drag={x:e.clientX,y:e.clientY,sl:wrap.scrollLeft,st:wrap.scrollTop};dragMoved=false;wrap.classList.add('grabbing');});
 addEventListener('mousemove',e=>{if(!drag)return;
