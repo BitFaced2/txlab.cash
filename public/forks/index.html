@@ -30,7 +30,10 @@
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--mono)}
-  #wrap{position:fixed;inset:0;overflow:auto;cursor:grab;touch-action:none;
+  /* padding-top = scroll headroom so top lanes can always clear the fixed header;
+     right inset animates when the panel opens (body.pop) so the map is pushed aside, not covered */
+  #wrap{position:fixed;inset:0;overflow:auto;cursor:grab;touch-action:none;padding-top:92px;
+    transition:right .26s cubic-bezier(.4,0,.2,1);
     background-color:var(--bg);
     background-image:radial-gradient(rgba(10,193,142,.06) 1px,transparent 1.3px);
     background-size:30px 30px;}
@@ -66,7 +69,8 @@
   .flt.off{opacity:.28}
   #legend .lines{font-size:10.5px;color:var(--muted);line-height:1.8;margin-top:4px}
   /* controls */
-  #ctl{position:fixed;bottom:14px;right:14px;z-index:7;display:flex;gap:6px}
+  #ctl{position:fixed;bottom:14px;right:14px;z-index:7;display:flex;gap:6px;
+    transition:right .26s cubic-bezier(.4,0,.2,1)}
   #ctl button{width:34px;height:34px;font-size:16px;font-family:var(--mono);cursor:pointer;color:var(--ink);
     background:var(--surface);border:1px solid var(--border);border-radius:8px}
   #ctl button:hover{border-color:var(--green);color:var(--green)}
@@ -105,7 +109,12 @@
   .pending-core{filter:drop-shadow(0 0 6px #E8B547)}
   #root g{transition:opacity .25s}
   /* search */
-  #search{position:fixed;top:12px;right:14px;z-index:8;width:250px}
+  #search{position:fixed;top:12px;right:14px;z-index:8;width:250px;
+    transition:right .26s cubic-bezier(.4,0,.2,1)}
+  /* panel open: push the map (and right-edge chrome) aside instead of covering them */
+  body.pop #wrap{right:370px}
+  body.pop #ctl{right:384px}
+  body.pop #search{right:384px}
   #q{width:100%;background:rgba(20,25,23,.9);border:1px solid var(--border);border-radius:8px;
     color:var(--ink);font-family:var(--mono);font-size:12px;padding:8px 11px;outline:none;backdrop-filter:blur(7px)}
   #q:focus{border-color:var(--green);box-shadow:0 0 16px rgba(10,193,142,.18)}
@@ -136,9 +145,15 @@
     #hdr{padding:10px 14px 8px}
     #hdr h1{font-size:17px}
     #hdr .sub{font-size:8px;letter-spacing:.14em}
-    #ruler{top:50px}
-    #search{width:170px;top:10px;right:10px}
+    /* search gets its own row under the title so neither covers the other */
+    #search{width:210px;top:46px;right:10px}
+    #ruler{top:78px}
+    #wrap{padding-top:104px}
     #panel{width:100vw;max-width:100vw}
+    /* panel is full-screen here — pushing the map aside would leave nothing, keep overlay */
+    body.pop #wrap{right:0}
+    body.pop #ctl{right:14px}
+    body.pop #search{right:10px}
     #ctl button{width:42px;height:42px;font-size:18px}
     #hint{display:none}
     #legend{bottom:12px}
@@ -625,8 +640,9 @@ function openPanel(n){
     ${(window.LORE||{})[n.id||n.name]?`<div class="lore"><h4>THE FULL STORY</h4>${window.LORE[n.id||n.name].map(p=>`<p>${p}</p>`).join('')}</div>`:''}`;
   if(!TOUCH_ONLY||IS_PHONE)tip.style.opacity=0; /* tablets keep the tap tooltip; its timer clears it */
   panel.classList.add('open');
+  document.body.classList.add('pop');
 }
-function closePanel(){panel.classList.remove('open');setSelected(null);}
+function closePanel(){panel.classList.remove('open');document.body.classList.remove('pop');setSelected(null);}
 
 /* filters */
 const TYPES=[['f-ledger','Ledger forks','#0AC18E'],['f-code','Code forks','#9D4EDD'],['f-upgrade','Upgrades','#00d9ff'],
@@ -641,7 +657,7 @@ TYPES.forEach(([k,label,col])=>{const d=document.createElement('div');d.classNam
 document.getElementById('legtog').onclick=()=>{
   const lg=document.getElementById('legend');lg.classList.toggle('closed');
   document.getElementById('legtog').innerHTML='Legend &amp; filter '+(lg.classList.contains('closed')?'▸':'▾');};
-if(innerWidth<820)document.getElementById('legtog').onclick(); /* start collapsed on small screens */
+if(innerWidth<820||TOUCH_ONLY)document.getElementById('legtog').onclick(); /* start collapsed on phones AND tablets */
 
 /* ---------- ABOUT ---------- */
 function toggleAbout(v){document.getElementById('about').classList.toggle('open',v);}
@@ -653,7 +669,7 @@ const qEl=document.getElementById('q'),qr=document.getElementById('qr');
 let qHits=[];
 function goTo(item){
   wrap.scrollLeft=item.x*scale-wrap.clientWidth*0.5;
-  wrap.scrollTop=item.y*scale-wrap.clientHeight*0.5;
+  wrap.scrollTop=item.y*scale-wrap.clientHeight*0.5+padT();
   openPanel(item.d);qr.classList.remove('on');qEl.blur();}
 qEl.addEventListener('input',()=>{
   const v=qEl.value.trim().toLowerCase();qr.innerHTML='';qHits=[];
@@ -674,6 +690,8 @@ addEventListener('keydown',e=>{
 
 /* ================= PAN / ZOOM / SCROLL ================= */
 const wrap=document.getElementById('wrap');
+/* wrap's padding-top offsets all content in scroll space — every scrollTop<->world conversion must subtract it */
+const padT=()=>parseFloat(getComputedStyle(wrap).paddingTop)||0;
 let scale=0.85;
 /* +420px of always-scrollable space past the last labels, so the detail panel (370px) can never trap them */
 const ENDPAD=420;
@@ -688,11 +706,12 @@ function applyScale(){svg.setAttribute('width',W*scale+ENDPAD);svg.setAttribute(
     t.setAttribute('font-size',(+t.dataset.b)*Math.min(1/scale,cap));
   });
   buildRuler();}
-function minScale(){return Math.min(.85,Math.max(.3,(wrap.clientHeight-120)/H));}
+function minScale(){return Math.min(.85,Math.max(.3,(wrap.clientHeight-padT()-40)/H));}
 function setScale(ns,cx,cy){ns=Math.min(2,Math.max(minScale(),ns));
-  const wx=(wrap.scrollLeft+cx)/scale, wy=(wrap.scrollTop+cy)/scale;
+  const pt=padT();
+  const wx=(wrap.scrollLeft+cx)/scale, wy=(wrap.scrollTop+cy-pt)/scale;
   scale=ns;applyScale();
-  wrap.scrollLeft=wx*scale-cx;wrap.scrollTop=wy*scale-cy;}
+  wrap.scrollLeft=wx*scale-cx;wrap.scrollTop=wy*scale-cy+pt;}
 document.getElementById('zin').onclick=()=>setScale(scale*1.25,wrap.clientWidth/2,wrap.clientHeight/2);
 document.getElementById('zout').onclick=()=>setScale(scale/1.25,wrap.clientWidth/2,wrap.clientHeight/2);
 document.getElementById('zhome').onclick=home;
@@ -718,7 +737,7 @@ wrap.addEventListener('touchstart',e=>{
   else if(e.touches.length===2){tpan=null;
     const[cx,cy]=tmid(e.touches);
     pinch={d:tdist(e.touches),s:scale,f:1,cx0:cx,cy0:cy,cx,cy,
-      ox:wrap.scrollLeft+cx,oy:wrap.scrollTop+cy};
+      ox:wrap.scrollLeft+cx,oy:wrap.scrollTop+cy-padT()};
     svg.style.transformOrigin=pinch.ox+'px '+pinch.oy+'px';
     svg.style.willChange='transform';}},{passive:true});
 wrap.addEventListener('touchmove',e=>{
@@ -740,7 +759,7 @@ function endPinch(){
   const ns=pinch.s*pinch.f;
   scale=Math.min(2,Math.max(minScale(),ns));applyScale();
   wrap.scrollLeft=(pinch.ox/pinch.s)*scale-pinch.cx;
-  wrap.scrollTop=(pinch.oy/pinch.s)*scale-pinch.cy;
+  wrap.scrollTop=(pinch.oy/pinch.s)*scale-pinch.cy+padT();
   pinch=null;}
 wrap.addEventListener('touchend',e=>{
   if(pinch){if(e.touches.length<2){endPinch();if(e.touches.length===1)startPan(e.touches[0]);}return;}
@@ -776,12 +795,12 @@ function buildRuler(){rin.innerHTML='';rin.style.width=(W*scale+ENDPAD)+'px';
 wrap.addEventListener('scroll',()=>{rin.style.transform=`translateX(${-wrap.scrollLeft}px)`;});
 
 addEventListener('resize',()=>{if(scale<minScale())setScale(minScale(),wrap.clientWidth/2,wrap.clientHeight/2);});
-function home(){scale=0.85;applyScale();wrap.scrollLeft=0;wrap.scrollTop=TRUNKY*scale-wrap.clientHeight*0.42;
+function home(){scale=0.85;applyScale();wrap.scrollLeft=0;wrap.scrollTop=TRUNKY*scale-wrap.clientHeight*0.42+padT();
   const q=new URLSearchParams(location.search);
   if(q.get('z')){scale=Math.min(2,Math.max(minScale(),+q.get('z')||.85));applyScale();
-    wrap.scrollTop=TRUNKY*scale-wrap.clientHeight*0.42;}
+    wrap.scrollTop=TRUNKY*scale-wrap.clientHeight*0.42+padT();}
   if(q.get('goto')){wrap.scrollLeft=X(q.get('goto')+'-01-01')*scale-260;}
-  if(q.get('y')){wrap.scrollTop=laneY(+q.get('y'))*scale-wrap.clientHeight*0.5;}
+  if(q.get('y')){wrap.scrollTop=laneY(+q.get('y'))*scale-wrap.clientHeight*0.5+padT();}
   if(q.get('sel')&&byId[q.get('sel')])openPanel(byId[q.get('sel')]);}
 applyScale();home();
 </script>
