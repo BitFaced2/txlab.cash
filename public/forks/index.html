@@ -227,7 +227,10 @@
      BCH codenames after Axion (2020) are community nicknames, not official.</p>
   <h3>What's deliberately missing</h3>
   <p>Monero, Ethereum, Ripple, Cardano and friends — commonly mislabeled as Bitcoin forks; they are independent
-     codebases. Vaporware forks that never demonstrably launched (Bitcoin Silver, Bitcoin Uranium) are excluded.
+     codebases. Same for airdrop claims to BTC holders (HEX, Byteball), token layers on Bitcoin (Omni/Tether,
+     Counterparty, Ordinals), Bitcoin layers and sidechains (Lightning, Liquid), and wrapped representations (WBTC).
+     <b>Search any of them</b> — each returns a card explaining exactly why it isn't a fork.
+     Vaporware forks that never demonstrably launched (Bitcoin Silver, Bitcoin Uranium) are excluded.
      BIP-110 stays off the map until it actually activates or splits.</p>
 </div></div>
 
@@ -246,7 +249,7 @@ function X(d){let v=yr(d),x=LEFT;
     if(v<=a)break; x+=(Math.min(v,b)-a)*r; if(v<=b)break;}
   return x;}
 const W=Math.ceil(X('2027-01-01'))+330;
-const LANEH=36, TRUNKY=700, H=1790;
+const LANEH=36, TRUNKY=700, H=1930;
 function laneY(l){return TRUNKY+l*LANEH;}
 
 /* ================= CHAINS =================
@@ -280,13 +283,14 @@ const CHAINS=[
 {id:'btw',name:'Bitcoin World',tick:'BTW',lane:-11.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-17',end:'2018-09-01',block:'499777',v:'2017-12-17 12:11Z',sum:'Airdrop-wave fork.',status:'Dead'},
 {id:'lbtc',name:'Lightning Bitcoin',tick:'LBTC',lane:-11.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2019-06-01',block:'499999',v:'2017-12-18 18:34Z',sum:'DPoS fork — no relation to the actual Lightning Network, name notwithstanding.',status:'Defunct'},
 {id:'btf',name:'Bitcoin Faith',tick:'BTF',lane:-12.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-11-01',block:'500000',v:'2017-12-18 18:35Z',sum:'Forked at the nice round block 500000. Faith did not sustain it.',status:'Dead'},
-{id:'btcs',name:'Bitcoin Stake',tick:'BTCS',lane:-13,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-10-01',ely:-10,block:'499999',v:'2017-12-18 18:34Z',sum:'Proof-of-stake fork. Ticker later clashed with "Bitcoin Silver". Sources said Dec 19; block 499999 landed Dec 18 UTC.',status:'Dead'},
+{id:'btcs',name:'Bitcoin Stake',tick:'BTCS',lane:-13,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-10-01',elx:-20,ely:-10,block:'499999',v:'2017-12-18 18:34Z',sum:'Proof-of-stake fork. Ticker later clashed with "Bitcoin Silver". Sources said Dec 19; block 499999 landed Dec 18 UTC.',status:'Dead'},
 {id:'god',name:'Bitcoin God',tick:'GOD',lane:-13.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-27',end:'2018-12-01',block:'501225',v:'2017-12-27 06:55Z',sum:'Chandler Guo’s "charity"-themed fork, ticker GOD. Never gained traction.',status:'Dead'},
-{id:'bpa',name:'Bitcoin Pizza',tick:'BPA',lane:-14.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-31',end:'2018-11-01',block:'501888',v:'2017-12-31 12:32Z',sum:'A DAG-based fork named after the 10,000-BTC pizza. Branded as a New Year’s Day fork — the chain says its snapshot block hit Dec 31 UTC.',status:'Dead'},
-{id:'bcp',name:'Bitcoin Cash Plus',tick:'BCP',lane:-14.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-28',end:'2018-07-01',block:'501407',v:'2017-12-28 10:52Z',sum:'Name-squatting on Bitcoin Cash. Vanished almost immediately. Secondary sources claim Jan 2, 2018 — block 501407 was actually mined Dec 28, 2017. The chain doesn’t lie.',status:'Dead'},
-{id:'bca',name:'Bitcoin Atom',tick:'BCA',lane:-15.4,kind:'ledger',stub:1,parent:'btc',start:'2018-01-24',end:'2019-09-01',block:'505888',v:'2018-01-24 14:26Z',sum:'Atomic-swap-focused fork. Outlived most of the wave, then faded.',status:'Defunct'},
-{id:'bco',name:'Bitcoin Ore',tick:'BCO',lane:-16,kind:'ledger',stub:1,parent:'btc',start:'2018-01-31',end:'2018-10-01',ely:-30,uv:'fork block unverified',sum:'Proof-of-capacity fork.',status:'Dead'},
-{id:'anon',name:'Anonymous Bitcoin',tick:'ANON',lane:-16.6,kind:'ledger',stub:1,parent:'btc',start:'2018-09-10',end:'2019-09-01',uv:'fork block unverified',sum:'Dual fork of Bitcoin + Zclassic (like BTCP): zk-SNARKs plus masternodes. The last gasp of the airdrop wave.',status:'Defunct'},
+{id:'b2x',name:'SegWit2x [B2X]',tick:'B2X',lane:-14.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-28',end:'2018-07-01',block:'501451',v:'2017-12-28 18:02Z',sum:'THE ZOMBIE. After the real SegWit2x died in November, an unrelated team forked at block 501451 anyway and kept the name — 4MB blocks, 2.5-minute spacing, widely called a cash-grab. The chain barely functioned.',status:'Dead'},
+{id:'bpa',name:'Bitcoin Pizza',tick:'BPA',lane:-14.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-31',end:'2018-11-01',block:'501888',v:'2017-12-31 12:32Z',sum:'A DAG-based fork named after the 10,000-BTC pizza. Branded as a New Year’s Day fork — the chain says its snapshot block hit Dec 31 UTC.',status:'Dead'},
+{id:'bcp',name:'Bitcoin Cash Plus',tick:'BCP',lane:-15.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-28',end:'2018-07-01',block:'501407',v:'2017-12-28 10:52Z',sum:'Name-squatting on Bitcoin Cash. Vanished almost immediately. Secondary sources claim Jan 2, 2018 — block 501407 was actually mined Dec 28, 2017. The chain doesn’t lie.',status:'Dead'},
+{id:'bca',name:'Bitcoin Atom',tick:'BCA',lane:-16,kind:'ledger',stub:1,parent:'btc',start:'2018-01-24',end:'2019-09-01',block:'505888',v:'2018-01-24 14:26Z',sum:'Atomic-swap-focused fork. Outlived most of the wave, then faded.',status:'Defunct'},
+{id:'bco',name:'Bitcoin Ore',tick:'BCO',lane:-16.6,kind:'ledger',stub:1,parent:'btc',start:'2018-01-31',end:'2018-10-01',uv:'fork block unverified',sum:'Proof-of-capacity fork.',status:'Dead'},
+{id:'anon',name:'Anonymous Bitcoin',tick:'ANON',lane:-17.2,kind:'ledger',stub:1,parent:'btc',start:'2018-09-10',end:'2019-09-01',uv:'fork block unverified',sum:'Dual fork of Bitcoin + Zclassic (like BTCP): zk-SNARKs plus masternodes. The last gasp of the airdrop wave.',status:'Defunct'},
 
 /* ---- code forks · first generation, BTC-direct ---- */
 {id:'nmc',name:'Namecoin',tick:'NMC',lane:1.5,kind:'code',col:'#2e7fb8',parent:'btc',start:'2011-04-18',
@@ -358,6 +362,19 @@ const CHAINS=[
  sum:'Zcash fork with delayed-PoW: notarizes its history onto Bitcoin for security. DEX / atomic-swap platform.',status:'Alive (acquired by Gleec 2025)'},
 {id:'zen',name:'Horizen',tick:'ZEN',lane:25.15,kind:'code',col:'#2f8f7a',parent:'zcl',start:'2017-05-30',end:'2025-07-24',
  sum:'Launched as ZenCash, a Zclassic fork; renamed Horizen 2018. Privacy plus a sidechain platform. The Bitcoin-lineage chain was retired in July 2025 — the ZEN token migrated to Base as an ERC-20.',status:'Chain retired 2025; token lives on Base'},
+
+/* ---- code forks · second generation — the family sprawls ---- */
+{id:'mona',name:'Monacoin',tick:'MONA',lane:26.2,kind:'code',col:'#c9a03c',parent:'ltc',start:'2014-01-01',
+ sum:'JAPAN’S FIRST HOMEGROWN CRYPTOCURRENCY — born on the 2channel board in December 2013, launched New Year’s Day 2014, no premine. Named for the "Mona" ASCII-art cat. A genuine cultural icon in Japan: shrines accept it, and a plot of land was once bought with MONA.',status:'Alive'},
+{id:'blk',name:'Blackcoin',tick:'BLK',lane:26.95,kind:'code',col:'#5c6470',parent:'nvc',start:'2014-02-24',
+ sum:'rat4’s Novacoin fork that dropped to PURE proof-of-stake after a brief PoW distribution phase — the chain that proved staking alone could secure a network. Its PoS v2 protocol paper is cited across the staking world. Still minting since 2014.',status:'Alive (low)'},
+{id:'clam',name:'CLAM',tick:'CLAM',lane:27.7,kind:'code',col:'#d98e5f',parent:'blk',start:'2014-05-24',
+ sum:'THE GREAT EASTER EGG: distributed to every BTC, LTC and DOGE address funded on May 12, 2014 — 4.6 CLAMs each, to 3.2 million addresses. If you had coins in 2014, you probably have CLAMs. Check your old wallets. Blackcoin-lineage pure PoS; long beloved of the Just-Dice staking crowd.',status:'Alive (low)'},
+{id:'xvg',name:'Verge',tick:'XVG',lane:28.45,kind:'code',col:'#0aa3cc',parent:'doge',start:'2014-10-01',uv:'launch month per project history; exact genesis day poorly documented',
+ sum:'Launched as DOGECOINDARK — a Tor/I2P privacy fork of Dogecoin by "Sunerok". Rebranded Verge in Feb 2016; infamous for the 2018 time-warp 51% attacks and a Pornhub partnership. Dogecoin’s edgiest descendant.',status:'Alive'},
+{id:'lcc',name:'Litecoin Cash',tick:'LCC',lane:29.2,kind:'ledger',col:'#33a457',typeName:'Ledger fork · shares LITECOIN’s history',parent:'ltc',start:'2018-02-18',block:'1371111 (LTC)',
+ src:'Project site · bitcointalk ANN · contemporary press',
+ sum:'A FORK OF A FORK — the family’s first famous second-generation ledger fork. Split from Litecoin at block 1,371,111 (10 LCC per LTC) and switched to SHA256, giving retired Bitcoin ASICs somewhere to go. Proof the fork playbook itself was now a fork target.',status:'Alive (low)'},
 ];
 
 /* ================= EVENTS (markers on a line) =================
@@ -382,7 +399,7 @@ const EVENTS=[
 {chain:'btc',type:'failed',name:'Bitcoin Classic',date:'2016-02-10',sum:'The 2MB compromise client. Abandoned without activating.'},
 {chain:'btc',type:'failed',name:'Bitcoin Unlimited',date:'2016-03-15',flip:1,sum:'"Emergent consensus" — miner-chosen block sizes. Popular hashpower signal in 2016-17, never forked.'},
 {chain:'btc',type:'failed',name:'BIP148 UASF',date:'2017-08-01',flip:1,lxoff:-40,sum:'User-activated soft fork ultimatum: enforce SegWit or else. It worked — miners locked SegWit in first, so the "or else" never fired. Same day, Bitcoin Cash went its own way.'},
-{chain:'btc',type:'failed',name:'SegWit2x cancelled',date:'2017-11-08',sum:'The New York Agreement’s 2MB hard fork (~block 494784), backed by most miners and businesses — suspended days before activation. The dog that didn’t bark.'},
+{chain:'btc',type:'failed',name:'SegWit2x cancelled',date:'2017-11-08',sum:'The New York Agreement’s 2MB hard fork (~block 494784), backed by most miners and businesses — suspended days before activation. The dog that didn’t bark. (A zombie "B2X" chain launched at block 501451 weeks later anyway — see the graveyard fan.)'},
 /* pending */
 {chain:'btc',type:'pending',name:'Core v30 OP_RETURN',date:'2025-10-15',flip:1,sum:'Bitcoin Core v30 relaxed OP_RETURN data limits — policy, not consensus, but it reignited the "what is Bitcoin for" fight and boosted Bitcoin Knots adoption.'},
 /* BIP-110 (mandatory signaling ~block 961632, est. 2026-08-07) intentionally omitted until it actually activates or splits — re-add with the ghost:1 line if it happens */
@@ -409,6 +426,7 @@ const ERAS=[
  {date:'2009-04-01',lane:5.6,txt:'FIRST-GENERATION CODE FORKS · 2011–13'},   /* lead-in left of the 2011 cluster */
  {date:'2011-12-01',lane:15.2,txt:'THE SCRYPT → DOGE LINEAGE'},              /* gap under LTC before JKC/LKY begin */
  {date:'2015-01-01',lane:24.1,txt:'THE PRIVACY FAMILY'},                     /* left of the Zcash family launch */
+ {date:'2011-06-01',lane:27.8,txt:'SECOND GENERATION · THE FAMILY SPRAWLS · 2014–18'}, /* left of the Mona/BLK/CLAM band */
  {date:'2017-08-10',lane:-13,txt:'THE AIRDROP GRAVEYARD · 2017–18'},         /* above SegWit, right where the fan erupts */
  {date:'2021-01-01',lane:-9.2,txt:'THE SCALING WARS · BCH → BSV → XEC'},     /* below BSV, after the graveyard clears */
 ];
@@ -570,6 +588,25 @@ EVENTS.forEach(ev=>{
   L.nodes.appendChild(g);
 });
 
+/* famous non-forks — searchable, so "where is X?" gets an answer instead of an omission */
+const NOTMAP=[
+ ['HEX','Ethereum token (2019). Its launch let BTC holders claim from a UTXO snapshot — an airdrop TO bitcoiners, not a fork OF Bitcoin. No shared ledger, no shared code, no chain of its own.'],
+ ['Monero','XMR forked from Bytecoin — the CryptoNote codebase (2014), a completely separate lineage. Zero Bitcoin code, zero shared history.'],
+ ['Ethereum','Independent chain (2015), own codebase. Its famous split (ETH / ETC, 2016) is an Ethereum story, not a Bitcoin one.'],
+ ['Tether / Omni','USDT launched ON TOP of Bitcoin via the Omni Layer (2014) — a token protocol that reads Bitcoin’s chain, not a fork of it.'],
+ ['Counterparty','XCP (2014). A meta-layer embedded inside Bitcoin transactions — home of the earliest NFTs. No separate chain, so nothing to draw here.'],
+ ['Stacks','STX. Its own chain, anchored to Bitcoin via Proof-of-Transfer. Uses Bitcoin; doesn’t fork it.'],
+ ['Lightning Network','A payment LAYER over Bitcoin — channels that settle on-chain. Not a chain, not a fork.'],
+ ['Liquid Network','A federated SIDECHAIN pegged to BTC with its own consensus. Beside the chain, not a branch of it.'],
+ ['Wrapped BTC','WBTC and friends: BTC held by custodians and re-issued as tokens on other chains. A representation, not a fork.'],
+ ['Ordinals / BRC-20','Inscriptions ON Bitcoin (2023+) — a use of the chain, not a change to it. All that activity lives on mainnet BTC.'],
+ ['Byteball / Obyte','A DAG (not even a blockchain) distributed via BTC-linked airdrops in 2016–17 — a claim-drop, like HEX before HEX.'],
+ ['Ripple','XRP. Independent ledger tech that predates the fork era. Shared exchange listings with BTC in 2013; never shared a byte of code.'],
+ ['Cardano','ADA. Independent proof-of-stake chain (2017), own codebase, own genesis.'],
+];
+NOTMAP.forEach(([nm,why])=>IDX.push({t:(nm+' not a fork').toLowerCase(),label:nm,sub:'not on this map — why?',x:0,y:0,
+ d:{nomap:1,name:nm,kindName:'nomap',col:'#7B857F',sum:why,status:'Not a Bitcoin fork',src:'—'}}));
+
 /* ================= INTERACTION ================= */
 const tip=document.getElementById('tip');
 function fmtDate(d){if(!d)return'';const[Y,M,Dy]=d.split('-');return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+M-1]+' '+(Dy?+Dy+', ':'')+Y;}
@@ -598,7 +635,7 @@ function interact(g,data,tipData){
 function moveTip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px';}
 
 /* per-cluster sources (dataset compiled Aug 2026; ✔ = re-verified against the author's own nodes) */
-const SCRYPT=new Set(['tbx','fbx','ltc','ftc','jkc','lky','bells','doge','vtc','dgb','dash','aur','rdd','sys']);
+const SCRYPT=new Set(['tbx','fbx','ltc','ftc','jkc','lky','bells','doge','vtc','dgb','dash','aur','rdd','sys','mona','xvg']);
 const PRIVACY=new Set(['zec','zcl','kmd','zen']);
 const SRC={
  trunk:'The chain itself — genesis block ✔ own node',
@@ -614,6 +651,7 @@ const SRC={
  pending:'Bitcoin Core release notes · dev mailing list',
  other:'Project release notes · Wikipedia'};
 function srcFor(n){
+  if(n.src)return n.src;
   if(n.kindName){const t=n.kindName;
     if(t==='upgrade')return n.chain==='btc'?SRC.btcup:(n.chain==='bch'?SRC.bchup:SRC.other);
     return SRC[t]||SRC.other;}
@@ -625,12 +663,13 @@ function srcFor(n){
   return SRC.firstgen;}
 const panel=document.getElementById('panel'),pbody=document.getElementById('pbody');
 const TYPENAME={trunk:'The original chain',ledger:'Ledger fork · shares Bitcoin’s history',code:'Code fork · new genesis',
-  upgrade:'Protocol upgrade',bug:'Accidental / bug fork',failed:'Failed / cancelled',pending:'Pending · watch this'};
+  upgrade:'Protocol upgrade',bug:'Accidental / bug fork',failed:'Failed / cancelled',pending:'Pending · watch this',
+  nomap:'Not on this map — and why'};
 function openPanel(n){
   setSelected(n.id||n.chain||null);
   const kind=n.kind||n.kindName,
     col=n.kindName?(n.col||EVCOL[kind]):(n.col?vivid(n.col):'#7B857F');
-  let rows=`<div class="row"><span class="k">Date</span><span>${fmtDate(n.date||n.start)}</span></div>`;
+  let rows=(n.date||n.start)?`<div class="row"><span class="k">Date</span><span>${fmtDate(n.date||n.start)}</span></div>`:'';
   if(n.block)rows+=`<div class="row"><span class="k">Block</span><span>${n.block}</span></div>`;
   if(n.chainName)rows+=`<div class="row"><span class="k">On chain</span><span>${n.chainName}</span></div>`;
   if(n.parent)rows+=`<div class="row"><span class="k">Forked from</span><span>${byId[n.parent]?byId[n.parent].name:n.parent}</span></div>`;
@@ -640,7 +679,7 @@ function openPanel(n){
   if(n.loop)rows+=`<div class="row"><span class="k">Bad chain</span><span>${n.loop} blocks, then reorged away</span></div>`;
   if(n.status)rows+=`<div class="row"><span class="k">Status</span><span>${n.status}</span></div>`;
   rows+=`<div class="row"><span class="k">Sources</span><span style="color:var(--muted);font-size:11px">${srcFor(n)}</span></div>`;
-  pbody.innerHTML=`<div class="ptype" style="color:${col}">${TYPENAME[kind]||kind}</div>
+  pbody.innerHTML=`<div class="ptype" style="color:${col}">${n.typeName||TYPENAME[kind]||kind}</div>
     <h2>${n.name}</h2><div class="tick">${n.tick||''}</div>
     ${n.sum?`<div class="sum">${n.sum}</div>`:''}${rows}
     ${n.v?`<div class="vbadge">✔ VERIFIED ON MY OWN NODE · ${n.v}</div>`:''}
@@ -676,6 +715,7 @@ document.getElementById('about').addEventListener('click',e=>{if(e.target.id==='
 const qEl=document.getElementById('q'),qr=document.getElementById('qr');
 let qHits=[];
 function goTo(item){
+  if(item.d&&item.d.nomap){openPanel(item.d);qr.classList.remove('on');qEl.blur();return;}
   wrap.scrollLeft=item.x*scale-wrap.clientWidth*0.5;
   wrap.scrollTop=item.y*scale-wrap.clientHeight*0.5+padT();
   openPanel(item.d);qr.classList.remove('on');qEl.blur();}
