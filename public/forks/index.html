@@ -39,6 +39,9 @@
     background-size:30px 30px;}
   /* overflow:visible so mid-pinch content scaled past the svg box isn't clipped */
   #svg{display:block;overflow:visible}
+  /* dark halo behind every map label so chain lines never make text unreadable
+     (.era watermarks excluded — they sit under the lines by design) */
+  #root text:not(.era){paint-order:stroke;stroke:rgba(8,11,10,.92);stroke-width:3.5px;stroke-linejoin:round}
   #wrap.grabbing{cursor:grabbing}
   #wrap::-webkit-scrollbar{width:11px;height:11px}
   #wrap::-webkit-scrollbar-track{background:var(--bg)}
@@ -275,12 +278,12 @@ const CHAINS=[
 {id:'btw',name:'Bitcoin World',tick:'BTW',lane:-11.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-17',end:'2018-09-01',block:'499777',v:'2017-12-17 12:11Z',sum:'Airdrop-wave fork.',status:'Dead'},
 {id:'lbtc',name:'Lightning Bitcoin',tick:'LBTC',lane:-11.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2019-06-01',block:'499999',v:'2017-12-18 18:34Z',sum:'DPoS fork — no relation to the actual Lightning Network, name notwithstanding.',status:'Defunct'},
 {id:'btf',name:'Bitcoin Faith',tick:'BTF',lane:-12.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-11-01',block:'500000',v:'2017-12-18 18:35Z',sum:'Forked at the nice round block 500000. Faith did not sustain it.',status:'Dead'},
-{id:'btcs',name:'Bitcoin Stake',tick:'BTCS',lane:-13,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-10-01',block:'499999',v:'2017-12-18 18:34Z',sum:'Proof-of-stake fork. Ticker later clashed with "Bitcoin Silver". Sources said Dec 19; block 499999 landed Dec 18 UTC.',status:'Dead'},
+{id:'btcs',name:'Bitcoin Stake',tick:'BTCS',lane:-13,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-10-01',ely:-10,block:'499999',v:'2017-12-18 18:34Z',sum:'Proof-of-stake fork. Ticker later clashed with "Bitcoin Silver". Sources said Dec 19; block 499999 landed Dec 18 UTC.',status:'Dead'},
 {id:'god',name:'Bitcoin God',tick:'GOD',lane:-13.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-27',end:'2018-12-01',block:'501225',v:'2017-12-27 06:55Z',sum:'Chandler Guo’s "charity"-themed fork, ticker GOD. Never gained traction.',status:'Dead'},
 {id:'bpa',name:'Bitcoin Pizza',tick:'BPA',lane:-14.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-31',end:'2018-11-01',block:'501888',v:'2017-12-31 12:32Z',sum:'A DAG-based fork named after the 10,000-BTC pizza. Branded as a New Year’s Day fork — the chain says its snapshot block hit Dec 31 UTC.',status:'Dead'},
 {id:'bcp',name:'Bitcoin Cash Plus',tick:'BCP',lane:-14.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-28',end:'2018-07-01',block:'501407',v:'2017-12-28 10:52Z',sum:'Name-squatting on Bitcoin Cash. Vanished almost immediately. Secondary sources claim Jan 2, 2018 — block 501407 was actually mined Dec 28, 2017. The chain doesn’t lie.',status:'Dead'},
 {id:'bca',name:'Bitcoin Atom',tick:'BCA',lane:-15.4,kind:'ledger',stub:1,parent:'btc',start:'2018-01-24',end:'2019-09-01',block:'505888',v:'2018-01-24 14:26Z',sum:'Atomic-swap-focused fork. Outlived most of the wave, then faded.',status:'Defunct'},
-{id:'bco',name:'Bitcoin Ore',tick:'BCO',lane:-16,kind:'ledger',stub:1,parent:'btc',start:'2018-01-31',end:'2018-10-01',uv:'fork block unverified',sum:'Proof-of-capacity fork.',status:'Dead'},
+{id:'bco',name:'Bitcoin Ore',tick:'BCO',lane:-16,kind:'ledger',stub:1,parent:'btc',start:'2018-01-31',end:'2018-10-01',ely:-30,uv:'fork block unverified',sum:'Proof-of-capacity fork.',status:'Dead'},
 {id:'anon',name:'Anonymous Bitcoin',tick:'ANON',lane:-16.6,kind:'ledger',stub:1,parent:'btc',start:'2018-09-10',end:'2019-09-01',uv:'fork block unverified',sum:'Dual fork of Bitcoin + Zclassic (like BTCP): zk-SNARKs plus masternodes. The last gasp of the airdrop wave.',status:'Defunct'},
 
 /* ---- code forks · first generation, BTC-direct ---- */
@@ -290,7 +293,7 @@ const CHAINS=[
  sum:'Charity/open-source funding coin — auto-allocated coinbase share to developers, writers and artists. Merge-mined.',status:'Niche'},
 {id:'ixc',name:'IXCoin',tick:'IXC',lane:3,kind:'code',col:'#b0713a',parent:'btc',start:'2011-08-10',
  sum:'Early near-clone: 21M cap, larger initial reward. Added merged mining in 2012.',status:'Niche'},
-{id:'solid',name:'SolidCoin',tick:'SC',lane:3.75,kind:'code',col:'#8a6f5a',parent:'btc',start:'2011-08-01',end:'2011-09-30',uv:'genesis day approximate',
+{id:'solid',name:'SolidCoin',tick:'SC',lane:3.75,kind:'code',col:'#8a6f5a',parent:'btc',start:'2011-08-01',end:'2011-09-30',elx:-20,ely:-16,uv:'genesis day approximate',
  sum:'Premined, faster blocks — and a network killswitch held by its creator. Abandoned within weeks after community backlash.',status:'Dead'},
 {id:'geg',name:'GeistGeld',tick:'GEG',lane:4.5,kind:'code',col:'#708078',parent:'btc',start:'2011-09-01',end:'2012-06-01',uv:'genesis day approximate',
  sum:'Experimental max-speed, no-halving coin (via MultiCoin). Hit by a time-warp attack.',status:'Dead'},
@@ -361,7 +364,7 @@ const EVENTS=[
 /* BTC upgrades */
 {chain:'btc',type:'upgrade',name:'BIP30',date:'2012-03-15',flip:1,sum:'Duplicate-TXID fix — closed the duplicate-coinbase vulnerability (flag-day soft fork).'},
 {chain:'btc',type:'upgrade',name:'P2SH',date:'2012-04-01',block:'173805',v:'2012-04-01 00:43Z',sum:'Pay-to-script-hash (BIP16). Made multisig and complex scripts practical.'},
-{chain:'btc',type:'upgrade',name:'BIP34',date:'2013-03-25',block:'227931',v:'2013-03-25 07:30Z',flip:1,sum:'Block v2 — height in coinbase, guaranteeing unique coinbase transactions. (Often documented as Mar 24; block 227931 landed Mar 25 UTC.)'},
+{chain:'btc',type:'upgrade',name:'BIP34',date:'2013-03-25',block:'227931',v:'2013-03-25 07:30Z',flip:1,lyoff:-34,sum:'Block v2 — height in coinbase, guaranteeing unique coinbase transactions. (Often documented as Mar 24; block 227931 landed Mar 25 UTC.)'},
 {chain:'btc',type:'upgrade',name:'BIP66',date:'2015-07-04',block:'363725',v:'2015-07-04 01:54Z',sum:'Strict DER signature encoding. Its activation triggered the SPV-mining fork the very same night — see the red loop next door.'},
 {chain:'btc',type:'upgrade',name:'CLTV',date:'2015-12-14',block:'388381',v:'2015-12-14 17:24Z',flip:1,sum:'OP_CHECKLOCKTIMEVERIFY — absolute timelocks.'},
 {chain:'btc',type:'upgrade',name:'CSV',date:'2016-07-04',block:'419328',v:'2016-07-04 23:16Z',sum:'Relative timelocks (BIP68/112/113). The foundation the Lightning Network stands on.'},
@@ -369,14 +372,14 @@ const EVENTS=[
 {chain:'btc',type:'upgrade',name:'Taproot',date:'2021-11-14',block:'709632',v:'2021-11-14 05:15Z',sum:'Schnorr signatures, Pay-to-Taproot, Tapscript. Bitcoin’s most recent consensus upgrade.'},
 /* BTC accidental / bug forks */
 {chain:'btc',type:'bug',name:'Value Overflow',date:'2010-08-15',block:'74638',v:'2010-08-15 23:53Z',loop:53,ftx:'Accidental split via exploit — the emergency fix itself was a soft fork (rules tightened)',sum:'CVE-2010-5139: an integer overflow minted ~184.467 BILLION BTC in one transaction. Patched within ~5 hours; the honest chain overtook the bad one 53 blocks later and the coins never existed again.'},
-{chain:'btc',type:'bug',name:'March 2013 fork',date:'2013-03-11',block:'225430',v:'2013-03-11 23:24Z',loop:24,ftx:'Accidental split — often called Bitcoin’s only hard fork, though that label is disputed: the "rule" broken was an undocumented, non-deterministic BDB lock limit, not a written consensus rule',sum:'v0.8 (LevelDB) accepted a block that v0.7 (BerkeleyDB) rejected — an accidental split ~24 blocks deep. Miners voluntarily downgraded to reunite the network (BIP50).'},
+{chain:'btc',type:'bug',name:'March 2013 fork',date:'2013-03-11',block:'225430',v:'2013-03-11 23:24Z',loop:24,lxoff:20,ftx:'Accidental split — often called Bitcoin’s only hard fork, though that label is disputed: the "rule" broken was an undocumented, non-deterministic BDB lock limit, not a written consensus rule',sum:'v0.8 (LevelDB) accepted a block that v0.7 (BerkeleyDB) rejected — an accidental split ~24 blocks deep. Miners voluntarily downgraded to reunite the network (BIP50).'},
 {chain:'btc',type:'bug',name:'BIP66 SPV fork',lab:'SPV fork',date:'2015-07-04',block:'363731',v:'2015-07-04 02:46Z',loop:6,xoff:26,flip:1,lyoff:-13,ftx:'Accidental split — miners built on a block violating the hours-old BIP66 soft fork',sum:'Hours after BIP66 locked in, ~half the hashrate SPV-mined 6 blocks on top of an invalid block before the reorg. Verified on-chain: 02:46Z, inside the 02:10–03:50 alert window.'},
-{chain:'btc',type:'bug',name:'CVE-2018-17144',date:'2018-09-18',flip:1,ftx:'No split occurred — the emergency 0.16.3 patch was a rule-tightening (soft-fork-style) fix',sum:'Duplicate-input inflation/DoS bug — the closest recent call. Found by BCH developer "awemany" and patched before anyone exploited it. No split occurred.'},
+{chain:'btc',type:'bug',name:'CVE-2018-17144',date:'2018-09-18',flip:1,lxoff:20,ftx:'No split occurred — the emergency 0.16.3 patch was a rule-tightening (soft-fork-style) fix',sum:'Duplicate-input inflation/DoS bug — the closest recent call. Found by BCH developer "awemany" and patched before anyone exploited it. No split occurred.'},
 /* failed / cancelled campaigns */
-{chain:'btc',type:'failed',name:'Bitcoin XT',date:'2015-08-15',flip:1,sum:'BIP101: 8MB blocks via the XT client. First big-block secession attempt; never reached activation threshold.'},
+{chain:'btc',type:'failed',name:'Bitcoin XT',date:'2015-08-15',flip:1,lxoff:40,sum:'BIP101: 8MB blocks via the XT client. First big-block secession attempt; never reached activation threshold.'},
 {chain:'btc',type:'failed',name:'Bitcoin Classic',date:'2016-02-10',sum:'The 2MB compromise client. Abandoned without activating.'},
 {chain:'btc',type:'failed',name:'Bitcoin Unlimited',date:'2016-03-15',flip:1,sum:'"Emergent consensus" — miner-chosen block sizes. Popular hashpower signal in 2016-17, never forked.'},
-{chain:'btc',type:'failed',name:'BIP148 UASF',date:'2017-08-01',flip:1,sum:'User-activated soft fork ultimatum: enforce SegWit or else. It worked — miners locked SegWit in first, so the "or else" never fired. Same day, Bitcoin Cash went its own way.'},
+{chain:'btc',type:'failed',name:'BIP148 UASF',date:'2017-08-01',flip:1,lxoff:-40,sum:'User-activated soft fork ultimatum: enforce SegWit or else. It worked — miners locked SegWit in first, so the "or else" never fired. Same day, Bitcoin Cash went its own way.'},
 {chain:'btc',type:'failed',name:'SegWit2x cancelled',date:'2017-11-08',sum:'The New York Agreement’s 2MB hard fork (~block 494784), backed by most miners and businesses — suspended days before activation. The dog that didn’t bark.'},
 /* pending */
 {chain:'btc',type:'pending',name:'Core v30 OP_RETURN',date:'2025-10-15',flip:1,sum:'Bitcoin Core v30 relaxed OP_RETURN data limits — policy, not consensus, but it reignited the "what is Bitcoin for" fight and boosted Bitcoin Knots adoption.'},
@@ -481,13 +484,14 @@ CHAINS.forEach(c=>{
     const gt=el('text',{x:x0-2,y:y1-18,fill:'var(--ink)','font-size':12,'font-weight':800,class:'yr'});gt.textContent='GENESIS · JAN 3 2009';g.appendChild(gt);
   }
   /* line end: survivor label or abandoned cap */
+  /* elx/ely: per-chain end-label nudge for spots where another line crosses the label */
   let endLab;
   if(c.end){
     g.appendChild(el('rect',{x:xE-5,y:y1-5,width:10,height:10,rx:2.5,fill:'#59635C',stroke:'var(--casing)','stroke-width':2}));
-    endLab=el('text',{x:xE+9,y:y1+4,fill:'var(--muted)','font-size':c.stub?10.5:11.5});
+    endLab=el('text',{x:xE+9+(c.elx||0),y:y1+4+(c.ely||0),fill:'var(--muted)','font-size':c.stub?10.5:11.5});
     endLab.textContent='✝ '+c.name+' '+c.tick;
   }else{
-    endLab=el('text',{x:xE+12,y:y1+4,fill:col,'font-size':c.kind==='trunk'?15:12.5,'font-weight':800});
+    endLab=el('text',{x:xE+12+(c.elx||0),y:y1+4+(c.ely||0),fill:col,'font-size':c.kind==='trunk'?15:12.5,'font-weight':800});
     endLab.textContent=c.name+' · '+c.tick;
   }
   g.appendChild(endLab);
@@ -555,7 +559,7 @@ EVENTS.forEach(ev=>{
     g.appendChild(el('rect',{x:x-s/2-5,y:y-s/2-5,width:s+10,height:s+10,rx:7,fill:'none',stroke:col,'stroke-width':1.5,'stroke-dasharray':'3 3',opacity:.8}));}
   g.appendChild(r);
   const ly=(ev.flip? y-14 : y+22)+(ev.lyoff||0);
-  const t=el('text',{x:x,y:ly,'text-anchor':'middle',fill:ev.type==='failed'?'var(--muted)':'#C8D0CB','font-size':10.5,'font-weight':700});
+  const t=el('text',{x:x+(ev.lxoff||0),y:ly,'text-anchor':'middle',fill:ev.type==='failed'?'var(--muted)':'#C8D0CB','font-size':10.5,'font-weight':700});
   t.textContent=ev.lab||ev.name;g.appendChild(t);
   const evd={...ev,ft,kindName:ev.type,chainName:c.name,col};
   interact(g,evd,{name:ev.name,date:ev.date,block:ev.block});
