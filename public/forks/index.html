@@ -32,7 +32,7 @@
   html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--mono)}
   /* padding-top = scroll headroom so top lanes can always clear the fixed header;
      right inset animates when the panel opens (body.pop) so the map is pushed aside, not covered */
-  #wrap{position:fixed;inset:0;overflow:auto;cursor:grab;touch-action:none;padding-top:92px;
+  #wrap{position:fixed;inset:0;overflow:auto;cursor:grab;touch-action:none;padding-top:92px;padding-bottom:56px;
     transition:right .26s cubic-bezier(.4,0,.2,1);
     background-color:var(--bg);
     background-image:radial-gradient(rgba(10,193,142,.06) 1px,transparent 1.3px);
@@ -556,7 +556,7 @@ Object.values(L).forEach(g=>root.appendChild(g));
 for(let y=2009;y<=2026;y++){
   const x=X(y+'-01-01');
   L.eras.appendChild(el('line',{x1:x,y1:36,x2:x,y2:H-14,stroke:'#151b18','stroke-width':1}));
-  const t1=el('text',{x:x+5,y:H-22,fill:'var(--dim)','font-size':12,'font-weight':700,class:'yr'});t1.textContent=y;L.eras.appendChild(t1);
+  const t1=el('text',{x:x+7,y:H-26,fill:'var(--muted)','font-size':22,'font-weight':700,class:'yr'});t1.textContent=y;L.eras.appendChild(t1);
 }
 const nowX=X(NOW);
 L.eras.appendChild(el('line',{x1:nowX,y1:36,x2:nowX,y2:H-14,stroke:'#E8B547','stroke-width':2,'stroke-dasharray':'3 6',opacity:.5}));
