@@ -31,9 +31,10 @@
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--mono)}
   /* padding-top = scroll headroom so top lanes can always clear the fixed header;
-     right inset animates when the panel opens (body.pop) so the map is pushed aside, not covered */
+     right inset snaps (NOT animated) when the panel opens/closes — transitioning the width
+     of a scroll container holding the huge SVG forces a per-frame reflow that reads as
+     flicker; the panel's own slide masks the instant resize, since the map is left-anchored */
   #wrap{position:fixed;inset:0;overflow:auto;cursor:grab;touch-action:none;padding-top:92px;padding-bottom:56px;
-    transition:right .26s cubic-bezier(.4,0,.2,1);
     background-color:var(--bg);
     background-image:radial-gradient(rgba(10,193,142,.06) 1px,transparent 1.3px);
     background-size:30px 30px;}
