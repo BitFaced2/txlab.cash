@@ -876,7 +876,8 @@ function applyScale(){svg.setAttribute('width',W*scale+ENDPAD);svg.setAttribute(
   /* text is part of the map — pure world scale, no counter-scaling, no floors.
      WYSIWYG with the mid-pinch transform: releasing a pinch changes nothing, ever. */
   buildRuler();}
-function minScale(){return Math.min(.85,Math.max(.3,(wrap.clientHeight-padT()-Math.max(40,padB()+8))/H));}
+/* floor low enough that fit-to-height always wins on real screens — fully zoomed out must mean NO vertical scrollbar */
+function minScale(){return Math.min(.85,Math.max(.12,(wrap.clientHeight-padT()-Math.max(40,padB()+8))/H));}
 function setScale(ns,cx,cy){ns=Math.min(2,Math.max(minScale(),ns));
   const pt=padT();
   const wx=(wrap.scrollLeft+cx)/scale, wy=(wrap.scrollTop+cy-pt)/scale;
