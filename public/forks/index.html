@@ -701,14 +701,14 @@ let scale=0.85;
 const ENDPAD=40;
 function applyScale(){svg.setAttribute('width',W*scale+ENDPAD);svg.setAttribute('height',H*scale);
   root.setAttribute('transform',`scale(${scale})`);
-  /* counter-scale text so labels stay readable when zoomed OUT (constant-ish screen size,
-     boosted up to the cap at far-out). Past 1x, text grows geometrically with the map —
-     matching what a pinch shows mid-gesture, so releasing doesn't visibly shrink the words. */
+  /* text scales geometrically with the map — identical to what the mid-pinch transform
+     shows, so releasing a pinch changes nothing. Only a readability floor intervenes:
+     when a label would render below flr×base (far zoom-out), it's held at the floor. */
   document.querySelectorAll('#root text').forEach(t=>{
     if(t.classList.contains('era'))return;
     if(!t.dataset.b)t.dataset.b=t.getAttribute('font-size')||'12';
-    const cap=t.classList.contains('yr')?3.4:1.6;
-    t.setAttribute('font-size',(+t.dataset.b)*(scale>=1?1:Math.min(1/scale,cap)));
+    const flr=t.classList.contains('yr')?.85:.55;
+    t.setAttribute('font-size',(+t.dataset.b)*Math.max(1,flr/scale));
   });
   buildRuler();}
 function minScale(){return Math.min(.85,Math.max(.3,(wrap.clientHeight-padT()-40)/H));}
