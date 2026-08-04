@@ -150,10 +150,12 @@
     #hdr{left:0;right:0;text-align:center;padding:10px 12px 8px}
     #hdr h1{font-size:17px}
     #hdr .sub{font-size:8px;letter-spacing:.14em}
-    /* search: own centered row under the centered title so neither covers the other */
-    #search{width:min(320px,86vw);top:46px;left:50%;right:auto;transform:translateX(-50%)}
-    #ruler{top:78px}
-    #wrap{padding-top:104px}
+    /* search: own centered row under the centered title (sub-heading wraps to 2 lines on
+       narrow phones, so this sits low enough to clear it) */
+    #search{width:min(320px,86vw);top:64px;left:50%;right:auto;transform:translateX(-50%)}
+    #ruler{top:96px}
+    /* bottom padding = scroll headroom so the year labels can clear the legend pill + zoom buttons */
+    #wrap{padding-top:124px;padding-bottom:76px}
     #panel{width:100vw;max-width:100vw}
     /* panel is full-screen here — pushing the map aside would leave nothing, keep overlay */
     body.pop #wrap{right:0}
@@ -698,6 +700,7 @@ addEventListener('keydown',e=>{
 const wrap=document.getElementById('wrap');
 /* wrap's padding-top offsets all content in scroll space — every scrollTop<->world conversion must subtract it */
 const padT=()=>parseFloat(getComputedStyle(wrap).paddingTop)||0;
+const padB=()=>parseFloat(getComputedStyle(wrap).paddingBottom)||0;
 let scale=0.85;
 /* small breathing room past the last labels — the panel pushes the map aside now, so no trap-space needed */
 const ENDPAD=40;
@@ -706,7 +709,7 @@ function applyScale(){svg.setAttribute('width',W*scale+ENDPAD);svg.setAttribute(
   /* text is part of the map — pure world scale, no counter-scaling, no floors.
      WYSIWYG with the mid-pinch transform: releasing a pinch changes nothing, ever. */
   buildRuler();}
-function minScale(){return Math.min(.85,Math.max(.3,(wrap.clientHeight-padT()-40)/H));}
+function minScale(){return Math.min(.85,Math.max(.3,(wrap.clientHeight-padT()-Math.max(40,padB()+8))/H));}
 function setScale(ns,cx,cy){ns=Math.min(2,Math.max(minScale(),ns));
   const pt=padT();
   const wx=(wrap.scrollLeft+cx)/scale, wy=(wrap.scrollTop+cy-pt)/scale;
