@@ -286,13 +286,13 @@ const CHAINS=[
  block:'511346',v:'2018-02-28 17:06Z',sum:'Dual fork of Bitcoin + Zclassic adding zk-SNARK privacy. Killed by a hidden-inflation exploit (~2M extra coins minted) and delistings.',status:'Dead'},
 
 /* ---- the BCH family: forks OF the fork ---- */
-{id:'clashic',name:'Bitcoin Clashic',tick:'BCHC',lane:-7.6,kind:'ledger',col:'#3fa66b',parent:'bch',start:'2017-11-13',end:'2018-06-01',block:'504031 (BCH)',uv:'BCH-side height pending own-node check',
+{id:'clashic',name:'Bitcoin Clashic',tick:'BCHC',lane:-7.6,kind:'ledger',typeName:'Ledger fork · continues BITCOIN CASH’s original chain',col:'#3fa66b',parent:'bch',start:'2017-11-13',end:'2018-06-01',block:'504031 (BCH)',uv:'BCH-side height pending own-node check',
  sum:'THE SATIRE CHAIN: when BCH hard-forked its difficulty algorithm (Nov 2017), someone kept mining the OLD rules — "Satoshi’s true vision", they deadpanned. Bitcoin’s fork got a fork, as a joke, and the joke produced blocks for months.',status:'Dead / legendary'},
-{id:'cdy',name:'Bitcoin Candy',tick:'CDY',lane:-8.4,kind:'ledger',col:'#d977b0',parent:'bch',start:'2018-01-13',block:'512666 (BCH)',uv:'BCH-side height pending own-node check',
+{id:'cdy',name:'Bitcoin Candy',tick:'CDY',lane:-8.4,kind:'ledger',typeName:'Ledger fork · shares BITCOIN CASH’s history',col:'#d977b0',parent:'bch',start:'2018-01-13',block:'512666 (BCH)',uv:'BCH-side height pending own-node check',
  sum:'First fork-of-a-fork of the airdrop wave: split from BITCOIN CASH (not BTC), 1000 CDY per BCH, Equihash PoW. A zombie — but a zombie that was still shipping release binaries in 2026.',status:'Alive (barely)'},
-{id:'bsh',name:'Bitcoin Stash',tick:'BSH',lane:-9.2,kind:'ledger',col:'#b58f3e',parent:'bch',start:'2018-11-15',ely:16,end:'2019-12-01',block:'556766',v:'2018-11-15 17:52Z',
+{id:'bsh',name:'Bitcoin Stash',tick:'BSH',lane:-9.2,kind:'ledger',typeName:'Ledger fork · shares BITCOIN CASH’s history',col:'#b58f3e',parent:'bch',start:'2018-11-15',ely:16,end:'2019-12-01',block:'556766',v:'2018-11-15 17:52Z',
  sum:'THE FORGOTTEN THIRD CHAIN of the November 2018 hash war: while BCH and BSV fought, Bitcoin Stash quietly split at the very same block with a merged-mining pitch. Nobody noticed then either.',status:'Dead'},
-{id:'btcc',name:'Bitcoin Core [BTCC]',tick:'BTCC',lane:-10,kind:'ledger',col:'#cc5533',parent:'clashic',start:'2018-05-20',end:'2020-07-01',block:'576698 (Clashic)',uv:'height is on the Clashic chain; end date reconciled from explorer activity (brand sunset 2019-06)',
+{id:'btcc',name:'Bitcoin Core [BTCC]',tick:'BTCC',lane:-10,kind:'ledger',typeName:'Ledger fork · shares CLASHIC’s history (3rd generation)',col:'#cc5533',parent:'clashic',start:'2018-05-20',end:'2020-07-01',block:'576698 (Clashic)',uv:'height is on the Clashic chain; end date reconciled from explorer activity (brand sunset 2019-06)',
  sum:'A THIRD-GENERATION ledger fork — BTC → BCH → Clashic → this — whose entire thesis was squatting the name "Bitcoin Core" to troll Roger Ver’s BCH rebranding. CoinDesk covered it. It rebranded to Title Network in 2019 and limped to ~2020.',status:'Dead'},
 {id:'fch',name:'Freecash',tick:'FCH',lane:-10.8,kind:'code',col:'#2fa3a3',parent:'bch',start:'2020-01-01',
  sum:'Bitcoin ABC code fork (new genesis, New Year’s Day 2020) from the CoinEx orbit, self-described "not suitable for investment." Still producing blocks.',status:'Alive (niche)'},

@@ -4,7 +4,185 @@
    Written from the verified research dossiers in ../research/ — every claim traceable. */
 window.LORE = {
 
-/* ---- deep-cut bugs & BIPs (added Aug 2026; sources: bitcoin.it CVE registry, BIPs repo, Electric Coin Co. disclosure, BitMEX Research) ---- */
+/* ---- completeness-sweep chains (added Aug 2026; facts from the 161-agent verification sweep — per-coin sources in the project research archive) ---- */
+clashic: [
+"When Bitcoin Cash hard-forked its difficulty algorithm on November 13, 2017, the old rules didn't die — someone kept mining them. Bitcoin Clashic was the zombie continuation of the ORIGINAL BCH chain, run by anonymous miners whose entire communications strategy was deadpan: 'Satoshi's true vision,' they said, of a chain that existed as a prank. A pool ran at bitcoinclashic.ninja; blocks were genuinely produced; the community loved and hated it in equal measure.",
+"No explorer, wallet, or exchange ever really materialized, and the joke ran out of hashpower during 2018. But Clashic earned its place in history on the way out: before dying it was itself forked — by a chain that squatted the name 'Bitcoin Core' — making Clashic the middle link in the only three-generation ledger-fork lineage on this map. Not bad for a bit."
+],
+cdy: [
+"Bitcoin Candy was the first fork OF a fork: on January 13, 2018, it split not from Bitcoin but from Bitcoin Cash, at BCH height 512666, paying 1,000 CDY per BCH with Equihash GPU mining and an 'anti-quantum' sales pitch. CoinEx listed it the same day — the fork wave was so frothy that even derivatives of derivatives got same-day listings.",
+"And then it refused to die properly. A GitHub binary release shipped in February 2026 — eight years after the fork — while dust-level trading continued on a single exchange with the explorer backends down. Candy shambles on as the fork wave's most persistent zombie, and as proof that by early 2018 the playbook had become fully recursive."
+],
+bsh: [
+"Everyone remembers November 15, 2018 as the BCH-vs-BSV hash war. Almost nobody remembers there was a THIRD chain that day: Bitcoin Stash split at the very same block (556766 — the same height this site verified for the BSV split), pitching BTC/BCH merged mining as the cure for BCH's post-split security anxiety.",
+"It was real: an explorer, wallets, a pool, a claimed ~15% of Bitcoin's hashrate available for merge-mining, and a Finexbox listing on New Year's Eve 2018. But two giants were sucking all oxygen out of the room, and the quiet third option flatlined within a year. History is written by the chains that got the headlines."
+],
+btcc: [
+"The only third-generation ledger fork that ever ran: BTC → BCH → Bitcoin Clashic → Bitcoin Core [BTCC]. Its entire thesis was the name — squatting 'Bitcoin Core' to needle Roger Ver's habit of calling BCH the real Bitcoin, by forking the satirical continuation of the original BCH chain and branding it after BTC's reference software. It was trolling as protocol design, and CoinDesk genuinely covered it ('There's a new Bitcoin Core in town, and it's out to troll Bitcoin Cash').",
+"Beneath the joke was an actual chain: GitHub releases, three mining pools, a Crypto-Bridge listing, a working explorer. In June 2019 it changed proof-of-work to Blake2b and sunset the BTCC brand into the equally moribund Title Network; frozen explorer data shows blocks limping along until roughly July 2020. Two layers of satire deep, it still outlived half the sincere forks on this map."
+],
+fch: [
+"Freecash launched on New Year's Day 2020 — a code fork of Bitcoin ABC (new genesis, so a cousin rather than a child of BCH's ledger) from the CoinEx/Haipo Yang orbit, with one-minute blocks, Schnorr signatures, and a coinbase-funded governance treasury. Its honest self-description — 'not suitable for investment' — may be the most refreshing sentence in this entire dataset.",
+"The market took the advice and delisted it nearly everywhere. The chain didn't care: by mid-2026 it was still quietly producing blocks past height 3.38 million, a working experiment in on-chain governance that nobody trades and nobody stopped."
+],
+b2x: [
+"SegWit2x — the New York Agreement's 2MB hard fork, backed by most of the industry — was cancelled on November 8, 2017, days before activation. The story should end there. Instead, an unrelated team took the abandoned name and forked anyway at block 501451 (verified on this site's node: December 28, 2017, 18:02 UTC), with 4MB blocks and 2.5-minute spacing that had nothing to do with the original agreement.",
+"'B2X' futures had traded on exchanges since the real SegWit2x era, and the zombie launch let holders of those IOUs pretend the story had a chain attached. It was widely called a cash-grab at the time, the chain barely functioned, and it was gone within months — but it earned this stub by actually existing, which is more than the real SegWit2x ever managed."
+],
+btx: [
+"BitCore is the missing link of fork history: launched April 2017 — months BEFORE Bitcoin Cash — by the team behind BitSend, it invented the 'hybrid fork.' Instead of inheriting Bitcoin's ledger, it started a fresh chain and airdropped BTX onto snapshots of BTC balances (blocks 463619 and 492820, both timestamps verified on this site's node). New chain, borrowed distribution: the exact template the entire airdrop wave would run into the ground a year later.",
+"The prototype outlived nearly all its imitators. While chains that actually shared Bitcoin's history died in batches through 2018-19, BitCore kept mining — past 1.84 million blocks and still going in 2026. The first draft turned out to be the durable one."
+],
+bcbc: [
+"Bitcoin@CBC — the 'Clean Blockchain' — was Bitcoin without Satoshi, literally: it relaunched from a fresh genesis crediting only addresses holding over 1 BTC at a December 2017 snapshot (block 498754, verified on this site's node), minus 1 BTC each, with dormant whales and the earliest coinbases pointedly deleted. SHA-256 pools genuinely mined it to roughly 19,700 blocks before it stalled in July 2018; the developer blanked the announcement thread to '[CLOSED]' and the explorer became a parking page. The boldest premise in the graveyard: fixing Bitcoin by confiscating its founder."
+],
+btp: [
+"Bitcoin Pay was the rare Chinese fork-wave entry that shipped everything the genre usually skipped: a real Bitcoin Core 0.15 node, GPU miners, its own Insight explorer, a 10:1 split at block 499345 (verified on this site's node). Briefly sellable through BitPie and EXX, it never cracked CoinMarketCap, released its final wallet in November 2018, and was a dead website by mid-2019. Competence, it turns out, was not the binding constraint."
+],
+btt: [
+"Bitcoin Top forked at block 501118 (verified on-node) with 8MB blocks, SegWit, and a Bitcoin Diamond-derived codebase — one of a half-dozen forks that December week alone. The chain demonstrably ran; ymgve's famous fork-claimer script verified real BTT transactions in 2018. It traded only on ghost exchanges, never made a single price aggregator, and its DNS seeds went dark by 2019. Ran longer than most; remembered by none."
+],
+bifi: [
+"Bitcoin File bolted an IPFS storage pitch onto a snapshot at block 501225 — 1,000 BIFI per BTC — and, unusually, got real listings: OKEx and Gate.io both carried it. The decentralized file system that justified the ticker never shipped. Development stopped by late 2020, the explorer vanished, and the zombie ticker traded on Gate.io for years after the chain behind it had any purpose. Three forks share that same snapshot block — File, God, and New Bitcoin — the stampede compressed into a single block height."
+],
+nbtc: [
+"New Bitcoin forked at block 501225 — the same block as Bitcoin God and Bitcoin File, three chains from one height, which is the December 2017 stampede in a single datum. It paid 2 NBTC per BTC toward a 42-million cap with Equihash mining; a wallet and pool launched in February 2018, and seed nodes stayed alive long enough for the ymgve claim script to add support. With no explorer, no GitHub, and one obscure exchange, it expired without ever registering a market price anywhere."
+],
+btn: [
+"Bitcoin Nano snapshot-forked at block 501888 — the same block as Bitcoin Pizza — paying 1,000 BTN per BTC, and started mining on New Year's Day 2018 with Equihash, 8MB blocks, and vague EVM-sidechain promises. It genuinely shipped wallet releases, a stratum pool, and a live explorer; it never reached a real exchange, and by Christmas 2018 the explorer domain was a Sedo parking page. Not to be confused with 'Bitcoin New' — the wave burned through names faster than it burned through chains."
+],
+bcb: [
+"Bitcoin Boy — full self-description: 'A Boy from Bitcoin Father' — split at block 502233 in the first days of 2018 with a 100:1 split, a 210-million-coin premine, and a website promising Binance and Bitfinex listings that were never going to happen. Its bitcointalk thread lists the wrong fork height; its own source code checkpoints a self-mined block at 502233 — trust the code. Dead within four months, unlisted and unmissed."
+],
+wbtc: [
+"World Bitcoin paid 100 WBTC per BTC at block 503888 (verified on-node) and promised smart contracts plus five themed 'ecological chains' by 2019. Wallet binaries shipped, vvpool mined it, minor Chinese exchanges flirted with it — then the team stopped committing code in March 2018 and the whole thing evaporated by summer, having delivered zero ecological chains. Its ticker was later made famous by an unrelated Ethereum token (Wrapped BTC), which is how most people who've seen 'WBTC' will never learn this chain existed."
+],
+btv: [
+"BitVote, from an anonymous 'Mysterious Team,' revived Satoshi's one-CPU-one-vote slogan with CryptoNight mining and a promised on-chain voting system, forking at block 505050 — a height every source dates to January 20, except the chain itself, which mined it at 21:58 UTC on the 19th (verified on this site's node; the chain doesn't lie). ViaBTC credited the snapshot, CoinEx and YoBit traded it, VVPool mined it. It bled out over nearly four years — an eternity by fork-wave standards — and its explorer domain now points at an unrelated squatter."
+],
+bci: [
+"Bitcoin Interest forked at block 505083 and paid holders 'interest' from a per-block staking pool — sources say January 22; the chain says the block landed January 20 at 02:04 UTC (verified on-node). Its genuine claim to history came in September 2018: it became the FIRST CHAIN EVER to run ProgPoW, the programmatic proof-of-work that Ethereum would spend the next two years arguing about. Bitfinex delisted it in January 2020, the interest stopped compounding, and trading flatlined by early 2022 — but 'first ProgPoW chain' is a real footnote, and it belongs to this obscure fork."
+],
+btsq: [
+"Bitcoin Community forked at block 506066 (verified on-node) under the slogan 'In community, we believe.' The evidence of community: one GitHub commit, an empty explorer repo, no exchange listing ever found. The ymgve fork-claimer verified SegWit claims against its live network, so the chain genuinely ran — which is more than the name ever did."
+],
+btc2: [
+"Bitcoin 2 seeded a PIVX-style proof-of-stake chain — Zerocoin privacy, masternodes — from a BTC snapshot at block 507850 (verified on-node: February 5, 2018, matching its announced date exactly, despite years of sources second-guessing it). Then it did the one thing 2018 forks don't do: survived. In 2026 it is still staking blocks and trading thin volume on XT.COM at a $1.4M market cap nobody is watching — one of the last two or three fork-wave chains with a heartbeat."
+],
+bbc: [
+"Big Bitcoin credited 10 BBC per BTC at the lucky-eights block 508888 (verified on-node: February 12, 2018, vindicating its claimed date against skeptical secondary sources), promising 16MB blocks and millisecond 'chain matrix' confirmations. The ymgve claim tool broadcast to it and Coin918 took deposits; it traded only on now-dead exchanges and expired within a year. Bigness did not materialize."
+],
+cbtc: [
+"ClassicBitcoin snapshot-forked at block 516095 — which this site's node confirms was mined on April 1, 2018. An April Fools' fork, rebuilt on Zcash's Equihash codebase, pitched as fuel for an 'AI-powered online marketplace': in 2018 that sentence was a red flag, in hindsight it's practically a period piece. Wallets, explorer, pool, and a Graviex listing all genuinely existed; the developer went silent within weeks of the announcement, which may have been the punchline."
+],
+bcl: [
+"BitcoinClean forked at block 518800 (verified on-node) with 'proof-of-greenness': miners peer-voted on each other's renewable-energy credentials, a mechanism skeptics immediately noted coal miners could simply upvote around. Austrian green-mining firms participated, a wallet and explorer shipped, and it debuted around $50 on YoBit. An eco-fork seven years ahead of the ESG-mining discourse — and dead within eight months anyway, surviving only as a zombie YoBit pair trading at fractions of a satoshi."
+],
+breco: [
+"Bitcoin Reference Line came from the least likely fork-issuer imaginable: CAD-KAS, a German shop known for PDF-editing shareware. It swallowed Bitcoin's UTXO set at block 523118 (verified on-node), added AES-encrypted payment memo lines, and shipped the full kit — wallets, explorer, mining pool, and trading on exactly one obscure exchange (Exrates) from July 2018. By November 2019 the website was a parked domain. The graveyard's finest example of 'technically, anyone could fork Bitcoin.'"
+],
+mbc: [
+"MicroBitcoin split every bitcoin into 10,000 MBC at block 525000 (verified on-node) with a microtransactions pitch, then relaunched in 2019 on the CPU-friendly Power2b algorithm. Its trading volume rounded to zero years ago and its explorers keep dying — but its API still answers, reporting a chain height past 3.5 million in 2026. Somewhere, machines are still faithfully producing blocks for a economy of no one."
+],
+bcrm: [
+"Bitcoin RM — 'the first smart fork of Bitcoin, for retail merchants' — is the purest specimen of zombie chain science. A claims-based snapshot at block 537746 (which this site's node dates to August 21, 2018, nine days earlier than the project's own materials claim), 60-second blocks, real wallets, two micro-exchanges that both died. Nobody ever noticed it existed. And yet in 2026 it is still mining itself at roughly SEVENTEEN HASHES PER SECOND — not terahashes, not megahashes: seventeen. It may be the least-secured living blockchain on Earth, and it refuses to stop."
+],
+xrc: [
+"Bitcoin Rhodium was the fork wave's homework assignment: to receive XRC, Bitcoin holders had to PRE-REGISTER their addresses before a January 2018 deadline — the politest airdrop mechanic of the era, on a chain that didn't launch until October. And it wasn't even a fork of Bitcoin's code: an own-genesis X13 chain built on the C# Stratis/NBitcoin stack, 'Bitcoin' purely by branding and distribution.",
+"It ran realer than most: node, Electrum wallets, mining pools, Bisq and P2PB2P listings, a $36-37 peak in mid-2019, five actual years of operation before the repos went dormant in 2023. Its domain now hosts an online casino — the graveyard's most on-the-nose epitaph."
+],
+bpq: [
+"Bitcoin Post-Quantum was the earnest one: a ledger fork at block 555000 (verified on-node: December 22, 2018) that replaced ECDSA with XMSS hash-based signatures — real post-quantum cryptography, peer-reviewed primitives, a working Electrum wallet, explorer, and pool. It was the last serious technical idea of the fork wave, and it attracted essentially zero users; infrastructure and GitHub activity flatlined by March 2021.",
+"The joke, in retrospect: BPQ solved a problem Bitcoin still hasn't — quantum-resistant signatures went on to become a live BIP debate on the main chain years later (see BIP-110's saga). The graveyard sometimes runs ahead of the trunk."
+],
+btcv: [
+"Bitcoin Vault closed out the fork era in October 2019: a Bitcoin Core code fork (via 'Bitcoin Royale') with its own genesis, pitching three-key wallets and 24-hour reversible transactions — undo for Bitcoin. It was also the in-house token of Mining City, a 'cloud mining' scheme the Philippine SEC publicly flagged as a probable Ponzi.",
+"The chart tells that story better than prose: $489 and a top-40 market cap at the August 2020 peak, then a 99.9% descent. The chain itself, indifferent to its own reputation, is still running and shipping releases in 2026 — the epilogue chain of the whole airdrop era."
+],
+i0c: [
+"I0Coin, from August 2011, was a Bitcoin clone with no premine, faster blocks, and no discernible purpose — it flatlined within weeks, standard first-wave stuff. Then it found the strangest afterlife available: as one of the earliest SHA-256 merge-mined chains, it rode along on Bitcoin's own hashpower essentially for free. Development stopped in 2016, the explorer's hosting lapsed, and its FreiExchange order book still twitches at 68 satoshis on zero volume — kept technically alive for a decade by miners who mostly don't know it's there."
+],
+qrk: [
+"Quark stacked nine rounds of six hash algorithms into its proof-of-work and rode 2013's monetary-reform punditry — Bill Still and friends touted it as sound money — briefly into the top five coins by market cap. Then people noticed 98% of the supply had been mined in the first six months, and the market left en masse.",
+"Two legacies survived the exodus: the chain itself, which still dutifully produces a block every 30 seconds for essentially nobody, and the Quark hash algorithm, which lives on inside PIVX — meaning a corner of this 2013 relic still secures real value today, just on someone else's chain."
+],
+uno: [
+"Unobtanium asked one question in October 2013: what if scarcity were the ONLY feature? 250,000 coins ever — not million, thousand — no premine, SHA-256 merge-mined alongside Bitcoin since 2014. The merge-mining turned out to be an immortality machine: securing UNO costs miners nothing extra, so nobody ever stopped. Past 2.5 million blocks and still trading at rounding-error volume in 2026, it's the cockroach of the scarcity experiments — too small to kill, too cheap to abandon."
+],
+grc: [
+"Gridcoin pays people for donating compute to BOINC science projects — protein folding, cancer research, seismology, SETI — instead of burning it on hash puzzles: the original 'useful work' coin, launched October 2013 in the Peercoin proof-of-stake lineage (relaunched as the pure-PoS Gridcoin-Research chain a year later).",
+"Almost uniquely among its 2013 peers, it never became a zombie: the project was still shipping MANDATORY network upgrades in 2026, with a community that measures its treasury in completed BOINC work-units. Thirteen years of quietly being the most wholesome chain on this map."
+],
+emc: [
+"Emercoin took Namecoin's big idea — a blockchain as a name-value store — and rebuilt it on Peercoin's hybrid PoW/PoS, launching premine-free on December 11, 2013. Then it did something almost nothing else on this map did: shipped actual products. EmerDNS (censorship-resistant domains), EmerSSL, decentralized SSH key infrastructure — enterprise-flavored plumbing that real organizations experimented with.",
+"A decade later it's still alive and still releasing software, one of the rare 2013 chains whose pitch you could explain to a sysadmin without mentioning price once."
+],
+moon: [
+"Mooncoin's tokenomics are its biography: maximum supply of roughly 384 billion — one coin per millimeter of the average distance from Earth to the Moon. A late-December 2013 fork of early Dogecoin code (later rebased onto Litecoin 0.13, picking up SegWit along the way), it has traded for thousandths of a cent for over a decade and still produces Scrypt blocks past height 3.9 million. The meme economy's answer to a lighthouse keeper: pointless, faithful, still there."
+],
+mzc: [
+"MazaCoin generated some of 2014's strangest headlines: promoted by activist Payu Harris as the sovereign national currency of the Lakota Nation, covered by everyone from Forbes to the BBC — a claim that always ran ahead of any tribal ratification. Underneath the story was a ZetaCoin-lineage Bitcoin code fork that genuinely mined, traded, and shipped wallets.",
+"The headlines faded within the year; the chain spent the following decade flatlining at a fifth of a cent, and still technically ticks. It remains the map's best example of a fork as a press release with a blockchain attached."
+],
+xmy: [
+"Myriadcoin, February 2014, was the first MULTI-ALGORITHM coin: five proofs-of-work — SHA256d, Scrypt, and three GPU/CPU algorithms — sharing one Bitcoin-derived chain, so no single mining constituency could dominate it. In 2015 it added another first: simultaneous merged mining against both Bitcoin AND Litecoin, a design DigiByte famously borrowed and got the credit for.",
+"Development stalled in 2021 and every exchange and explorer has since wandered off. But merged mining costs its miners nothing, so the pioneer zombie was still quietly producing blocks past height 3.69 million in 2026 — secured, ironically, by the two chains it taught to share."
+],
+nav: [
+"NavCoin is the map's champion rebrander: launched July 2014 as SummerCoin in the Novacoin/Peercoin staking lineage, then NavajoCoin, then NavCoin, then — after a decade — Navio. Along the way it rebased itself onto Bitcoin Core 0.13 (resetting its chain in May 2016) and experimented with privacy tech ahead of most peers. One of the few community altcoins of 2014 still staking today, at 99% below its January 2018 peak — four names, one stubborn chain."
+],
+via: [
+"Viacoin had the best résumé-per-marketcap ratio in altcoin history: launched July 2014 by Bitcoin Core contributor btcdrak, with Peter Todd on the payroll to build 'treechains' — Todd's alternative to sidechains, which never arrived. What did arrive: merged-mining on a Bitcoin codebase alongside Litecoin, and SegWit activation BEFORE Bitcoin itself — Viacoin and Litecoin were the live testnets that helped prove SegWit safe for the main event in 2017.",
+"It keeps shipping releases into 2026 for an audience of roughly two exchanges: a footnote chain whose footnotes ended up in Bitcoin's own history."
+],
+pivx: [
+"PIVX launched in January 2016 under the most honest name in the dataset — 'Darknet' (DNET) — a Dash code fork that dropped proof-of-work entirely for staking and masternodes, then bolted on Zerocoin privacy. The 2017 rebrand to PIVX (Private Instant Verified Transaction) made it listable, and for a while it was the go-to privacy-staking chain.",
+"In 2019 the Zerocoin protocol itself was broken (a forgery exploit hit every Zerocoin chain), and PIVX did the unglamorous thing: ripped out its signature feature and replaced it with Zcash-style Sapling shields. The chain staked on through the surgery and is still producing blocks past height 5.5 million — the Dash lineage's most resilient descendant."
+],
+safe: [
+"SAFE — 'Anwang' — is the rare entry that forked DASH's ledger rather than Bitcoin's or Litecoin's: it split at Dash block 807085 on January 20, 2018, successor to the team's earlier DarkNetSpace project. Unusually for the class of 2018, it then behaved like a real project for SIX YEARS: masternodes, explorer, CoinMarketCap listing, and steady commits to its Dash-derived 'Safe Core' codebase.",
+"The Bitcoin-family chapter closed in late 2024, when the ledger migrated to SAFE4 — a go-ethereum-based successor still maintained in 2026. Chains used to die by abandonment; SAFE demonstrated the modern exit: emigration to another family tree entirely."
+],
+hush: [
+"Hush launched three weeks after Zcash itself, in November 2016, under the name 'Zdash' — a Zcash 1.0.9 code fork with its own genesis, pitching zero-knowledge privacy plus encrypted on-chain messaging (a private-messenger-on-a-blockchain idea years before it was fashionable). It survived the Cryptopia exchange collapse, swapped its original chain for a Komodo-technology rebuild around 2020 (Hush v3), and is improbably still mining in 2026.",
+"Among the dozens of Zcash forks the 2017-18 wave produced, Hush is one of perhaps four that refused to die — outlasting chains with fifty times its funding on the strength of a small community that actually used the messaging."
+],
+zer: [
+"Zero was one of the earliest Zcash-family forks — February 2017, via Zclassic's no-premine lineage, with a tweaked Equihash (192,7) that favored smaller miners. It touched $12 in the January 2018 froth, later sheltered under Komodo's delayed-proof-of-work umbrella for security, and today still runs while trading a few dollars a day on one obscure exchange. The name turned out to be a price prediction, but the chain itself never quite got there — it just keeps producing blocks."
+],
+btcz: [
+"BitcoinZ appeared in September 2017 at the peak of 'Bitcoin X' branding season — a Zcash code fork with its own genesis, Bitcoin's name, and a 21-BILLION coin supply. The twist: unlike virtually every other Bitcoin-branded launch that year, its 'community-driven, no premine, no founder' pitch was TRUE. There was never anyone to rug.",
+"That accident of honesty is probably why it survived: with no founder to quit, the community just... kept mining. Past block 1.8 million and still traded nine years later, it's the longest-lived survivor of the entire Bitcoin-X gold rush."
+],
+flux: [
+"ZelCash launched in January 2018 as yet another Zcash code fork with Equihash mining and incentivized 'ZelNodes' — on paper, indistinguishable from a dozen doomed siblings. Then it did the thing none of them managed: found an actual job. Rebranded to Flux in 2021, the node network became a real decentralized cloud-computing platform — thousands of nodes running actual workloads, a business that exists independent of the coin's price.",
+"It stands as the fork wave's best redemption arc: the only chain in the 2018 privacy-fork cohort that is more useful today than the day it launched."
+],
+arrr: [
+"Pirate Chain took Zcash's shielded-transaction technology and removed the option that made it polite: on ARRR, privacy is MANDATORY — every transaction shielded, no transparent addresses, launched fair with no premine in August 2018 as a Komodo assetchain with delayed-proof-of-work notarization to Bitcoin.",
+"It became the privacy maximalist's privacy coin, cracked the top 100 during the 2021 mania on pure community fervor, and — unusually for the class of 2018 — is still producing blocks. Regulators' least favorite chain on this map, which its community considers the entire point."
+],
+mona: [
+"Monacoin was born on 2channel, Japan's legendary anonymous message board, in December 2013 — conceived by a pseudonymous developer called 'Mr. Watanabe' and launched with no premine on New Year's Day 2014. It's named for Monā, the ASCII-art cat that is one of 2ch's oldest memes: Japan's first homegrown cryptocurrency is, at its heart, a shrine to a text-drawing of a cat.",
+"And Japan treated it accordingly. MONA developed genuine national culture: shrines have accepted it as offering, tippers rain it on artists, and in the coin's most famous story, a supporter bought an actual plot of land with MONA. When Japan's crypto exchange regulations formalized in 2017, Monacoin was among the first coins licensed exchanges listed — a meme coin that became nationally respectable without ever stopping being a cat."
+],
+blk: [
+"Blackcoin, launched February 24, 2014 by the pseudonymous rat4 (Pavel Vasin), forked Novacoin's code and then did something genuinely new: after a brief proof-of-work distribution phase, it dropped mining entirely and became the first prominent chain secured by PURE proof-of-stake. No hybrid safety net — staking alone.",
+"Every modern staking network is downstream of that experiment. Vasin's BlackCoin PoS Protocol v2 paper — written to fix the first version's weaknesses — became standard citation material across the staking literature. The coin itself never mooned; the chain has simply kept minting since 2014, quietly holding the receipt for an idea that now secures trillions in other people's networks."
+],
+clam: [
+"CLAM has the strangest distribution in cryptocurrency history: on May 24, 2014, it launched with its supply ALREADY DISTRIBUTED — 4.60545574 CLAMs to every one of the 3.2 million addresses that held any BTC, LTC, or DOGE on May 12, 2014. No mining race, no ICO, no claim deadline. If you had coins in 2014, you own CLAMs right now, whether you know it or not. (Check your old wallets — this is not a metaphor.)",
+"The chain itself is Blackcoin-lineage pure proof-of-stake, and its economy centered for years on Just-Dice, the dice site whose operator (dooglus) let users stake CLAMs communally. Its price history includes one of crypto's odder events: a 2016 spike driven by people digging up 2014-era wallets to excavate free money. The great easter egg of the Bitcoin family — millions of people are CLAM holders and will die never knowing."
+],
+xvg: [
+"Verge began in October 2014 as DOGECOINDARK — a fork of Dogecoin by pseudonymous developer 'Sunerok' that wrapped every node in Tor and I2P, on the theory that the meme economy deserved privacy too. The February 2016 rebrand to Verge traded the best name in crypto for listability.",
+"Its 2017-18 was pure chaos: a community crowdfund raised millions of XVG to fund a partnership that turned out to be with Pornhub (announced April 2018, to global media bafflement), and weeks later attackers exploited its multi-algorithm timestamp handling in repeated TIME-WARP 51% ATTACKS, minting blocks at will — among the most-studied consensus failures in altcoin history. Dogecoin's edgiest descendant has nonetheless refused to die, still trading actively in 2026."
+],
+lcc: [
+"Litecoin Cash forked LITECOIN at block 1,371,111 on February 18, 2018 — the moment the airdrop-fork playbook went recursive. Ten LCC per LTC, a switch from Scrypt to SHA256 (giving retired Bitcoin ASICs a place to point), and Charlie Lee's exasperated disavowal — he'd spent weeks warning that any 'Litecoin fork' was unaffiliated with him — completed the genre parody: the fork of the fork got the founder denial, the claim tools, the exchange drama, all of it, one derivative deeper.",
+"It also genuinely ran, and runs: dark-gravity difficulty, a small mining community of SHA256 hobbyists, and continuous operation into 2026 at 'alive (low)' status. History will remember it mostly as a structural landmark — the family's first famous second-generation ledger fork — which is exactly how this map draws it."
+],
+
 'OP_RETURN god-mode': [
 "From launch until late July 2010, Bitcoin's script interpreter had a flaw so total it reads like a joke: a spending script that used OP_RETURN could mark itself valid and walk away with any output on the chain. Anyone who understood it could have spent anyone else's coins — every wallet on the network was effectively unlocked. Nobody did. In eighteen months of Bitcoin being an obscure cypherpunk toy, either nobody noticed or nobody talked.",
 "Satoshi shipped fixes across versions 0.3.5 through 0.3.7 in a hurried late-July stretch (the CVE registry dates the disclosure July 28, 2010), redefining OP_RETURN into the harmless script-terminator it is today. Three weeks later the Value Overflow bug hit and monopolized the history books. The god-mode bug — arguably the worse of the two — is a footnote almost nobody has read."
