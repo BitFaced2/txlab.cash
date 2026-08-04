@@ -40,6 +40,13 @@
     background-size:30px 30px;}
   /* overflow:visible so mid-pinch content scaled past the svg box isn't clipped */
   #svg{display:block;overflow:visible}
+  /* selection dimming = ONE composited overlay div + a tiny highlight svg above it.
+     Never set opacity on the ~100 chain groups — that invalidates the whole giant SVG
+     and re-rasterizes every visible tile, which reads as flicker when zoomed out. */
+  #stage{position:relative;width:max-content}
+  #dim{position:absolute;inset:-140px 0;background:rgba(8,11,10,.85);opacity:0;
+    pointer-events:none;transition:opacity .22s ease}
+  #svg2{position:absolute;inset:0;pointer-events:none;overflow:visible}
   /* dark halo behind every map label so chain lines never make text unreadable
      (.era watermarks excluded — they sit under the lines by design) */
   #root text:not(.era){paint-order:stroke;stroke:rgba(8,11,10,.92);stroke-width:3.5px;stroke-linejoin:round}
@@ -172,7 +179,7 @@
 </style>
 </head>
 <body>
-<div id="wrap"><svg id="svg"><g id="root"></g></svg></div>
+<div id="wrap"><div id="stage"><svg id="svg"><g id="root"></g></svg><div id="dim"></div><svg id="svg2"><g id="root2"></g></svg></div></div>
 
 <div id="hdr">
   <h1>THE BITCOIN <span class="g">FORK</span> TREE</h1>
@@ -598,7 +605,7 @@ CHAINS.forEach(c=>{
   const g=el('g',{});g.dataset.f=c.kind==='trunk'?'':'f-'+c.kind;
   const {d,x0,y0,y1,xE,dx}=chainD(c);
   const wMain=c.kind==='trunk'?9:(c.stub?3.5:5.5);
-  GEO[c.id]={x0,y0,y1,dx,col,w:wMain};
+  GEO[c.id]={x0,y0,y1,dx,col,w:wMain,d};
   /* selection glow underlay — lit up when this chain is clicked */
   const glow=el('path',{d,fill:'none',stroke:col,'stroke-width':wMain+22,'stroke-linecap':'round',opacity:0});
   glow.style.transition='opacity .25s';GLOWS[c.id]=glow;
@@ -634,36 +641,42 @@ CHAINS.forEach(c=>{
   IDX.push({t:(c.name+' '+c.tick).toLowerCase(),label:c.name,sub:c.tick+' · '+(c.kind==='trunk'?'the original':(c.stub?'airdrop fork':c.kind+' fork')),x:x0,y:y1,d:c});
   L.lines.appendChild(g);
 });
-/* ancestry spotlight: on selection, EVERYTHING dims except the one continuous
-   path back to genesis — each ancestor is redrawn bright only up to the block
-   where the next chain in the lineage peeled off */
-const HIL=el('g',{});L.lines.appendChild(HIL);
-let selected=null,selPath=[],ancGlows=[];
+/* ancestry spotlight — flicker-free architecture: the base SVG is NEVER touched on
+   select/deselect. Dimming is one composited overlay div (#dim, GPU-cheap fade);
+   the selected chain, its events, and each ancestor's inherited segment are cloned
+   or redrawn onto a small overlay SVG (#svg2 > #root2) that sits above the dim. */
+const dimEl=document.getElementById('dim'),root2=document.getElementById('root2');
+let selected=null,selPath=[];
 function lineage(id){const p=[];let cur=id;while(cur&&byId[cur]){p.push(cur);cur=byId[cur].parent;}return p;}
 function setSelected(id){
-  Object.values(GLOWS).forEach(p=>p.setAttribute('opacity',0));
-  Object.values(GROUPS).forEach(g=>g.style.opacity='');
-  EVGS.forEach(e=>e.g.style.opacity='');
-  ancGlows.forEach(p=>p.remove());ancGlows=[];
+  /* guard: touching an attribute — even with the same value — invalidates the base SVG,
+     so only reset glows that are actually lit (at most the one being hovered) */
+  Object.values(GLOWS).forEach(p=>{if(p.getAttribute('opacity')!=='0')p.setAttribute('opacity',0);});
+  while(root2.firstChild)root2.firstChild.remove();
   selected=(id&&GLOWS[id])?id:null;selPath=selected?lineage(selected):[];
-  if(!selected)return;
-  GLOWS[selected].setAttribute('opacity',.38);
+  if(!selected){dimEl.style.opacity=0;return;}
+  dimEl.style.opacity=1;
   /* how far each lineage chain stays lit: up to its child's fork; selected = forever */
   const cutoff={};cutoff[selected]=Infinity;
   for(let i=1;i<selPath.length;i++)cutoff[selPath[i]]=X(byId[selPath[i-1]].start);
-  Object.entries(GROUPS).forEach(([cid,g])=>{if(cid!==selected)g.style.opacity=.14;});
-  EVGS.forEach(e=>{const c=cutoff[e.chain];if(!(c!==undefined&&e.x<=c))e.g.style.opacity=.14;});
-  /* redraw the inherited segments at full brightness on the top layer */
+  /* selected chain: fresh glow + a visual clone of its whole group above the dim */
+  const sg=GEO[selected];
+  root2.appendChild(el('path',{d:sg.d,fill:'none',stroke:sg.col,'stroke-width':sg.w+22,'stroke-linecap':'round',opacity:.38}));
+  root2.appendChild(GROUPS[selected].cloneNode(true));
+  /* ancestors: inherited segments at full brightness, up to each cutoff */
   for(let i=1;i<selPath.length;i++){
     const cid=selPath[i],g=GEO[cid],d=partialD(cid,cutoff[cid]);
-    const glow=el('path',{d,fill:'none',stroke:g.col,'stroke-width':g.w+22,'stroke-linecap':'round',opacity:.3});
-    const cas=el('path',{d,fill:'none',stroke:'var(--casing)','stroke-width':g.w+6,'stroke-linecap':'round'});
+    root2.appendChild(el('path',{d,fill:'none',stroke:g.col,'stroke-width':g.w+22,'stroke-linecap':'round',opacity:.3}));
+    root2.appendChild(el('path',{d,fill:'none',stroke:'var(--casing)','stroke-width':g.w+6,'stroke-linecap':'round'}));
     const ln=el('path',{d,fill:'none',stroke:g.col,'stroke-width':g.w,'stroke-linecap':'round'});
     if(byId[cid].kind==='code')ln.setAttribute('stroke-dasharray','10 8');
+    root2.appendChild(ln);
     const s=byId[cid].parent?13:16;
-    const j=el('rect',{x:g.x0-s/2,y:g.y0-s/2,width:s,height:s,rx:s/4,fill:g.col,stroke:'var(--bg)','stroke-width':2});
-    [glow,cas,ln,j].forEach(p=>{HIL.appendChild(p);ancGlows.push(p);});
+    root2.appendChild(el('rect',{x:g.x0-s/2,y:g.y0-s/2,width:s,height:s,rx:s/4,fill:g.col,stroke:'var(--bg)','stroke-width':2}));
   }
+  /* events on the lineage stay lit up to their chain's cutoff (visual clones) */
+  EVGS.forEach(e=>{const c=cutoff[e.chain];
+    if(c!==undefined&&e.x<=c)root2.appendChild(e.g.cloneNode(true));});
 }
 
 /* events */
@@ -765,7 +778,7 @@ function interact(g,data,tipData){
     if(hid&&GLOWS[hid]&&!selPath.includes(hid))GLOWS[hid].setAttribute('opacity',.14);});
   g.addEventListener('mousemove',moveTip);
   g.addEventListener('mouseleave',()=>{tip.style.opacity=0;
-    if(hid&&GLOWS[hid])GLOWS[hid].setAttribute('opacity',selPath[0]===hid?.38:0);});
+    if(hid&&GLOWS[hid])GLOWS[hid].setAttribute('opacity',0);});
   g.addEventListener('click',e=>{e.stopPropagation();
     if(dragMoved){dragMoved=false;return;}
     openPanel(data);});
@@ -884,6 +897,7 @@ let scale=0.85;
 const ENDPAD=40;
 function applyScale(){svg.setAttribute('width',W*scale+ENDPAD);svg.setAttribute('height',H*scale);
   root.setAttribute('transform',`scale(${scale})`);
+  root2.setAttribute('transform',`scale(${scale})`);
   /* text is part of the map — pure world scale, no counter-scaling, no floors.
      WYSIWYG with the mid-pinch transform: releasing a pinch changes nothing, ever. */
   buildRuler();}
@@ -929,6 +943,7 @@ wrap.addEventListener('touchmove',e=>{
     const tx=pinch.ox*(1-pinch.f)+(cx-pinch.cx0),
           ty=pinch.oy*(1-pinch.f)+(cy-pinch.cy0);
     root.setAttribute('transform',`translate(${tx} ${ty}) scale(${pinch.s*pinch.f})`);
+    root2.setAttribute('transform',`translate(${tx} ${ty}) scale(${pinch.s*pinch.f})`);
   }else if(tpan&&e.touches.length===1){
     const t=e.touches[0],now=performance.now(),dt=Math.max(1,now-tpan.t),
           dx=t.clientX-tpan.x,dy=t.clientY-tpan.y;
@@ -964,7 +979,7 @@ addEventListener('mouseup',()=>{drag=null;wrap.classList.remove('grabbing');});
 /* a drag that ends over empty stage must not deselect — only a true click does */
 wrap.addEventListener('click',e=>{
   if(dragMoved){dragMoved=false;return;}
-  if(e.target===wrap||e.target===svg||e.target.id==='root')closePanel();});
+  if(e.target===wrap||e.target===svg||e.target.id==='root'||e.target.id==='stage')closePanel();});
 /* right-click anywhere on the map = deselect */
 wrap.addEventListener('contextmenu',e=>{e.preventDefault();closePanel();});
 
