@@ -550,14 +550,20 @@ EVENTS.forEach(ev=>{
 /* ================= INTERACTION ================= */
 const tip=document.getElementById('tip');
 function fmtDate(d){if(!d)return'';const[Y,M,Dy]=d.split('-');return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+M-1]+' '+(Dy?+Dy+', ':'')+Y;}
-const CAN_HOVER=matchMedia('(hover:hover)').matches; /* touch taps fake mouseenter but never mouseleave — the tooltip would stick over the panel */
+/* touch taps fake mouseenter but never mouseleave, so the tooltip needs special casing:
+   phones (min screen dim <600px) suppress it — the full-screen panel sits under it;
+   tablets show it on tap with an auto-dismiss since no mouseleave will ever hide it */
+const TOUCH_ONLY=matchMedia('(hover:none)').matches;
+const IS_PHONE=TOUCH_ONLY&&Math.min(screen.width,screen.height)<600;
+let tipTimer=null;
 function interact(g,data,tipData){
   g.classList.add('clickable');
   const hid=data.id||data.chain;
   g.addEventListener('mouseenter',e=>{
-    if(!CAN_HOVER)return;
+    if(IS_PHONE)return;
     tip.innerHTML=`<div class="tn">${tipData.name}${tipData.tick?' ('+tipData.tick+')':''}</div><div class="td">${fmtDate(tipData.date)}${tipData.block?' · block '+tipData.block:''}</div>`;
     tip.style.opacity=1;moveTip(e);
+    if(TOUCH_ONLY){clearTimeout(tipTimer);tipTimer=setTimeout(()=>tip.style.opacity=0,2600);}
     if(hid&&GLOWS[hid]&&!selPath.includes(hid))GLOWS[hid].setAttribute('opacity',.14);});
   g.addEventListener('mousemove',moveTip);
   g.addEventListener('mouseleave',()=>{tip.style.opacity=0;
@@ -617,7 +623,7 @@ function openPanel(n){
     ${n.v?`<div class="vbadge">✔ VERIFIED ON MY OWN NODE · ${n.v}</div>`:''}
     ${n.uv?`<div class="uv">⚠ ${n.uv}</div>`:''}
     ${(window.LORE||{})[n.id||n.name]?`<div class="lore"><h4>THE FULL STORY</h4>${window.LORE[n.id||n.name].map(p=>`<p>${p}</p>`).join('')}</div>`:''}`;
-  tip.style.opacity=0;
+  if(!TOUCH_ONLY||IS_PHONE)tip.style.opacity=0; /* tablets keep the tap tooltip; its timer clears it */
   panel.classList.add('open');
 }
 function closePanel(){panel.classList.remove('open');setSelected(null);}
@@ -700,19 +706,27 @@ let pinch=null,tpan=null,mom=null;
 const tdist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
 const tmid=t=>[(t[0].clientX+t[1].clientX)/2,(t[0].clientY+t[1].clientY)/2];
 function startPan(t){tpan={x:t.clientX,y:t.clientY,vx:0,vy:0,t:performance.now()};}
+/* pinch strategy: a full applyScale() per touchmove (SVG resize + ~200 text rescales +
+   ruler rebuild) is far too heavy and reads as jitter/drift. During the gesture we only
+   set a GPU-composited CSS transform on the svg — origin fixed at the content point under
+   the initial midpoint, translated by the midpoint delta, so the map tracks the fingers
+   exactly. The real re-layout + scroll commit happens once, when the pinch ends. */
 wrap.addEventListener('touchstart',e=>{
   if(mom){cancelAnimationFrame(mom);mom=null;}
   tip.style.opacity=0;
   if(e.touches.length===1)startPan(e.touches[0]);
   else if(e.touches.length===2){tpan=null;
     const[cx,cy]=tmid(e.touches);
-    pinch={d:tdist(e.touches),s:scale,cx,cy};}},{passive:true});
+    pinch={d:tdist(e.touches),s:scale,f:1,cx0:cx,cy0:cy,cx,cy,
+      ox:wrap.scrollLeft+cx,oy:wrap.scrollTop+cy};
+    svg.style.transformOrigin=pinch.ox+'px '+pinch.oy+'px';
+    svg.style.willChange='transform';}},{passive:true});
 wrap.addEventListener('touchmove',e=>{
   if(pinch&&e.touches.length===2){
     const[cx,cy]=tmid(e.touches);
-    setScale(pinch.s*tdist(e.touches)/pinch.d,cx,cy);
-    wrap.scrollLeft-=cx-pinch.cx;wrap.scrollTop-=cy-pinch.cy;
+    pinch.f=Math.min(2,Math.max(minScale(),pinch.s*tdist(e.touches)/pinch.d))/pinch.s;
     pinch.cx=cx;pinch.cy=cy;
+    svg.style.transform=`translate(${cx-pinch.cx0}px,${cy-pinch.cy0}px) scale(${pinch.f})`;
   }else if(tpan&&e.touches.length===1){
     const t=e.touches[0],now=performance.now(),dt=Math.max(1,now-tpan.t),
           dx=t.clientX-tpan.x,dy=t.clientY-tpan.y;
@@ -720,8 +734,16 @@ wrap.addEventListener('touchmove',e=>{
     tpan.vx=.7*(dx/dt)+.3*tpan.vx;tpan.vy=.7*(dy/dt)+.3*tpan.vy;
     tpan.x=t.clientX;tpan.y=t.clientY;tpan.t=now;
   }},{passive:true});
+function endPinch(){
+  if(!pinch)return;
+  svg.style.transform='';svg.style.transformOrigin='';svg.style.willChange='';
+  const ns=pinch.s*pinch.f;
+  scale=Math.min(2,Math.max(minScale(),ns));applyScale();
+  wrap.scrollLeft=(pinch.ox/pinch.s)*scale-pinch.cx;
+  wrap.scrollTop=(pinch.oy/pinch.s)*scale-pinch.cy;
+  pinch=null;}
 wrap.addEventListener('touchend',e=>{
-  if(pinch){if(e.touches.length<2){pinch=null;if(e.touches.length===1)startPan(e.touches[0]);}return;}
+  if(pinch){if(e.touches.length<2){endPinch();if(e.touches.length===1)startPan(e.touches[0]);}return;}
   if(tpan&&e.touches.length===0){
     let{vx,vy}=tpan;tpan=null;
     if(Math.hypot(vx,vy)>.08){
@@ -731,7 +753,7 @@ wrap.addEventListener('touchend',e=>{
         const k=Math.pow(.95,dt/16.7);vx*=k;vy*=k;
         mom=Math.hypot(vx,vy)>.02?requestAnimationFrame(step):null;};
       mom=requestAnimationFrame(step);}}});
-wrap.addEventListener('touchcancel',()=>{pinch=null;tpan=null;});
+wrap.addEventListener('touchcancel',()=>{endPinch();tpan=null;});
 let drag=null,dragMoved=false;
 wrap.addEventListener('mousedown',e=>{drag={x:e.clientX,y:e.clientY,sl:wrap.scrollLeft,st:wrap.scrollTop};dragMoved=false;wrap.classList.add('grabbing');});
 addEventListener('mousemove',e=>{if(!drag)return;
