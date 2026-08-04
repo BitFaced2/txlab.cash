@@ -4,281 +4,733 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Bitcoin Fork Tree</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<meta name="description" content="Interactive subway-map of every Bitcoin fork, 2009–2026 — chain splits, code forks, upgrades, bug forks and failed campaigns. ~90 events, key moments verified on the author's own full nodes.">
+<meta name="theme-color" content="#080b0a">
+<link rel="canonical" href="https://txlab.cash/forks/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://txlab.cash/forks/">
+<meta property="og:title" content="The Bitcoin Fork Tree">
+<meta property="og:description" content="Every fork · every reason · 2009–2026. Interactive map of ~90 chain splits, code forks, upgrades and bug forks — verified on-chain.">
+<meta property="og:image" content="https://txlab.cash/forks/social-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="628">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Bitcoin Fork Tree">
+<meta name="twitter:description" content="Every fork · every reason · 2009–2026. ~90 chain splits, code forks, upgrades and bug forks — verified on-chain.">
+<meta name="twitter:image" content="https://txlab.cash/forks/social-card.png">
 <style>
   :root{
-    --bg:#0a0e0d; --panel:#0f1513; --ink:#e9efeb; --muted:#8fa198; --dim:#5c6b64; --line:#1e2a25;
-    --btc:#f5a623; --ledger:#0ac18e; --upgrade:#39d0ff; --bug:#ff5c5c; --failed:#6b7a74; --code:#b06cff; --pending:#ffd23f;
-    --mono:ui-monospace,"Cascadia Code",Consolas,monospace;
-    --serif:"Iowan Old Style",Georgia,serif;
+    /* Cypher-BCHN base + Qubes neon accents */
+    --bg:#080b0a; --casing:#080b0a; --surface:#141917; --elevated:#1C2320; --border:#232B27;
+    --ink:#E8ECEA; --muted:#7B857F; --dim:#4A544F; --line:#232B27;
+    --btc:#f7931a; --green:#0AC18E; --purple:#9D4EDD; --cyan:#00d9ff; --amber:#E8B547; --red:#E85D6B;
+    --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,monospace;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--mono)}
-  #app{position:fixed;inset:0}
-  #stage{position:absolute;inset:0;cursor:grab;
+  #wrap{position:fixed;inset:0;overflow:auto;cursor:grab;touch-action:pan-x pan-y;
     background-color:var(--bg);
-    background-image:radial-gradient(rgba(120,190,165,.06) 1px, transparent 1.4px);
-    background-size:34px 34px;}
-  #stage.grabbing{cursor:grabbing}
+    background-image:radial-gradient(rgba(10,193,142,.06) 1px,transparent 1.3px);
+    background-size:30px 30px;}
+  #wrap.grabbing{cursor:grabbing}
+  #wrap::-webkit-scrollbar{width:11px;height:11px}
+  #wrap::-webkit-scrollbar-track{background:var(--bg)}
+  #wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px;border:2px solid var(--bg)}
+  #wrap::-webkit-scrollbar-thumb:hover{background:var(--green)}
+  #wrap::-webkit-scrollbar-corner{background:var(--bg)}
   svg{display:block}
   /* header */
-  #hdr{position:absolute;top:0;left:0;right:0;padding:16px 20px;z-index:5;pointer-events:none;
-    background:linear-gradient(180deg,rgba(10,14,13,.92),rgba(10,14,13,0))}
-  #hdr h1{font-family:var(--serif);font-weight:400;font-size:26px;letter-spacing:-.01em}
-  #hdr h1 .g{color:var(--ledger);text-shadow:0 0 24px rgba(10,193,142,.45)}
-  #hdr .sub{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-top:4px}
-  /* legend / filters */
-  #legend{position:absolute;top:14px;right:16px;z-index:6;background:rgba(15,21,19,.9);
-    border:1px solid var(--line);border-radius:12px;padding:12px 14px;backdrop-filter:blur(6px)}
-  #legend .lt{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
-  .flt{display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0;cursor:pointer;user-select:none;color:var(--ink)}
+  #hdr{position:fixed;top:0;left:0;z-index:6;padding:14px 22px 10px;pointer-events:none;
+    background:linear-gradient(180deg,rgba(8,11,10,.95) 55%,rgba(8,11,10,0))}
+  #hdr h1{font-size:24px;font-weight:800;letter-spacing:.06em;text-shadow:0 0 24px rgba(10,193,142,.35)}
+  #hdr h1 .g{color:var(--btc);text-shadow:0 0 22px rgba(247,147,26,.55)}
+  #hdr .sub{font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+  /* year ruler */
+  #ruler{position:fixed;top:64px;left:0;right:0;height:24px;z-index:5;overflow:hidden;pointer-events:none}
+  #rin{position:relative;height:100%}
+  #rin span{position:absolute;top:2px;font-size:11px;font-weight:700;color:var(--muted);
+    background:rgba(8,11,10,.85);padding:1px 5px;border-radius:4px}
+  /* legend — bottom-left so it never covers the survivor labels at the right edge */
+  #legend{position:fixed;bottom:40px;left:14px;z-index:7;background:rgba(20,25,23,.85);
+    border:1px solid var(--border);border-radius:10px;padding:8px 13px 10px;backdrop-filter:blur(7px);
+    box-shadow:0 0 30px rgba(10,193,142,.10)}
+  #legend .lt{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:6px}
+  #legtog{cursor:pointer;user-select:none;margin-bottom:0;padding:2px 0}
+  #legtog:hover{color:var(--green)}
+  #legend.closed #legbody{display:none}
+  #legend.closed{padding:6px 13px}
+  .flt{display:flex;align-items:center;gap:8px;font-size:11.5px;padding:2.5px 0;cursor:pointer;user-select:none}
   .flt .dot{width:11px;height:11px;border-radius:3px;flex:0 0 auto;box-shadow:0 0 8px currentColor}
-  .flt.off{opacity:.32}
-  .flt .lbl{white-space:nowrap}
+  .flt.off{opacity:.28}
+  #legend .lines{font-size:10.5px;color:var(--muted);line-height:1.8;margin-top:4px}
+  /* controls */
+  #ctl{position:fixed;bottom:14px;right:14px;z-index:7;display:flex;gap:6px}
+  #ctl button{width:34px;height:34px;font-size:16px;font-family:var(--mono);cursor:pointer;color:var(--ink);
+    background:var(--surface);border:1px solid var(--border);border-radius:8px}
+  #ctl button:hover{border-color:var(--green);color:var(--green)}
+  #ctl button:active{transform:translate(1px,1px)}
   /* detail panel */
-  #panel{position:absolute;top:0;right:0;bottom:0;width:360px;max-width:86vw;z-index:8;
-    background:linear-gradient(180deg,#0f1513,#0b100e);border-left:1px solid var(--line);
-    box-shadow:-20px 0 60px -20px rgba(0,0,0,.7);transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);
-    padding:22px;overflow-y:auto}
+  #panel{position:fixed;top:0;right:0;bottom:0;width:370px;max-width:88vw;z-index:9;
+    background:linear-gradient(180deg,#141917,#0d1210);border-left:1px solid var(--border);
+    box-shadow:-20px 0 60px -20px rgba(0,0,0,.8);transform:translateX(102%);
+    transition:transform .26s cubic-bezier(.4,0,.2,1);padding:22px;overflow-y:auto}
   #panel.open{transform:translateX(0)}
-  #panel .close{position:absolute;top:14px;right:16px;color:var(--dim);cursor:pointer;font-size:18px}
-  #panel .ptype{font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:10px}
-  #panel h2{font-family:var(--serif);font-weight:400;font-size:26px;line-height:1.1;margin-bottom:4px}
-  #panel .tick{font-size:12px;color:var(--muted);margin-bottom:16px}
-  #panel .row{display:flex;gap:10px;font-size:12.5px;padding:7px 0;border-bottom:1px solid var(--line)}
-  #panel .row .k{color:var(--dim);width:92px;flex:0 0 auto}
-  #panel .row .v{color:var(--ink)}
-  #panel .sum{font-family:var(--serif);font-size:15px;line-height:1.6;color:var(--ink);margin:16px 0}
-  #panel .vbadge{display:inline-block;font-size:10.5px;letter-spacing:.12em;color:var(--ledger);
-    border:1px solid var(--ledger);border-radius:20px;padding:3px 10px;margin-top:4px}
-  #panel a{color:var(--ledger)}
-  /* tooltip */
-  #tip{position:absolute;z-index:9;pointer-events:none;background:rgba(9,13,12,.96);border:1px solid var(--line);
-    border-radius:8px;padding:7px 10px;font-size:11.5px;opacity:0;transition:opacity .1s;max-width:240px}
-  #tip .tn{color:var(--ink);font-weight:600}
-  #tip .td{color:var(--muted);margin-top:2px}
-  /* hint */
-  #hint{position:absolute;bottom:12px;left:16px;z-index:5;font-size:11px;color:var(--dim);pointer-events:none}
-  .nodeC{cursor:pointer;transition:r .12s}
+  #panel .close{position:absolute;top:12px;right:15px;color:var(--muted);cursor:pointer;font-size:18px}
+  #panel .close:hover{color:var(--green)}
+  #panel .ptype{font-size:10px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:10px;font-weight:700}
+  #panel h2{font-size:24px;font-weight:800;line-height:1.1;margin-bottom:3px}
+  #panel .tick{font-size:12px;color:var(--muted);margin-bottom:14px}
+  #panel .row{display:flex;gap:10px;font-size:12px;padding:6px 0;border-bottom:1px solid var(--line)}
+  #panel .row .k{color:var(--dim);width:96px;flex:0 0 auto}
+  #panel .sum{font-size:13.5px;line-height:1.65;margin:14px 0;color:var(--ink)}
+  #panel .vbadge{display:inline-block;font-size:10px;letter-spacing:.1em;color:var(--green);font-weight:700;
+    border:1px solid var(--green);border-radius:20px;padding:3px 10px;margin-top:12px;
+    box-shadow:0 0 14px rgba(10,193,142,.25)}
+  #panel .uv{display:inline-block;font-size:10px;letter-spacing:.06em;color:var(--amber);font-weight:700;
+    border:1px dashed var(--amber);border-radius:20px;padding:3px 10px;margin-top:12px}
+  #panel .lore{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+  #panel .lore h4{font-size:10px;letter-spacing:.22em;color:var(--green);margin-bottom:8px}
+  #panel .lore p{font-size:12.5px;line-height:1.7;color:var(--ink);margin:0 0 10px}
+  /* tooltip — Cypher QToolTip: dark surface, green border */
+  #tip{position:fixed;z-index:10;pointer-events:none;background:var(--surface);color:var(--ink);
+    border:1px solid var(--green);border-radius:7px;padding:6px 10px;font-size:11px;opacity:0;
+    transition:opacity .1s;max-width:250px;box-shadow:0 0 18px rgba(10,193,142,.2)}
+  #tip .tn{font-weight:700}
+  #tip .td{color:var(--muted);margin-top:1px}
+  #hint{position:fixed;bottom:12px;left:16px;z-index:5;font-size:10.5px;color:var(--dim);pointer-events:none}
+  .clickable{cursor:pointer}
   text{user-select:none}
-  @keyframes pulse{0%,100%{r:7;opacity:1}50%{r:12;opacity:.55}}
-  .pending-core{animation:pulse 1.8s ease-in-out infinite}
+  .pending-core{filter:drop-shadow(0 0 6px #E8B547)}
+  #root g{transition:opacity .25s}
+  /* search */
+  #search{position:fixed;top:12px;right:14px;z-index:8;width:250px}
+  #q{width:100%;background:rgba(20,25,23,.9);border:1px solid var(--border);border-radius:8px;
+    color:var(--ink);font-family:var(--mono);font-size:12px;padding:8px 11px;outline:none;backdrop-filter:blur(7px)}
+  #q:focus{border-color:var(--green);box-shadow:0 0 16px rgba(10,193,142,.18)}
+  #q::placeholder{color:var(--dim)}
+  #qr{margin-top:4px;background:rgba(20,25,23,.96);border:1px solid var(--border);border-radius:8px;
+    overflow:hidden;display:none;backdrop-filter:blur(7px)}
+  #qr.on{display:block}
+  #qr .qi{padding:7px 11px;font-size:11.5px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+  #qr .qi:hover,#qr .qi.hot{background:var(--elevated)}
+  #qr .qi .qs{color:var(--dim);font-size:10px;white-space:nowrap}
+  /* about modal */
+  #about{position:fixed;inset:0;z-index:20;background:rgba(4,6,5,.72);display:none;
+    align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+  #about.open{display:flex}
+  #acard{position:relative;width:640px;max-width:92vw;max-height:84vh;overflow-y:auto;
+    background:linear-gradient(180deg,#141917,#0d1210);border:1px solid var(--border);border-radius:14px;
+    padding:26px 28px;box-shadow:0 0 60px rgba(10,193,142,.12)}
+  #acard h2{font-size:19px;font-weight:800;margin-bottom:4px}
+  #acard h2 .g{color:var(--btc)}
+  #acard h3{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin:18px 0 6px}
+  #acard p{font-size:12.5px;line-height:1.7;color:var(--ink);margin:6px 0}
+  #acard p.mut{color:var(--muted)}
+  #acard .close{position:absolute;top:12px;right:15px;color:var(--muted);cursor:pointer;font-size:18px}
+  #acard .close:hover{color:var(--green)}
+  #acard code{background:var(--elevated);border-radius:4px;padding:1px 5px;font-size:11.5px}
+  /* mobile */
+  @media (max-width:820px){
+    #hdr{padding:10px 14px 8px}
+    #hdr h1{font-size:17px}
+    #hdr .sub{font-size:8px;letter-spacing:.14em}
+    #ruler{top:50px}
+    #search{width:170px;top:10px;right:10px}
+    #panel{width:100vw;max-width:100vw}
+    #ctl button{width:42px;height:42px;font-size:18px}
+    #hint{display:none}
+    #legend{bottom:12px}
+  }
 </style>
 </head>
 <body>
-<div id="app">
-  <div id="stage"><svg id="svg"></svg></div>
+<div id="wrap"><svg id="svg"><g id="root"></g></svg></div>
 
-  <div id="hdr">
-    <h1>The Bitcoin <span class="g">Fork</span> Tree</h1>
-    <div class="sub">every fork · every reason · 2009 – 2026 · a decade of receipts</div>
-  </div>
+<div id="hdr">
+  <h1>THE BITCOIN <span class="g">FORK</span> TREE</h1>
+  <div class="sub">every fork · every reason · 2009 – 2026 · scroll &rarr;</div>
+</div>
+<div id="ruler"><div id="rin"></div></div>
 
-  <div id="legend">
-    <div class="lt">Filter</div>
-    <div id="filters"></div>
-    <div class="lt" style="margin-top:10px">Lines</div>
-    <div style="font-size:11px;color:var(--muted);line-height:1.7">
-      <span style="color:var(--ledger)">──</span> shared ledger<br>
-      <span style="color:var(--code)">╌╌</span> code fork (new genesis)
+<div id="legend">
+  <div class="lt" id="legtog">Legend &amp; filter ▾</div>
+  <div id="legbody">
+    <div id="filters" style="margin-top:6px"></div>
+    <div class="lt" style="margin-top:8px">Lines</div>
+    <div class="lines">
+      <b style="color:#0AC18E">━━</b> shared-ledger fork<br>
+      <b style="color:#9D4EDD">╍╍</b> code fork · new genesis<br>
+      <b style="color:#00d9ff">●</b> soft-fork upgrade<br>
+      <b style="color:#00d9ff">◆</b> hard-fork upgrade<br>
+      <b style="color:#59635C">■</b> abandoned line
     </div>
   </div>
-
-  <div id="panel">
-    <div class="close" onclick="closePanel()">✕</div>
-    <div id="pbody"></div>
-  </div>
-
-  <div id="tip"></div>
-  <div id="hint">drag to pan · scroll to zoom · click a node</div>
 </div>
 
+<div id="search">
+  <input id="q" placeholder="search chains &amp; events — press /" autocomplete="off" spellcheck="false">
+  <div id="qr"></div>
+</div>
+
+<div id="ctl">
+  <button id="abtn" title="about &amp; methodology">ⓘ</button>
+  <button id="zin" title="zoom in">+</button>
+  <button id="zout" title="zoom out">−</button>
+  <button id="zhome" title="reset view">⌂</button>
+</div>
+
+<div id="about"><div id="acard">
+  <div class="close" onclick="toggleAbout(false)">✕</div>
+  <h2>THE BITCOIN <span class="g">FORK</span> TREE</h2>
+  <p class="mut">Every fork · every reason · 2009 – 2026</p>
+  <h3>What this is</h3>
+  <p>A subway-map of Bitcoin's entire family tree: every chain split, code fork, protocol upgrade, accidental fork
+     and failed campaign. <b>Solid lines</b> share Bitcoin's ledger history up to their fork block.
+     <b>Dashed lines</b> copied the code but started a new genesis — ancestry, not shared history.
+     Round stations are soft forks; diamonds are hard forks.</p>
+  <h3>✔ Verified on my own nodes</h3>
+  <p>Events wearing the green badge were confirmed directly against the author's own full nodes —
+     <code>Bitcoin Core 28.1</code> (BTC) and <code>Bitcoin Cash Node 29.0</code> (BCH) — by pulling each block
+     at its documented height and checking its timestamp and hash (August 2026). No explorer APIs, no trust required.
+     BCH's scheduled-upgrade activation blocks were computed the hard way: binary-searching the BCHN chain for each
+     upgrade's median-time-past crossing — the method reproduced both known split heights exactly.</p>
+  <p class="mut">A lesson learned doing it: block <i>height</i> alone is ambiguous across forks — BCH ran ahead of BTC
+     after its 2017 difficulty changes, so the same height lands on different dates on each chain.
+     Every height on this map is paired with its chain.</p>
+  <h3>⚠ Honesty flags</h3>
+  <p>Entries wearing the amber badge rest on secondary sources only (several 2017-18 airdrop coins barely documented
+     anything). Dead-line <i>endpoints</i> are approximate — most of these coins faded rather than announced a death.
+     BCH codenames after Axion (2020) are community nicknames, not official.</p>
+  <h3>What's deliberately missing</h3>
+  <p>Monero, Ethereum, Ripple, Cardano and friends — commonly mislabeled as Bitcoin forks; they are independent
+     codebases. Vaporware forks that never demonstrably launched (Bitcoin Silver, Bitcoin Uranium) are excluded.
+     BIP-110 stays off the map until it actually activates or splits.</p>
+</div></div>
+
+<div id="panel"><div class="close" onclick="closePanel()">✕</div><div id="pbody"></div></div>
+<div id="tip"></div>
+<div id="hint">scroll to zoom · drag to travel · <b>/</b> to search · click a chain to light its ancestry · ⓘ for methodology</div>
+
+<script src="lore.js"></script>
 <script>
-/* ---------- DATA ---------- */
-// chains: lines. lane = horizontal position. parent + forkDate = where it branches.
-const CHAINS = [
- {id:'btc', name:'Bitcoin', tick:'BTC', lane:0, kind:'trunk', start:'2009-01-03', alive:true,
-  sum:'The original chain. Everything on this page descends from it.', block:'0', status:'Alive — the reference chain'},
- // ---- ledger forks (share BTC history) ----
- {id:'bch', name:'Bitcoin Cash', tick:'BCH', lane:3, kind:'ledger', parent:'btc', start:'2017-08-01', alive:true,
-  block:'478559', v:'2017-08-01 18:12Z', sum:'Big-block split over on-chain scaling; 8MB blocks, replay protection, no SegWit.', status:'Alive — largest fork'},
- {id:'bsv', name:'Bitcoin SV', tick:'BSV', lane:5, kind:'ledger', parent:'bch', start:'2018-11-15', alive:true,
-  block:'556766', v:'2018-11-15 17:52Z', sum:'Craig Wright / nChain "hash war" split from BCH over bigger blocks and "Satoshi’s Vision".', status:'Alive, declining; delisted 2021+'},
- {id:'ecash', name:'eCash', tick:'XEC', lane:4, kind:'ledger', parent:'bch', start:'2020-11-15', alive:true,
-  block:'661648', v:'2020-11-15 14:16Z', sum:'Bitcoin ABC minority chain split over the dev-tax (IFP); rebranded eCash + Avalanche layer.', status:'Alive as XEC'},
- {id:'btg', name:'Bitcoin Gold', tick:'BTG', lane:1, kind:'ledger', parent:'btc', start:'2017-10-24', alive:true,
-  block:'491407', v:'2017-10-24 01:20Z', sum:'ASIC-resistance via Equihash PoW. 51%-attacked twice.', status:'Alive but marginal'},
- {id:'bcd', name:'Bitcoin Diamond', tick:'BCD', lane:2, kind:'ledger', parent:'btc', start:'2017-11-24', alive:false, endDate:'2019-06-01',
-  block:'495866', sum:'10:1 distribution, larger blocks, 210M supply. Anonymous devs.', status:'Dormant'},
- {id:'btcp', name:'Bitcoin Private', tick:'BTCP', lane:6, kind:'ledger', parent:'btc', start:'2018-02-28', alive:false, endDate:'2019-06-01',
-  block:'511346', sum:'Dual fork of Bitcoin + Zclassic adding zk-SNARK privacy.', status:'Dead — hidden-inflation bug, delisted'},
- {id:'sbtc', name:'Super Bitcoin', tick:'SBTC', lane:7, kind:'ledger', parent:'btc', start:'2017-12-12', alive:false, endDate:'2018-08-01',
-  block:'498888', sum:'One of the Dec-2017 airdrop-fork wave: lightning + smart contracts + big blocks. Abandoned.', status:'Dead'},
- {id:'god', name:'Bitcoin God', tick:'GOD', lane:8, kind:'ledger', parent:'btc', start:'2017-12-27', alive:false, endDate:'2018-08-01',
-  block:'501225', sum:'Chandler Guo’s "charity"-themed airdrop fork. Never gained traction.', status:'Dead'},
- // ---- code forks (new genesis, separate ledger) ----
- {id:'namecoin', name:'Namecoin', tick:'NMC', lane:-2, kind:'code', parent:'btc', start:'2011-04-18', alive:true,
-  sum:'First altcoin ever. Decentralized DNS/.bit, from a BitDNS thread Satoshi joined.', status:'Alive/notable'},
- {id:'litecoin', name:'Litecoin', tick:'LTC', lane:-4, kind:'code', parent:'btc', start:'2011-10-07', alive:true,
-  sum:'Forked Bitcoin Core directly + scrypt PoW, 2.5-min blocks. "Silver to Bitcoin’s gold."', status:'Alive/notable'},
- {id:'peercoin', name:'Peercoin', tick:'PPC', lane:-3, kind:'code', parent:'btc', start:'2012-08-12', alive:true,
-  sum:'First proof-of-stake coin ever (Sunny King & Scott Nadal).', status:'Alive/niche'},
- {id:'junkcoin', name:'Junkcoin', tick:'JKC', lane:-5, kind:'code', parent:'litecoin', start:'2013-05-03', alive:true,
-  sum:'Introduced random "lucky" bonus block rewards — inherited all the way down to Dogecoin.', status:'Revived 2023'},
- {id:'luckycoin', name:'Luckycoin', tick:'LKY', lane:-5.6, kind:'code', parent:'junkcoin', start:'2013-05-20', alive:true,
-  sum:'Random-reward coin; the direct codebase parent of Dogecoin.', status:'Revived 2021'},
- {id:'bells', name:'Bellscoin', tick:'BELLS', lane:-6.4, kind:'code', parent:'luckycoin', start:'2013-11-28', alive:true,
-  sum:'Billy Markus made it ~8 days BEFORE Dogecoin, Animal-Crossing themed. Revived 2023.', status:'Revived'},
- {id:'dogecoin', name:'Dogecoin', tick:'DOGE', lane:-7.1, kind:'code', parent:'luckycoin', start:'2013-12-06', alive:true,
-  sum:'The meme coin — great-great-grandchild of Bitcoin. Inherited random rewards (removed Mar 2014).', status:'Alive'},
- {id:'dash', name:'Dash', tick:'DASH', lane:-4.8, kind:'code', parent:'litecoin', start:'2014-01-18', alive:true,
-  sum:'XCoin→Darkcoin→Dash. Masternodes, InstantSend, PrivateSend, treasury governance.', status:'Alive'},
- {id:'zcash', name:'Zcash', tick:'ZEC', lane:-8.6, kind:'code', parent:'btc', start:'2016-10-28', alive:true,
-  sum:'Forked Bitcoin Core; first major coin with zk-SNARK shielded transactions.', status:'Alive'},
- {id:'zclassic', name:'Zclassic', tick:'ZCL', lane:-9.3, kind:'code', parent:'zcash', start:'2016-11-06', alive:false, endDate:'2019-01-01',
-  sum:'Fork of Zcash removing the Founders’ Reward; parent of Horizen & Bitcoin Private.', status:'Dormant'},
- {id:'horizen', name:'Horizen', tick:'ZEN', lane:-10, kind:'code', parent:'zclassic', start:'2017-05-30', alive:true,
-  sum:'Launched as ZenCash (Zclassic fork); privacy + sidechain platform.', status:'Alive'},
- {id:'komodo', name:'Komodo', tick:'KMD', lane:-7.8, kind:'code', parent:'zcash', start:'2017-02-01', alive:true,
-  sum:'Zcash fork; delayed-PoW notarizes onto Bitcoin; DEX/atomic swaps.', status:'Alive'},
-];
-
-// events: markers on a chain's line
-const EVENTS = [
- {chain:'btc', type:'bug', name:'Value Overflow', date:'2010-08-15', block:'74638', v:'2010-08-15 23:53Z', sum:'Integer overflow minted ~184.467 BILLION BTC in one transaction. Patched in ~5h; the good chain overtook and erased the coins.'},
- {chain:'btc', type:'upgrade', name:'P2SH (BIP16)', date:'2012-04-01', block:'173805', v:'2012-04-01 00:43Z', sum:'Pay-to-script-hash. Made multisig / complex scripts practical.'},
- {chain:'btc', type:'bug', name:'March 2013 fork', date:'2013-03-11', block:'225430', v:'2013-03-11 23:24Z', sum:'v0.8 (LevelDB) accepted a block v0.7 (BerkeleyDB) rejected — accidental split. Miners downgraded; resolved in ~6h.'},
- {chain:'btc', type:'upgrade', name:'BIP66 (strict DER)', date:'2015-07-04', block:'363725', v:'2015-07-04 01:54Z', sum:'Strict signature encoding. Its activation triggered the SPV-mining fork the same day.'},
- {chain:'btc', type:'bug', name:'BIP66 SPV fork', date:'2015-07-05', block:'363731', v:'2015-07-04 02:46Z', sum:'After BIP66 hit 95%, ~half the hashrate SPV-mined on an invalid block, extending it 6 blocks before a reorg.'},
- {chain:'btc', type:'upgrade', name:'CLTV', date:'2015-12-14', block:'388381', v:'2015-12-14 17:24Z', sum:'OP_CHECKLOCKTIMEVERIFY — absolute timelocks.'},
- {chain:'btc', type:'upgrade', name:'CSV', date:'2016-07-04', block:'419328', v:'2016-07-04 23:16Z', sum:'Relative timelocks. Foundation for the Lightning Network.'},
- {chain:'btc', type:'upgrade', name:'SegWit', date:'2017-08-24', block:'481824', v:'2017-08-24 01:57Z', sum:'Segregated witness — fixed malleability, added the witness discount. The fight over it caused the BCH split three weeks earlier.'},
- {chain:'btc', type:'failed', name:'SegWit2x (cancelled)', date:'2017-11-08', sum:'Miner/business pact for a 2MB hardfork. Suspended days before activation — no split occurred.'},
- {chain:'btc', type:'upgrade', name:'Taproot', date:'2021-11-14', block:'709632', v:'2021-11-14 05:15Z', sum:'Schnorr signatures, Pay-to-Taproot, Tapscript. Bitcoin’s most recent consensus upgrade.'},
- {chain:'btc', type:'pending', name:'BIP-110?', date:'2026-08-07', sum:'Proposed soft fork to cap arbitrary data. Miner signaling reported very low. If enforcers split from miners, this mints the newest ledger fork — "BipCoin". Watch this node.'},
- {chain:'bch', type:'upgrade', name:'CashTokens', date:'2023-05-15', sum:'Native fungible + non-fungible tokens; P2SH32. BCH’s smart-contract leap.'},
- {chain:'bch', type:'upgrade', name:'Native Introspection', date:'2022-05-15', sum:'Covenant opcodes (CHIP). Enabled efficient on-chain covenants / vaults.'},
-];
-
-/* ---------- LAYOUT ---------- */
-const svg = document.getElementById('svg');
-const NS='http://www.w3.org/2000/svg';
-const T0=2009.0, T1=2026.9, YSCALE=150, TOP=70, LANEW=132, CX=1400;
-const COLORS={trunk:'var(--btc)',ledger:'var(--ledger)',upgrade:'var(--upgrade)',bug:'var(--bug)',failed:'var(--failed)',code:'var(--code)',pending:'var(--pending)'};
-const RAW={trunk:'#f5a623',ledger:'#0ac18e',upgrade:'#39d0ff',bug:'#ff5c5c',failed:'#6b7a74',code:'#b06cff',pending:'#ffd23f'};
+/* ================= TIME SCALE (warped: busy eras get more pixels) ================= */
+const SEGS=[[2009.0,350],[2010.5,500],[2011.2,850],[2014.3,450],[2016.6,2300],[2019.0,550],[2021.0,600],[2027.0,0]];
+const LEFT=260, NOW='2026-08-03';
 function yr(d){const[Y,M,Dy]=d.split('-').map(Number);return Y+((M-1)+((Dy||1)-1)/30)/12;}
-function Y(d){return TOP+(yr(d)-T0)*YSCALE;}
-function X(lane){return CX+lane*LANEW;}
-const NOW='2026-08-03';
+function X(d){let v=yr(d),x=LEFT;
+  for(let i=0;i<SEGS.length-1;i++){const[a,r]=SEGS[i],b=SEGS[i+1][0];
+    if(v<=a)break; x+=(Math.min(v,b)-a)*r; if(v<=b)break;}
+  return x;}
+const W=Math.ceil(X('2027-01-01'))+330;
+const LANEH=36, TRUNKY=700, H=1790;
+function laneY(l){return TRUNKY+l*LANEH;}
+
+/* ================= CHAINS =================
+ kind: trunk | ledger | code   stub:true = airdrop-wave gray stub
+ v = on-chain verified (author's own BTC/BCH nodes)   uv = from secondary sources */
+const CHAINS=[
+{id:'btc',name:'Bitcoin',tick:'BTC',lane:0,kind:'trunk',col:'#f7931a',start:'2009-01-03',
+ block:'0',sum:'The original chain. Every line on this map descends from it — by shared ledger (solid) or by copied code (dashed).',status:'Alive — the reference chain'},
+
+/* ---- major ledger forks ---- */
+{id:'bch',name:'Bitcoin Cash',tick:'BCH',lane:-4.4,kind:'ledger',col:'#0aa176',parent:'btc',start:'2017-08-01',
+ block:'478559',v:'2017-08-01 18:12Z',sum:'The big-block split over on-chain scaling: 8MB blocks, replay protection, no SegWit. First block mined ~5h after the last common block (478558, 13:16Z).',status:'Alive — the largest fork'},
+{id:'xec',name:'eCash',tick:'XEC',lane:-5.6,kind:'ledger',col:'#0074c2',parent:'bch',start:'2020-11-15',
+ block:'661648',v:'2020-11-15 14:16Z',sum:'Bitcoin ABC minority chain, split over the 8% dev-tax (IFP). One lineage: BCHA rebranded to eCash in July 2021 and added Avalanche consensus.',status:'Alive as XEC'},
+{id:'bsv',name:'Bitcoin SV',tick:'BSV',lane:-6.8,kind:'ledger',col:'#d4a017',parent:'bch',start:'2018-11-15',
+ block:'556766',v:'2018-11-15 17:52Z',sum:'Craig Wright / nChain "hash war" split from BCH at the Magnetic Anomaly upgrade — gigantic blocks, "Satoshi’s Vision", restored original opcodes.',status:'Alive, declining; major delistings 2019 & 2023'},
+{id:'btg',name:'Bitcoin Gold',tick:'BTG',lane:-1.6,kind:'ledger',col:'#c98a2e',parent:'btc',start:'2017-10-24',
+ block:'491407',v:'2017-10-24 01:20Z',sum:'ASIC-resistance fork: Equihash GPU proof-of-work. Led by Jack Liao. 51%-attacked in 2018 and 2020.',status:'Alive but marginal'},
+{id:'bcd',name:'Bitcoin Diamond',tick:'BCD',lane:-2.4,kind:'ledger',col:'#6f78c9',parent:'btc',start:'2017-11-24',end:'2020-06-01',
+ block:'495866',v:'2017-11-24 09:20Z',sum:'10:1 coin distribution, larger blocks, 210M supply. Anonymous developers.',status:'Dormant'},
+{id:'btcp',name:'Bitcoin Private',tick:'BTCP',lane:-3.2,kind:'ledger',col:'#4a3f9f',parent:'btc',start:'2018-02-28',end:'2019-03-01',
+ block:'511346',v:'2018-02-28 17:06Z',sum:'Dual fork of Bitcoin + Zclassic adding zk-SNARK privacy. Killed by a hidden-inflation exploit (~2M extra coins minted) and delistings.',status:'Dead'},
+
+/* ---- the 2017-18 airdrop graveyard (gray stubs) ---- */
+{id:'ubtc',name:'United Bitcoin',tick:'UBTC',lane:-7.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-11',end:'2019-03-01',block:'498777',v:'2017-12-11 18:19Z',sum:'Planned to seize dormant coins ("re-activate" unclaimed BTC). Part of the Dec-2017 airdrop-fork wave. Sources said Dec 12; the chain says its snapshot block landed Dec 11 UTC.',status:'Defunct'},
+{id:'bth',name:'Bitcoin Hot',tick:'BTH',lane:-8.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-08-01',block:'498848',v:'2017-12-12 04:44Z',sum:'Airdrop-wave fork. No lasting network.',status:'Dead'},
+{id:'sbtc',name:'Super Bitcoin',tick:'SBTC',lane:-8.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-10-01',block:'498888',v:'2017-12-12 10:29Z',sum:'"Lightning + smart contracts + big blocks" — the whole 2017 wishlist. Abandoned.',status:'Dead'},
+{id:'bcx',name:'BitcoinX',tick:'BCX',lane:-9.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-12-01',block:'498888',v:'2017-12-12 10:29Z',sum:'Airdrop-wave fork, widely flagged as a scam.',status:'Dead'},
+{id:'obtc',name:'Oil Bitcoin',tick:'OBTC',lane:-10,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-09-01',block:'498888',v:'2017-12-12 10:29Z',sum:'Airdrop-wave fork. Yes, "Oil Bitcoin".',status:'Dead'},
+{id:'bicc',name:'BitClassic Coin',tick:'BICC',lane:-10.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-06-01',block:'498888',v:'2017-12-12 10:29Z',uv:'the height claim itself rests on secondary sources',sum:'Airdrop-wave fork; barely documented.',status:'Dead'},
+{id:'btw',name:'Bitcoin World',tick:'BTW',lane:-11.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-17',end:'2018-09-01',block:'499777',v:'2017-12-17 12:11Z',sum:'Airdrop-wave fork.',status:'Dead'},
+{id:'lbtc',name:'Lightning Bitcoin',tick:'LBTC',lane:-11.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2019-06-01',block:'499999',v:'2017-12-18 18:34Z',sum:'DPoS fork — no relation to the actual Lightning Network, name notwithstanding.',status:'Defunct'},
+{id:'btf',name:'Bitcoin Faith',tick:'BTF',lane:-12.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-11-01',block:'500000',v:'2017-12-18 18:35Z',sum:'Forked at the nice round block 500000. Faith did not sustain it.',status:'Dead'},
+{id:'btcs',name:'Bitcoin Stake',tick:'BTCS',lane:-13,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-10-01',block:'499999',v:'2017-12-18 18:34Z',sum:'Proof-of-stake fork. Ticker later clashed with "Bitcoin Silver". Sources said Dec 19; block 499999 landed Dec 18 UTC.',status:'Dead'},
+{id:'god',name:'Bitcoin God',tick:'GOD',lane:-13.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-27',end:'2018-12-01',block:'501225',v:'2017-12-27 06:55Z',sum:'Chandler Guo’s "charity"-themed fork, ticker GOD. Never gained traction.',status:'Dead'},
+{id:'bpa',name:'Bitcoin Pizza',tick:'BPA',lane:-14.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-31',end:'2018-11-01',block:'501888',v:'2017-12-31 12:32Z',sum:'A DAG-based fork named after the 10,000-BTC pizza. Branded as a New Year’s Day fork — the chain says its snapshot block hit Dec 31 UTC.',status:'Dead'},
+{id:'bcp',name:'Bitcoin Cash Plus',tick:'BCP',lane:-14.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-28',end:'2018-07-01',block:'501407',v:'2017-12-28 10:52Z',sum:'Name-squatting on Bitcoin Cash. Vanished almost immediately. Secondary sources claim Jan 2, 2018 — block 501407 was actually mined Dec 28, 2017. The chain doesn’t lie.',status:'Dead'},
+{id:'bca',name:'Bitcoin Atom',tick:'BCA',lane:-15.4,kind:'ledger',stub:1,parent:'btc',start:'2018-01-24',end:'2019-09-01',block:'505888',v:'2018-01-24 14:26Z',sum:'Atomic-swap-focused fork. Outlived most of the wave, then faded.',status:'Defunct'},
+{id:'bco',name:'Bitcoin Ore',tick:'BCO',lane:-16,kind:'ledger',stub:1,parent:'btc',start:'2018-01-31',end:'2018-10-01',uv:'fork block unverified',sum:'Proof-of-capacity fork.',status:'Dead'},
+{id:'anon',name:'Anonymous Bitcoin',tick:'ANON',lane:-16.6,kind:'ledger',stub:1,parent:'btc',start:'2018-09-10',end:'2019-09-01',uv:'fork block unverified',sum:'Dual fork of Bitcoin + Zclassic (like BTCP): zk-SNARKs plus masternodes. The last gasp of the airdrop wave.',status:'Defunct'},
+
+/* ---- code forks · first generation, BTC-direct ---- */
+{id:'nmc',name:'Namecoin',tick:'NMC',lane:1.5,kind:'code',col:'#2e7fb8',parent:'btc',start:'2011-04-18',
+ sum:'THE FIRST ALTCOIN EVER. Decentralized DNS (.bit) and identity, born from a BitDNS thread Satoshi himself joined. Later merge-mined with Bitcoin.',status:'Alive / historic'},
+{id:'dvc',name:'Devcoin',tick:'DVC',lane:2.25,kind:'code',col:'#7a9c4e',parent:'btc',start:'2011-08-05',
+ sum:'Charity/open-source funding coin — auto-allocated coinbase share to developers, writers and artists. Merge-mined.',status:'Niche'},
+{id:'ixc',name:'IXCoin',tick:'IXC',lane:3,kind:'code',col:'#b0713a',parent:'btc',start:'2011-08-10',
+ sum:'Early near-clone: 21M cap, larger initial reward. Added merged mining in 2012.',status:'Niche'},
+{id:'solid',name:'SolidCoin',tick:'SC',lane:3.75,kind:'code',col:'#8a6f5a',parent:'btc',start:'2011-08-01',end:'2011-09-30',uv:'genesis day approximate',
+ sum:'Premined, faster blocks — and a network killswitch held by its creator. Abandoned within weeks after community backlash.',status:'Dead'},
+{id:'geg',name:'GeistGeld',tick:'GEG',lane:4.5,kind:'code',col:'#708078',parent:'btc',start:'2011-09-01',end:'2012-06-01',uv:'genesis day approximate',
+ sum:'Experimental max-speed, no-halving coin (via MultiCoin). Hit by a time-warp attack.',status:'Dead'},
+{id:'ppc',name:'Peercoin',tick:'PPC',lane:5.4,kind:'code',col:'#3cb054',parent:'btc',start:'2012-08-16',
+ uv:'genesis block internally timestamped Aug 16; Sunny King announced the public start as Aug 19; the oft-cited Aug 12 has no traceable primary source',
+ sum:'THE FIRST PROOF-OF-STAKE COIN (Sunny King & Scott Nadal). Hybrid PoW/PoS — the ancestor of every staking chain.',status:'Alive / historic'},
+{id:'trc',name:'Terracoin',tick:'TRC',lane:6.15,kind:'code',col:'#4f7f5f',parent:'btc',start:'2012-10-26',
+ sum:'Near-clone with 2-minute blocks and a 42M cap; later revived with Dash-style masternodes.',status:'Niche'},
+{id:'frc',name:'Freicoin',tick:'FRC',lane:6.9,kind:'code',col:'#ba5b3e',parent:'btc',start:'2012-12-21',end:'2017-06-01',
+ sum:'DEMURRAGE money: ~5%/yr carrying cost to discourage hoarding (Timón & Friedenbach). Economics experiment, faded out.',status:'Dead / notable'},
+{id:'nvc',name:'Novacoin',tick:'NVC',lane:7.65,kind:'code',col:'#4aa0a0',parent:'btc',start:'2013-02-09',
+ sum:'First to combine scrypt PoW with Peercoin-style PoS; separate PoW/PoS difficulty.',status:'Niche'},
+{id:'xpm',name:'Primecoin',tick:'XPM',lane:8.4,kind:'code',col:'#b08a2e',parent:'btc',start:'2013-07-07',
+ sum:'Sunny King again: proof-of-work that finds chains of prime numbers — the first "useful-PoW" coin.',status:'Niche / notable'},
+{id:'grs',name:'Groestlcoin',tick:'GRS',lane:9.15,kind:'code',col:'#377e96',parent:'btc',start:'2014-03-22',
+ sum:'First coin using the Grøstl hash; consistently tech-forward (early SegWit, Lightning, Taproot adopter).',status:'Alive'},
+{id:'rvn',name:'Ravencoin',tick:'RVN',lane:9.9,kind:'code',col:'#b04a3a',parent:'btc',start:'2018-01-03',
+ sum:'Fair-launch asset-issuance chain (X16R, later KawPoW), launched on Bitcoin’s 9th birthday.',status:'Alive'},
+{id:'troll',name:'TrollCoin',tick:'TROLL',lane:10.55,kind:'code',col:'#8fbf4d',parent:'nvc',start:'2014-03-14',
+ uv:'launch date + immediate parent from secondary sources; lineage read from code headers',
+ sum:'Meme/tipping coin of the 2014 altcoin boom — used for Twitch and gaming tips. Its source headers credit Satoshi, the Bitcoin developers AND the PPCoin developers: a genuine Bitcoin-family codebase running the Novacoin-style scrypt-PoW + PoS stack (Litecoin’s mining, Peercoin’s staking).',status:'Alive (low); community-run'},
+
+/* ---- code forks · the scrypt → Doge lineage ---- */
+{id:'tbx',name:'Tenebrix',tick:'TBX',lane:11.2,kind:'code',col:'#5e5e8f',parent:'btc',start:'2011-09-26',end:'2013-06-01',uv:'genesis day approximate',
+ sum:'THE FIRST SCRYPT COIN (ArtForz). A ~7.7M premine sank it — but its scrypt idea seeded Litecoin and everything below this line.',status:'Dead / notable'},
+{id:'fbx',name:'Fairbrix',tick:'FBX',lane:11.95,kind:'code',col:'#7d7da8',parent:'tbx',start:'2011-10-01',end:'2012-03-01',uv:'genesis day approximate',
+ sum:'Charlie Lee’s premine-free Tenebrix clone. Failed at launch (reward bug + 51% attack) — the failure that motivated Litecoin.',status:'Dead'},
+{id:'ltc',name:'Litecoin',tick:'LTC',lane:12.9,kind:'code',col:'#345d9d',parent:'btc',start:'2011-10-07',
+ sum:'Charlie Lee branched Bitcoin Core DIRECTLY (not Fairbrix’s buggy code), taking only the scrypt idea from the Tenebrix line. 2.5-min blocks, 84M cap. "Silver to Bitcoin’s gold."',status:'Alive / major'},
+{id:'ftc',name:'Feathercoin',tick:'FTC',lane:13.75,kind:'code',col:'#4a90c9',parent:'ltc',start:'2013-04-16',
+ sum:'Faster, larger emission; pioneered Advanced Checkpointing after suffering a 51% attack.',status:'Alive (low)'},
+{id:'jkc',name:'Junkcoin',tick:'JKC',lane:14.5,kind:'code',col:'#6aa84f',parent:'ltc',start:'2013-05-03',
+ sum:'Introduced random "lucky" bonus block rewards — a gimmick inherited all the way down to Dogecoin.',status:'Revived 2024'},
+{id:'lky',name:'Luckycoin',tick:'LKY',lane:15.25,kind:'code',col:'#c23b3b',parent:'jkc',start:'2013-05-20',uv:'genesis day approximate',
+ sum:'Random-reward coin — and the DIRECT codebase parent of Dogecoin (per Billy Markus’s own account; some sources say "Litecoin fork").',status:'Revived 2024'},
+{id:'bells',name:'Bellscoin',tick:'BELLS',lane:16,kind:'code',col:'#d668a6',parent:'lky',start:'2013-11-28',
+ sum:'Billy Markus made this Animal-Crossing-themed coin ~8 days BEFORE Dogecoin. Revived 2023.',status:'Revived'},
+{id:'doge',name:'Dogecoin',tick:'DOGE',lane:16.9,kind:'code',col:'#c2a633',parent:'lky',start:'2013-12-06',
+ sum:'Markus & Palmer’s meme coin — Bitcoin’s great-great-grandchild (BTC → LTC → JKC → LKY → DOGE). Inherited the random rewards (removed Mar 2014).',status:'Alive / major'},
+{id:'vtc',name:'Vertcoin',tick:'VTC',lane:17.8,kind:'code',col:'#1d7a54',parent:'ltc',start:'2014-01-08',
+ sum:'Serial ASIC-resistance: changed PoW repeatedly (scrypt-N → Lyra2RE → Verthash) to stay GPU-mineable.',status:'Alive (minor)'},
+{id:'dgb',name:'DigiByte',tick:'DGB',lane:18.55,kind:'code',col:'#4b5fb0',parent:'ltc',start:'2014-01-10',
+ sum:'Fast five-algo chain; pioneered DigiShield difficulty retargeting, adopted by many other coins.',status:'Alive'},
+{id:'dash',name:'Dash',tick:'DASH',lane:19.3,kind:'code',col:'#008de4',parent:'ltc',start:'2014-01-18',
+ sum:'XCoin → Darkcoin → Dash. X11 PoW plus masternodes: InstantSend, PrivateSend, on-chain treasury governance.',status:'Alive / major'},
+{id:'aur',name:'Auroracoin',tick:'AUR',lane:20.05,kind:'code',col:'#77a0c9',parent:'ltc',start:'2014-01-24',end:'2018-06-01',
+ sum:'The Iceland coin: 50% premined for a national airdrop to every citizen. Briefly top-5 by market cap; then faded.',status:'Defunct'},
+{id:'rdd',name:'Reddcoin',tick:'RDD',lane:20.8,kind:'code',col:'#e03e2d',parent:'ltc',start:'2014-02-02',
+ sum:'Social-tipping coin; moved to proof-of-stake-velocity, later re-based on Bitcoin code.',status:'Alive (low)'},
+{id:'sys',name:'Syscoin',tick:'SYS',lane:21.55,kind:'code',col:'#2a9d8f',parent:'ltc',start:'2014-04-16',
+ sum:'v1 forked Litecoin; v2 re-based onto Bitcoin and became SHA-256 merge-mined with BTC. Assets, identity, later UTXO+EVM.',status:'Alive'},
+
+/* ---- code forks · the privacy (Zcash) family ---- */
+{id:'zec',name:'Zcash',tick:'ZEC',lane:22.9,kind:'code',col:'#d9a71f',parent:'btc',start:'2016-10-28',
+ sum:'Forked Bitcoin Core; the first major coin with zk-SNARK shielded transactions.',status:'Alive / major'},
+{id:'zcl',name:'Zclassic',tick:'ZCL',lane:23.65,kind:'code',col:'#8f7cc2',parent:'zec',start:'2016-11-06',end:'2019-06-01',
+ sum:'Zcash minus the 20% Founders’ Reward. Short life, big legacy: parent of Horizen — and of Bitcoin Private, tying this family back to the ledger-fork layer.',status:'Dormant'},
+{id:'kmd',name:'Komodo',tick:'KMD',lane:24.4,kind:'code',col:'#2b6680',parent:'zec',start:'2017-02-01',
+ uv:'map position = market debut (Feb 2017). The chain itself started 2016-09-13 (block 1, on-chain) — BEFORE Zcash launched, because Komodo forked Zcash’s pre-release code',
+ sum:'Zcash fork with delayed-PoW: notarizes its history onto Bitcoin for security. DEX / atomic-swap platform.',status:'Alive (acquired by Gleec 2025)'},
+{id:'zen',name:'Horizen',tick:'ZEN',lane:25.15,kind:'code',col:'#2f8f7a',parent:'zcl',start:'2017-05-30',end:'2025-07-24',
+ sum:'Launched as ZenCash, a Zclassic fork; renamed Horizen 2018. Privacy plus a sidechain platform. The Bitcoin-lineage chain was retired in July 2025 — the ZEN token migrated to Base as an ERC-20.',status:'Chain retired 2025; token lives on Base'},
+];
+
+/* ================= EVENTS (markers on a line) =================
+ type: upgrade | bug | failed | pending    loop:N = temporary bad chain of N blocks */
+const EVENTS=[
+/* BTC upgrades */
+{chain:'btc',type:'upgrade',name:'BIP30',date:'2012-03-15',flip:1,sum:'Duplicate-TXID fix — closed the duplicate-coinbase vulnerability (flag-day soft fork).'},
+{chain:'btc',type:'upgrade',name:'P2SH',date:'2012-04-01',block:'173805',v:'2012-04-01 00:43Z',sum:'Pay-to-script-hash (BIP16). Made multisig and complex scripts practical.'},
+{chain:'btc',type:'upgrade',name:'BIP34',date:'2013-03-25',block:'227931',v:'2013-03-25 07:30Z',flip:1,sum:'Block v2 — height in coinbase, guaranteeing unique coinbase transactions. (Often documented as Mar 24; block 227931 landed Mar 25 UTC.)'},
+{chain:'btc',type:'upgrade',name:'BIP66',date:'2015-07-04',block:'363725',v:'2015-07-04 01:54Z',sum:'Strict DER signature encoding. Its activation triggered the SPV-mining fork the very same night — see the red loop next door.'},
+{chain:'btc',type:'upgrade',name:'CLTV',date:'2015-12-14',block:'388381',v:'2015-12-14 17:24Z',flip:1,sum:'OP_CHECKLOCKTIMEVERIFY — absolute timelocks.'},
+{chain:'btc',type:'upgrade',name:'CSV',date:'2016-07-04',block:'419328',v:'2016-07-04 23:16Z',sum:'Relative timelocks (BIP68/112/113). The foundation the Lightning Network stands on.'},
+{chain:'btc',type:'upgrade',name:'SegWit',date:'2017-08-24',block:'481824',v:'2017-08-24 01:57Z',sum:'Segregated witness — fixed malleability, added capacity. The years-long fight over it caused the Bitcoin Cash split three weeks before activation.'},
+{chain:'btc',type:'upgrade',name:'Taproot',date:'2021-11-14',block:'709632',v:'2021-11-14 05:15Z',sum:'Schnorr signatures, Pay-to-Taproot, Tapscript. Bitcoin’s most recent consensus upgrade.'},
+/* BTC accidental / bug forks */
+{chain:'btc',type:'bug',name:'Value Overflow',date:'2010-08-15',block:'74638',v:'2010-08-15 23:53Z',loop:53,ftx:'Accidental split via exploit — the emergency fix itself was a soft fork (rules tightened)',sum:'CVE-2010-5139: an integer overflow minted ~184.467 BILLION BTC in one transaction. Patched within ~5 hours; the honest chain overtook the bad one 53 blocks later and the coins never existed again.'},
+{chain:'btc',type:'bug',name:'March 2013 fork',date:'2013-03-11',block:'225430',v:'2013-03-11 23:24Z',loop:24,ftx:'Accidental split — often called Bitcoin’s only hard fork, though that label is disputed: the "rule" broken was an undocumented, non-deterministic BDB lock limit, not a written consensus rule',sum:'v0.8 (LevelDB) accepted a block that v0.7 (BerkeleyDB) rejected — an accidental split ~24 blocks deep. Miners voluntarily downgraded to reunite the network (BIP50).'},
+{chain:'btc',type:'bug',name:'BIP66 SPV fork',lab:'SPV fork',date:'2015-07-04',block:'363731',v:'2015-07-04 02:46Z',loop:6,xoff:26,flip:1,lyoff:-13,ftx:'Accidental split — miners built on a block violating the hours-old BIP66 soft fork',sum:'Hours after BIP66 locked in, ~half the hashrate SPV-mined 6 blocks on top of an invalid block before the reorg. Verified on-chain: 02:46Z, inside the 02:10–03:50 alert window.'},
+{chain:'btc',type:'bug',name:'CVE-2018-17144',date:'2018-09-18',flip:1,ftx:'No split occurred — the emergency 0.16.3 patch was a rule-tightening (soft-fork-style) fix',sum:'Duplicate-input inflation/DoS bug — the closest recent call. Found by BCH developer "awemany" and patched before anyone exploited it. No split occurred.'},
+/* failed / cancelled campaigns */
+{chain:'btc',type:'failed',name:'Bitcoin XT',date:'2015-08-15',flip:1,sum:'BIP101: 8MB blocks via the XT client. First big-block secession attempt; never reached activation threshold.'},
+{chain:'btc',type:'failed',name:'Bitcoin Classic',date:'2016-02-10',sum:'The 2MB compromise client. Abandoned without activating.'},
+{chain:'btc',type:'failed',name:'Bitcoin Unlimited',date:'2016-03-15',flip:1,sum:'"Emergent consensus" — miner-chosen block sizes. Popular hashpower signal in 2016-17, never forked.'},
+{chain:'btc',type:'failed',name:'BIP148 UASF',date:'2017-08-01',flip:1,sum:'User-activated soft fork ultimatum: enforce SegWit or else. It worked — miners locked SegWit in first, so the "or else" never fired. Same day, Bitcoin Cash went its own way.'},
+{chain:'btc',type:'failed',name:'SegWit2x cancelled',date:'2017-11-08',sum:'The New York Agreement’s 2MB hard fork (~block 494784), backed by most miners and businesses — suspended days before activation. The dog that didn’t bark.'},
+/* pending */
+{chain:'btc',type:'pending',name:'Core v30 OP_RETURN',date:'2025-10-15',flip:1,sum:'Bitcoin Core v30 relaxed OP_RETURN data limits — policy, not consensus, but it reignited the "what is Bitcoin for" fight and boosted Bitcoin Knots adoption.'},
+/* BIP-110 (mandatory signaling ~block 961632, est. 2026-08-07) intentionally omitted until it actually activates or splits — re-add with the ghost:1 line if it happens */
+/* BCH upgrades (heights MTP-gated; shown by date per publishing convention) */
+{chain:'bch',type:'upgrade',name:'New DAA',date:'2017-11-13',block:'504032',v:'2017-11-13 21:03Z',sum:'Emergency difficulty-adjustment replaced with a stable DAA; LOW_S/NULLFAIL rules.'},
+{chain:'bch',type:'upgrade',name:'32MB + opcodes',date:'2018-05-15',flip:1,block:'530356',v:'2018-05-15 17:53Z',sum:'"Monolith": 32MB blocks, re-enabled original opcodes, 220-byte OP_RETURN.'},
+{chain:'bch',type:'upgrade',name:'Schnorr',date:'2019-05-15',block:'582680',v:'2019-05-15 12:21Z',sum:'"Great Wall": Schnorr signatures for CHECKSIG; SegWit-address recovery.'},
+{chain:'bch',type:'upgrade',name:'Schnorr multisig',date:'2019-11-15',flip:1,block:'609136',v:'2019-11-15 13:44Z',sum:'"Graviton": Schnorr for CHECKMULTISIG; MINIMALDATA enforced.'},
+{chain:'bch',type:'upgrade',name:'SigChecks',date:'2020-05-15',block:'635259',v:'2020-05-15 13:03Z',sum:'"Phonon": SigChecks accounting; OP_REVERSEBYTES.'},
+{chain:'bch',type:'upgrade',name:'Unconf. limit lifted',date:'2021-05-15',flip:1,block:'688094',v:'2021-05-15 13:19Z',sum:'Removed the unconfirmed-transaction chain limit; multiple OP_RETURNs.'},
+{chain:'bch',type:'upgrade',name:'Introspection',date:'2022-05-15',block:'740238',v:'2022-05-15 14:01Z',sum:'Native Introspection opcodes + 64-bit script ints — efficient on-chain covenants.'},
+{chain:'bch',type:'upgrade',name:'CashTokens',date:'2023-05-15',flip:1,block:'792773',v:'2023-05-15 13:32Z',sum:'Native fungible + non-fungible tokens; P2SH32. BCH’s smart-contract leap.'},
+{chain:'bch',type:'upgrade',name:'ABLA',date:'2024-05-15',block:'845891',v:'2024-05-15 12:49Z',sum:'Adaptive block-size limit algorithm ("Upgrade 10"; codename "Jessica" is community/press, not official).'},
+{chain:'bch',type:'upgrade',name:'VM limits + BigInt',date:'2025-05-15',flip:1,block:'898374',v:'2025-05-15 13:00Z',sum:'Targeted VM limits retargeting; big-integer script math.'},
+{chain:'bch',type:'upgrade',name:'2026 upgrade',date:'2026-05-15',block:'951145',v:'2026-05-15 12:49Z',sum:'Bounded loops, functions, bitwise ops, P2S — the four locked-in CHIPs. (Codename "Layla" unofficial; ignore the AI-generated "post-quantum/DeFi" hype, none of it is in the spec.)'},
+/* other lines */
+{chain:'xec',type:'upgrade',name:'Rebrand → eCash',date:'2021-07-01',flip:1,sum:'BCHA rebranded to eCash (XEC), 1:1,000,000 redenomination, Avalanche consensus layered on.'},
+{chain:'doge',type:'upgrade',name:'AuxPoW',date:'2014-09-11',ft:'hard',sum:'Dogecoin switched to merged mining with Litecoin — the scrypt family reunited for security.'},
+];
+
+/* era captions */
+/* era captions — each parked in permanently empty space beside the group it names */
+const ERAS=[
+ {date:'2009-04-01',lane:5.6,txt:'FIRST-GENERATION CODE FORKS · 2011–13'},   /* lead-in left of the 2011 cluster */
+ {date:'2011-12-01',lane:15.2,txt:'THE SCRYPT → DOGE LINEAGE'},              /* gap under LTC before JKC/LKY begin */
+ {date:'2015-01-01',lane:24.1,txt:'THE PRIVACY FAMILY'},                     /* left of the Zcash family launch */
+ {date:'2017-08-10',lane:-13,txt:'THE AIRDROP GRAVEYARD · 2017–18'},         /* above SegWit, right where the fan erupts */
+ {date:'2021-01-01',lane:-9.2,txt:'THE SCALING WARS · BCH → BSV → XEC'},     /* below BSV, after the graveyard clears */
+];
+
+/* ================= RENDER ================= */
+const NS='http://www.w3.org/2000/svg';
+const svg=document.getElementById('svg'), root=document.getElementById('root');
+const EVCOL={upgrade:'#00d9ff',bug:'#E85D6B',failed:'#7B857F',pending:'#E8B547'};
 const byId=Object.fromEntries(CHAINS.map(c=>[c.id,c]));
+/* lift lightness/saturation so line colors read on the near-black bg */
+function vivid(hex){
+  const n=parseInt(hex.slice(1),16),R=(n>>16&255)/255,G=(n>>8&255)/255,B=(n&255)/255;
+  const mx=Math.max(R,G,B),mn=Math.min(R,G,B);let h=0,s=0,l=(mx+mn)/2;
+  if(mx!==mn){const d=mx-mn;s=l>0.5?d/(2-mx-mn):d/(mx+mn);
+    if(mx===R)h=(G-B)/d+(G<B?6:0);else if(mx===G)h=(B-R)/d+2;else h=(R-G)/d+4;h/=6;}
+  l=Math.max(l,0.6);s=Math.min(1,s*1.15+0.05);
+  const q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q;
+  const f=t=>{t=(t%1+1)%1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;};
+  const to=v=>Math.round(v*255).toString(16).padStart(2,'0');
+  return '#'+to(f(h+1/3))+to(f(h))+to(f(h-1/3));
+}
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+const L={eras:el('g',{}),casing:el('g',{}),lines:el('g',{}),nodes:el('g',{}),labels:el('g',{})};
+Object.values(L).forEach(g=>root.appendChild(g));
 
-function el(tag,attrs){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
+/* era captions + year grid */
+for(let y=2009;y<=2026;y++){
+  const x=X(y+'-01-01');
+  L.eras.appendChild(el('line',{x1:x,y1:36,x2:x,y2:H-14,stroke:'#151b18','stroke-width':1}));
+  const t1=el('text',{x:x+5,y:H-22,fill:'var(--dim)','font-size':12,'font-weight':700,class:'yr'});t1.textContent=y;L.eras.appendChild(t1);
+}
+const nowX=X(NOW);
+L.eras.appendChild(el('line',{x1:nowX,y1:36,x2:nowX,y2:H-14,stroke:'#E8B547','stroke-width':2,'stroke-dasharray':'3 6',opacity:.5}));
+const tnow=el('text',{x:nowX+7,y:52,fill:'#E8B547','font-size':11,'font-weight':700,class:'yr'});tnow.textContent='TODAY';L.eras.appendChild(tnow);
+ERAS.forEach(e=>{const t=el('text',{x:X(e.date),y:laneY(e.lane),fill:'rgba(160,185,172,.38)','font-size':21,'font-weight':800,'letter-spacing':'.14em',class:'era'});
+  t.textContent=e.txt;L.eras.appendChild(t);});
 
-const root=el('g',{}); svg.appendChild(root);
-const layers={lines:el('g',{}),links:el('g',{}),labels:el('g',{}),nodes:el('g',{})};
-root.appendChild(layers.lines);root.appendChild(layers.links);root.appendChild(layers.labels);root.appendChild(layers.nodes);
-
-// chain life-lines + fork connectors
+/* chain lines */
+function chainD(c){
+  const x0=X(c.start), y1=laneY(c.lane), xE=c.end?X(c.end):X(NOW);
+  if(!c.parent)return{d:`M ${x0} ${y1} L ${xE} ${y1}`,x0,y0:y1,y1,xE,dx:0};
+  const y0=laneY(byId[c.parent].lane);
+  const dx=Math.max(40,Math.min(Math.abs(y1-y0)*0.5,240));
+  return{d:`M ${x0} ${y0} C ${x0+dx*.45} ${y0}, ${x0+dx*.55} ${y1}, ${x0+dx} ${y1} L ${xE} ${y1}`,x0,y0,y1,xE,dx};
+}
+/* same geometry, but only out to toX — used to glow an ancestor just over the span the child inherited */
+function partialD(cid,toX){
+  const g=GEO[cid], end=Math.max(toX,g.x0+g.dx);
+  if(g.dx===0)return `M ${g.x0} ${g.y1} L ${end} ${g.y1}`;
+  return `M ${g.x0} ${g.y0} C ${g.x0+g.dx*.45} ${g.y0}, ${g.x0+g.dx*.55} ${g.y1}, ${g.x0+g.dx} ${g.y1} L ${end} ${g.y1}`;
+}
+const GLOWS={},GROUPS={},GEO={},EVGS=[],IDX=[];
 CHAINS.forEach(c=>{
-  const x=X(c.lane), y0=Y(c.start), y1=c.alive?Y(NOW):Y(c.endDate||c.start);
-  const isCode=c.kind==='code';
-  const col=c.kind==='trunk'?RAW.trunk:(isCode?RAW.code:RAW.ledger);
-  // life line
-  const ln=el('line',{x1:x,y1:y0,x2:x,y2:y1,stroke:col,'stroke-width':c.kind==='trunk'?4:2.4,
-    'stroke-linecap':'round',opacity:c.alive?(c.kind==='trunk'?.95:.8):.32});
-  if(isCode)ln.setAttribute('stroke-dasharray','2 7');
-  ln.dataset.type=c.kind;layers.lines.appendChild(ln);
-  // fork connector from parent
-  if(c.parent){const p=byId[c.parent];const px=X(p.lane);const path=el('path',{
-    d:`M ${px} ${y0} C ${px} ${y0+34}, ${x} ${y0-34}, ${x} ${y0}`,
-    fill:'none',stroke:col,'stroke-width':2.2,opacity:c.alive?.7:.3});
-    if(isCode)path.setAttribute('stroke-dasharray','2 7');
-    path.dataset.type=c.kind;layers.links.appendChild(path);}
-  // chain label at top of line
-  const lab=el('text',{x:x,y:y0-14,'text-anchor':'middle',fill:col,'font-size':13,'font-weight':700,'font-family':'var(--mono)'});
-  lab.textContent=c.tick;lab.dataset.type=c.kind;lab.style.textShadow=`0 0 10px ${col}`;layers.labels.appendChild(lab);
-  const nm=el('text',{x:x,y:y0+(c.kind==='trunk'?-30:-30),'text-anchor':'middle',fill:'var(--muted)','font-size':9.5});
-  // node for the chain's birth
-  addNode({x,y:y0,type:c.kind,name:c.name,tick:c.tick,date:c.start,block:c.block,v:c.v,sum:c.sum,status:c.status,chainName:c.name,parent:c.parent});
+  const col=c.stub?'#7B857F':vivid(c.col);
+  const g=el('g',{});g.dataset.f=c.kind==='trunk'?'':'f-'+c.kind;
+  const {d,x0,y0,y1,xE,dx}=chainD(c);
+  const wMain=c.kind==='trunk'?9:(c.stub?3.5:5.5);
+  GEO[c.id]={x0,y0,y1,dx,col,w:wMain};
+  /* selection glow underlay — lit up when this chain is clicked */
+  const glow=el('path',{d,fill:'none',stroke:col,'stroke-width':wMain+22,'stroke-linecap':'round',opacity:0});
+  glow.style.transition='opacity .25s';GLOWS[c.id]=glow;
+  const cas=el('path',{d,fill:'none',stroke:'var(--casing)','stroke-width':wMain+(c.stub?3:6),'stroke-linecap':'round'});
+  const ln=el('path',{d,fill:'none',stroke:col,'stroke-width':wMain,'stroke-linecap':'round',opacity:c.end?(c.stub?.9:.55):1});
+  if(c.kind==='code')ln.setAttribute('stroke-dasharray','10 8');
+  if(c.kind==='trunk'){ /* the trunk always glows faintly — it's Bitcoin */
+    g.appendChild(el('path',{d,fill:'none',stroke:col,'stroke-width':wMain+14,'stroke-linecap':'round',opacity:.10}));
+  }
+  g.appendChild(glow);g.appendChild(cas);g.appendChild(ln);
+  /* junction block on parent */
+  if(c.parent){
+    const s=c.stub?9:13;
+    g.appendChild(el('rect',{x:x0-s/2,y:y0-s/2,width:s,height:s,rx:3.5,fill:col,stroke:'var(--bg)','stroke-width':2}));
+  }else{
+    g.appendChild(el('rect',{x:x0-8,y:y1-8,width:16,height:16,rx:4,fill:col,stroke:'var(--bg)','stroke-width':2.5}));
+    const gt=el('text',{x:x0-2,y:y1-18,fill:'var(--ink)','font-size':12,'font-weight':800,class:'yr'});gt.textContent='GENESIS · JAN 3 2009';g.appendChild(gt);
+  }
+  /* line end: survivor label or abandoned cap */
+  let endLab;
+  if(c.end){
+    g.appendChild(el('rect',{x:xE-5,y:y1-5,width:10,height:10,rx:2.5,fill:'#59635C',stroke:'var(--casing)','stroke-width':2}));
+    endLab=el('text',{x:xE+9,y:y1+4,fill:'var(--muted)','font-size':c.stub?10.5:11.5});
+    endLab.textContent='✝ '+c.name+' '+c.tick;
+  }else{
+    endLab=el('text',{x:xE+12,y:y1+4,fill:col,'font-size':c.kind==='trunk'?15:12.5,'font-weight':800});
+    endLab.textContent=c.name+' · '+c.tick;
+  }
+  g.appendChild(endLab);
+  interact(g,c,{name:c.name,tick:c.tick,date:c.start,block:c.block});
+  GROUPS[c.id]=g;
+  IDX.push({t:(c.name+' '+c.tick).toLowerCase(),label:c.name,sub:c.tick+' · '+(c.kind==='trunk'?'the original':(c.stub?'airdrop fork':c.kind+' fork')),x:x0,y:y1,d:c});
+  L.lines.appendChild(g);
 });
-
-// event markers
-EVENTS.forEach(ev=>{const c=byId[ev.chain];const x=X(c.lane),y=Y(ev.date);
-  addNode({x,y,type:ev.type,name:ev.name,date:ev.date,block:ev.block,v:ev.v,sum:ev.sum,chainName:c.name,onTrunk:true});
-});
-
-function addNode(n){
-  const g=el('g',{});g.dataset.type=n.type;
-  const col=RAW[n.type];
-  const isPending=n.type==='pending';
-  const r=n.onTrunk?5.5:7;
-  const c=el('circle',{cx:n.x,cy:n.y,r:r,fill:'#0a0e0d',stroke:col,'stroke-width':2.4});
-  c.classList.add('nodeC'); if(isPending)c.classList.add('pending-core');
-  c.style.filter=`drop-shadow(0 0 6px ${col})`;
-  // label for event markers (to the side)
-  if(n.onTrunk){const t=el('text',{x:n.x+11,y:n.y+3.5,fill:'var(--muted)','font-size':10});t.textContent=n.name;t.dataset.type=n.type;g.appendChild(t);}
-  g.appendChild(c);
-  g.addEventListener('mouseenter',e=>{c.setAttribute('r',r+3);showTip(e,n)});
-  g.addEventListener('mousemove',moveTip);
-  g.addEventListener('mouseleave',()=>{c.setAttribute('r',r);hideTip()});
-  g.addEventListener('click',ev=>{ev.stopPropagation();openPanel(n)});
-  layers.nodes.appendChild(g);
+/* ancestry spotlight: on selection, EVERYTHING dims except the one continuous
+   path back to genesis — each ancestor is redrawn bright only up to the block
+   where the next chain in the lineage peeled off */
+const HIL=el('g',{});L.lines.appendChild(HIL);
+let selected=null,selPath=[],ancGlows=[];
+function lineage(id){const p=[];let cur=id;while(cur&&byId[cur]){p.push(cur);cur=byId[cur].parent;}return p;}
+function setSelected(id){
+  Object.values(GLOWS).forEach(p=>p.setAttribute('opacity',0));
+  Object.values(GROUPS).forEach(g=>g.style.opacity='');
+  EVGS.forEach(e=>e.g.style.opacity='');
+  ancGlows.forEach(p=>p.remove());ancGlows=[];
+  selected=(id&&GLOWS[id])?id:null;selPath=selected?lineage(selected):[];
+  if(!selected)return;
+  GLOWS[selected].setAttribute('opacity',.38);
+  /* how far each lineage chain stays lit: up to its child's fork; selected = forever */
+  const cutoff={};cutoff[selected]=Infinity;
+  for(let i=1;i<selPath.length;i++)cutoff[selPath[i]]=X(byId[selPath[i-1]].start);
+  Object.entries(GROUPS).forEach(([cid,g])=>{if(cid!==selected)g.style.opacity=.14;});
+  EVGS.forEach(e=>{const c=cutoff[e.chain];if(!(c!==undefined&&e.x<=c))e.g.style.opacity=.14;});
+  /* redraw the inherited segments at full brightness on the top layer */
+  for(let i=1;i<selPath.length;i++){
+    const cid=selPath[i],g=GEO[cid],d=partialD(cid,cutoff[cid]);
+    const glow=el('path',{d,fill:'none',stroke:g.col,'stroke-width':g.w+22,'stroke-linecap':'round',opacity:.3});
+    const cas=el('path',{d,fill:'none',stroke:'var(--casing)','stroke-width':g.w+6,'stroke-linecap':'round'});
+    const ln=el('path',{d,fill:'none',stroke:g.col,'stroke-width':g.w,'stroke-linecap':'round'});
+    if(byId[cid].kind==='code')ln.setAttribute('stroke-dasharray','10 8');
+    const s=byId[cid].parent?13:16;
+    const j=el('rect',{x:g.x0-s/2,y:g.y0-s/2,width:s,height:s,rx:s/4,fill:g.col,stroke:'var(--bg)','stroke-width':2});
+    [glow,cas,ln,j].forEach(p=>{HIL.appendChild(p);ancGlows.push(p);});
+  }
 }
 
-// year axis (subtle)
-for(let y=2009;y<=2026;y++){const yy=Y(y+'-01-01');
-  const t=el('text',{x:60,y:yy+4,fill:'var(--dim)','font-size':12,'text-anchor':'end'});t.textContent=y;layers.labels.appendChild(t);
-  const gl=el('line',{x1:74,y1:yy,x2:80,y2:yy,stroke:'var(--line)','stroke-width':1});layers.lines.appendChild(gl);
-}
+/* events */
+EVENTS.forEach(ev=>{
+  const c=byId[ev.chain], x=X(ev.date)+(ev.xoff||0), y=laneY(c.lane);
+  const col=EVCOL[ev.type];
+  const g=el('g',{});g.dataset.f='f-'+ev.type;g.classList.add('clickable');
+  if(ev.loop){ /* temporary bad chain: red bump that rejoins */
+    const w=26+ev.loop*1.1, h=30;
+    g.appendChild(el('path',{d:`M ${x} ${y} C ${x+8} ${y-h}, ${x+w-8} ${y-h}, ${x+w} ${y}`,
+      fill:'none',stroke:col,'stroke-width':3,'stroke-linecap':'round',opacity:.85}));
+    const bl=el('text',{x:x+w/2,y:y-h-(ev.flip?16:4),'text-anchor':'middle',fill:col,'font-size':9,'font-weight':700});
+    bl.textContent=ev.loop+' blk';g.appendChild(bl);
+  }
+  if(ev.ghost){ /* BIP-110: dashed ghost fork line */
+    g.appendChild(el('path',{d:`M ${x} ${y} C ${x+30} ${y}, ${x+34} ${y-46}, ${x+64} ${y-46} L ${x+150} ${y-46}`,
+      fill:'none',stroke:col,'stroke-width':4,'stroke-dasharray':'6 7',opacity:.8}));
+    const q=el('text',{x:x+160,y:y-28,fill:col,'font-size':12,'font-weight':800});q.textContent='“BipCoin”…?';g.appendChild(q);
+  }
+  /* fork-type: BTC consensus upgrades are soft forks; BCH scheduled upgrades are hard forks */
+  const ft=ev.ft||(ev.type==='upgrade'?(ev.chain==='btc'?'soft':ev.chain==='bch'?'hard':null):null);
+  const s=ev.type==='upgrade'?(ft==='hard'?13:15):13;
+  const r=el('rect',{x:x-s/2,y:y-s/2,width:s,height:s,rx:ev.type==='upgrade'?(ft==='hard'?2.5:7.5):3.5,
+    fill:ev.type==='upgrade'?'var(--bg)':col,stroke:ev.type==='upgrade'?col:'var(--bg)','stroke-width':2.5});
+  if(ft==='hard')r.setAttribute('transform',`rotate(45 ${x} ${y})`);
+  if(ev.type==='pending'){r.classList.add('pending-core');
+    g.appendChild(el('rect',{x:x-s/2-5,y:y-s/2-5,width:s+10,height:s+10,rx:7,fill:'none',stroke:col,'stroke-width':1.5,'stroke-dasharray':'3 3',opacity:.8}));}
+  g.appendChild(r);
+  const ly=(ev.flip? y-14 : y+22)+(ev.lyoff||0);
+  const t=el('text',{x:x,y:ly,'text-anchor':'middle',fill:ev.type==='failed'?'var(--muted)':'#C8D0CB','font-size':10.5,'font-weight':700});
+  t.textContent=ev.lab||ev.name;g.appendChild(t);
+  const evd={...ev,ft,kindName:ev.type,chainName:c.name,col};
+  interact(g,evd,{name:ev.name,date:ev.date,block:ev.block});
+  EVGS.push({g,chain:ev.chain,x});
+  IDX.push({t:(ev.name+' '+(ev.lab||'')).toLowerCase(),label:ev.name,sub:c.name+' · '+ev.type,x,y,d:evd});
+  L.nodes.appendChild(g);
+});
 
-/* ---------- FILTERS ---------- */
-const TYPES=[['trunk','Bitcoin'],['ledger','Ledger fork'],['code','Code fork'],['upgrade','Upgrade'],['bug','Bug fork'],['failed','Failed'],['pending','Pending']];
-const active=new Set(TYPES.map(t=>t[0]));
-const fw=document.getElementById('filters');
-TYPES.forEach(([k,label])=>{const d=document.createElement('div');d.className='flt';d.dataset.k=k;
-  d.innerHTML=`<span class="dot" style="color:${RAW[k]};background:${RAW[k]}"></span><span class="lbl">${label}</span>`;
-  d.onclick=()=>{if(active.has(k)){active.delete(k);d.classList.add('off')}else{active.add(k);d.classList.remove('off')}applyFilter()};
-  fw.appendChild(d);});
-function applyFilter(){document.querySelectorAll('[data-type]').forEach(e=>{e.style.display=active.has(e.dataset.type)?'':'none'})}
-
-/* ---------- TOOLTIP ---------- */
+/* ================= INTERACTION ================= */
 const tip=document.getElementById('tip');
-function showTip(e,n){tip.innerHTML=`<div class="tn">${n.name}${n.tick?' ('+n.tick+')':''}</div><div class="td">${fmtDate(n.date)}${n.block?' · block '+n.block:''}</div>`;tip.style.opacity=1;moveTip(e)}
-function moveTip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px'}
-function hideTip(){tip.style.opacity=0}
-function fmtDate(d){if(!d)return'';const[Y,M,Dy]=d.split('-');return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+M-1]+' '+(Dy?+Dy+', ':'')+Y}
+function fmtDate(d){if(!d)return'';const[Y,M,Dy]=d.split('-');return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+M-1]+' '+(Dy?+Dy+', ':'')+Y;}
+function interact(g,data,tipData){
+  g.classList.add('clickable');
+  const hid=data.id||data.chain;
+  g.addEventListener('mouseenter',e=>{
+    tip.innerHTML=`<div class="tn">${tipData.name}${tipData.tick?' ('+tipData.tick+')':''}</div><div class="td">${fmtDate(tipData.date)}${tipData.block?' · block '+tipData.block:''}</div>`;
+    tip.style.opacity=1;moveTip(e);
+    if(hid&&GLOWS[hid]&&!selPath.includes(hid))GLOWS[hid].setAttribute('opacity',.14);});
+  g.addEventListener('mousemove',moveTip);
+  g.addEventListener('mouseleave',()=>{tip.style.opacity=0;
+    if(hid&&GLOWS[hid])GLOWS[hid].setAttribute('opacity',selPath[0]===hid?.38:0);});
+  g.addEventListener('click',e=>{e.stopPropagation();
+    if(dragMoved){dragMoved=false;return;}
+    openPanel(data);});
+}
+function moveTip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px';}
 
-/* ---------- PANEL ---------- */
+/* per-cluster sources (dataset compiled Aug 2026; ✔ = re-verified against the author's own nodes) */
+const SCRYPT=new Set(['tbx','fbx','ltc','ftc','jkc','lky','bells','doge','vtc','dgb','dash','aur','rdd','sys']);
+const PRIVACY=new Set(['zec','zcl','kmd','zen']);
+const SRC={
+ trunk:'The chain itself — genesis block ✔ own node',
+ major:'Block explorers · project docs · Wikipedia — split blocks ✔ own nodes',
+ airdrop:'forkdrop.io · contemporary press — claimed snapshot blocks ✔ own node',
+ firstgen:'Wikipedia · bitcoinwiki · bitcointalk archives · mapofcoins',
+ scrypt:'Wikipedia · CoinDesk · project sites & bitcointalk archives',
+ privacy:'Wikipedia · Zcash docs · Horizen academy · bitcoinwiki',
+ btcup:'BIPs repo · bitcoin.org — activation blocks ✔ own node',
+ bchup:'CHIP specs · BCHN release notes — activation blocks ✔ own node (MTP scan)',
+ bug:'CVE reports · BIP50 post-mortem · network alerts — fork blocks ✔ own node',
+ failed:'Contemporary press · Wikipedia · project repos',
+ pending:'Bitcoin Core release notes · dev mailing list',
+ other:'Project release notes · Wikipedia'};
+function srcFor(n){
+  if(n.kindName){const t=n.kindName;
+    if(t==='upgrade')return n.chain==='btc'?SRC.btcup:(n.chain==='bch'?SRC.bchup:SRC.other);
+    return SRC[t]||SRC.other;}
+  if(n.kind==='trunk')return SRC.trunk;
+  if(n.stub)return SRC.airdrop;
+  if(n.kind==='ledger')return SRC.major;
+  if(PRIVACY.has(n.id))return SRC.privacy;
+  if(SCRYPT.has(n.id))return SRC.scrypt;
+  return SRC.firstgen;}
 const panel=document.getElementById('panel'),pbody=document.getElementById('pbody');
-const TYPENAME={trunk:'The original chain',ledger:'Ledger fork · shares Bitcoin’s history',code:'Code fork · new genesis',upgrade:'Protocol upgrade',bug:'Accidental / bug fork',failed:'Failed / cancelled fork',pending:'Pending · not yet a chain'};
-function openPanel(n){const col=RAW[n.type];
-  let rows='';
-  rows+=`<div class="row"><span class="k">Date</span><span class="v">${fmtDate(n.date)}</span></div>`;
-  if(n.block)rows+=`<div class="row"><span class="k">Block</span><span class="v">${n.block}</span></div>`;
-  if(n.chainName)rows+=`<div class="row"><span class="k">Chain</span><span class="v">${n.chainName}</span></div>`;
-  if(n.parent)rows+=`<div class="row"><span class="k">Forked from</span><span class="v">${byId[n.parent]?byId[n.parent].name:n.parent}</span></div>`;
-  if(n.status)rows+=`<div class="row"><span class="k">Status</span><span class="v">${n.status}</span></div>`;
-  pbody.innerHTML=`<div class="ptype" style="color:${col}">${TYPENAME[n.type]||n.type}</div>
+const TYPENAME={trunk:'The original chain',ledger:'Ledger fork · shares Bitcoin’s history',code:'Code fork · new genesis',
+  upgrade:'Protocol upgrade',bug:'Accidental / bug fork',failed:'Failed / cancelled',pending:'Pending · watch this'};
+function openPanel(n){
+  setSelected(n.id||n.chain||null);
+  const kind=n.kind||n.kindName,
+    col=n.kindName?(n.col||EVCOL[kind]):(n.col?vivid(n.col):'#7B857F');
+  let rows=`<div class="row"><span class="k">Date</span><span>${fmtDate(n.date||n.start)}</span></div>`;
+  if(n.block)rows+=`<div class="row"><span class="k">Block</span><span>${n.block}</span></div>`;
+  if(n.chainName)rows+=`<div class="row"><span class="k">On chain</span><span>${n.chainName}</span></div>`;
+  if(n.parent)rows+=`<div class="row"><span class="k">Forked from</span><span>${byId[n.parent]?byId[n.parent].name:n.parent}</span></div>`;
+  if(n.ftx)rows+=`<div class="row"><span class="k">Fork type</span><span>${n.ftx}</span></div>`;
+  else if(n.ft)rows+=`<div class="row"><span class="k">Fork type</span><span>${n.ft==='hard'?'◆ Hard fork — all nodes must upgrade':'● Soft fork — backward-compatible'}</span></div>`;
+  if(kind==='ledger')rows+=`<div class="row"><span class="k">Fork type</span><span>◆ Hard fork → permanent chain split</span></div>`;
+  if(n.loop)rows+=`<div class="row"><span class="k">Bad chain</span><span>${n.loop} blocks, then reorged away</span></div>`;
+  if(n.status)rows+=`<div class="row"><span class="k">Status</span><span>${n.status}</span></div>`;
+  rows+=`<div class="row"><span class="k">Sources</span><span style="color:var(--muted);font-size:11px">${srcFor(n)}</span></div>`;
+  pbody.innerHTML=`<div class="ptype" style="color:${col}">${TYPENAME[kind]||kind}</div>
     <h2>${n.name}</h2><div class="tick">${n.tick||''}</div>
-    ${n.sum?`<div class="sum">${n.sum}</div>`:''}
-    ${rows}
-    ${n.v?`<div class="vbadge">✔ verified on-chain · ${n.v}</div>`:''}`;
+    ${n.sum?`<div class="sum">${n.sum}</div>`:''}${rows}
+    ${n.v?`<div class="vbadge">✔ VERIFIED ON MY OWN NODE · ${n.v}</div>`:''}
+    ${n.uv?`<div class="uv">⚠ ${n.uv}</div>`:''}
+    ${(window.LORE||{})[n.id||n.name]?`<div class="lore"><h4>THE FULL STORY</h4>${window.LORE[n.id||n.name].map(p=>`<p>${p}</p>`).join('')}</div>`:''}`;
   panel.classList.add('open');
 }
-function closePanel(){panel.classList.remove('open')}
-document.getElementById('stage').addEventListener('click',closePanel);
+function closePanel(){panel.classList.remove('open');setSelected(null);}
 
-/* ---------- PAN / ZOOM ---------- */
-let scale=.66, tx=-CX*scale+innerWidth/2, ty=40, drag=null;
-const stage=document.getElementById('stage');
-function apply(){root.setAttribute('transform',`translate(${tx} ${ty}) scale(${scale})`)}
-apply();
-stage.addEventListener('mousedown',e=>{drag={x:e.clientX,y:e.clientY,tx,ty};stage.classList.add('grabbing')});
-addEventListener('mousemove',e=>{if(!drag)return;tx=drag.tx+(e.clientX-drag.x);ty=drag.ty+(e.clientY-drag.y);apply()});
-addEventListener('mouseup',()=>{drag=null;stage.classList.remove('grabbing')});
-stage.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.12:1/1.12;const ns=Math.min(2.2,Math.max(.28,scale*f));
-  const mx=e.clientX,my=e.clientY;tx=mx-(mx-tx)*(ns/scale);ty=my-(my-ty)*(ns/scale);scale=ns;apply()},{passive:false});
-// size svg large
-svg.setAttribute('width',3000);svg.setAttribute('height',Y(NOW)+120);
+/* filters */
+const TYPES=[['f-ledger','Ledger forks','#0AC18E'],['f-code','Code forks','#9D4EDD'],['f-upgrade','Upgrades','#00d9ff'],
+  ['f-bug','Bug forks','#E85D6B'],['f-failed','Failed','#7B857F'],['f-pending','Pending','#E8B547']];
+const active=new Set(TYPES.map(t=>t[0]));
+const fw=document.getElementById('filters');
+TYPES.forEach(([k,label,col])=>{const d=document.createElement('div');d.className='flt';
+  d.innerHTML=`<span class="dot" style="background:${col};color:${col}"></span><span>${label}</span>`;
+  d.onclick=()=>{if(active.has(k)){active.delete(k);d.classList.add('off');}else{active.add(k);d.classList.remove('off');}
+    document.querySelectorAll('[data-f]').forEach(e=>{if(e.dataset.f)e.style.display=active.has(e.dataset.f)?'':'none';});};
+  fw.appendChild(d);});
+document.getElementById('legtog').onclick=()=>{
+  const lg=document.getElementById('legend');lg.classList.toggle('closed');
+  document.getElementById('legtog').innerHTML='Legend &amp; filter '+(lg.classList.contains('closed')?'▸':'▾');};
+if(innerWidth<820)document.getElementById('legtog').onclick(); /* start collapsed on small screens */
+
+/* ---------- ABOUT ---------- */
+function toggleAbout(v){document.getElementById('about').classList.toggle('open',v);}
+document.getElementById('abtn').onclick=()=>toggleAbout(true);
+document.getElementById('about').addEventListener('click',e=>{if(e.target.id==='about')toggleAbout(false);});
+
+/* ---------- SEARCH ---------- */
+const qEl=document.getElementById('q'),qr=document.getElementById('qr');
+let qHits=[];
+function goTo(item){
+  wrap.scrollLeft=item.x*scale-wrap.clientWidth*0.5;
+  wrap.scrollTop=item.y*scale-wrap.clientHeight*0.5;
+  openPanel(item.d);qr.classList.remove('on');qEl.blur();}
+qEl.addEventListener('input',()=>{
+  const v=qEl.value.trim().toLowerCase();qr.innerHTML='';qHits=[];
+  if(!v){qr.classList.remove('on');return;}
+  qHits=IDX.filter(i=>i.t.includes(v)).slice(0,8);
+  qHits.forEach((h,i)=>{const d=document.createElement('div');d.className='qi'+(i===0?' hot':'');
+    d.innerHTML=`<span>${h.label}</span><span class="qs">${h.sub}</span>`;
+    d.addEventListener('mousedown',e=>{e.preventDefault();goTo(h);});qr.appendChild(d);});
+  qr.classList.toggle('on',qHits.length>0);});
+qEl.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&qHits.length)goTo(qHits[0]);
+  if(e.key==='Escape'){qEl.value='';qr.classList.remove('on');qEl.blur();}});
+qEl.addEventListener('blur',()=>setTimeout(()=>qr.classList.remove('on'),150));
+addEventListener('keydown',e=>{
+  if(e.key==='/'&&document.activeElement!==qEl){e.preventDefault();qEl.focus();}
+  if(e.key==='Escape'&&document.activeElement!==qEl){
+    if(document.getElementById('about').classList.contains('open'))toggleAbout(false);else closePanel();}});
+
+/* ================= PAN / ZOOM / SCROLL ================= */
+const wrap=document.getElementById('wrap');
+let scale=0.85;
+/* +420px of always-scrollable space past the last labels, so the detail panel (370px) can never trap them */
+const ENDPAD=420;
+function applyScale(){svg.setAttribute('width',W*scale+ENDPAD);svg.setAttribute('height',H*scale);
+  root.setAttribute('transform',`scale(${scale})`);
+  /* counter-scale text so labels stay readable when zoomed out:
+     .yr (years/TODAY/GENESIS) hold constant screen size; others grow up to 1.6x; .era stays world-scaled */
+  document.querySelectorAll('#root text').forEach(t=>{
+    if(t.classList.contains('era'))return;
+    if(!t.dataset.b)t.dataset.b=t.getAttribute('font-size')||'12';
+    const cap=t.classList.contains('yr')?3.4:1.6;
+    t.setAttribute('font-size',(+t.dataset.b)*Math.min(1/scale,cap));
+  });
+  buildRuler();}
+function minScale(){return Math.min(.85,Math.max(.3,(wrap.clientHeight-120)/H));}
+function setScale(ns,cx,cy){ns=Math.min(2,Math.max(minScale(),ns));
+  const wx=(wrap.scrollLeft+cx)/scale, wy=(wrap.scrollTop+cy)/scale;
+  scale=ns;applyScale();
+  wrap.scrollLeft=wx*scale-cx;wrap.scrollTop=wy*scale-cy;}
+document.getElementById('zin').onclick=()=>setScale(scale*1.25,wrap.clientWidth/2,wrap.clientHeight/2);
+document.getElementById('zout').onclick=()=>setScale(scale/1.25,wrap.clientWidth/2,wrap.clientHeight/2);
+document.getElementById('zhome').onclick=home;
+wrap.addEventListener('wheel',e=>{e.preventDefault();
+  if(e.shiftKey){wrap.scrollLeft+=e.deltaY+e.deltaX;}
+  else{setScale(scale*(e.deltaY<0?1.12:1/1.12),e.clientX,e.clientY);}},{passive:false});
+/* touch: one finger pans natively (touch-action), two fingers pinch-zoom */
+let pinch=null;
+const tdist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+wrap.addEventListener('touchstart',e=>{
+  if(e.touches.length===2)pinch={d:tdist(e.touches),s:scale};},{passive:true});
+wrap.addEventListener('touchmove',e=>{
+  if(pinch&&e.touches.length===2){e.preventDefault();
+    const cx=(e.touches[0].clientX+e.touches[1].clientX)/2,
+          cy=(e.touches[0].clientY+e.touches[1].clientY)/2;
+    setScale(pinch.s*tdist(e.touches)/pinch.d,cx,cy);}},{passive:false});
+wrap.addEventListener('touchend',()=>{pinch=null;});
+let drag=null,dragMoved=false;
+wrap.addEventListener('mousedown',e=>{drag={x:e.clientX,y:e.clientY,sl:wrap.scrollLeft,st:wrap.scrollTop};dragMoved=false;wrap.classList.add('grabbing');});
+addEventListener('mousemove',e=>{if(!drag)return;
+  if(Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y)>4)dragMoved=true;
+  wrap.scrollLeft=drag.sl-(e.clientX-drag.x);wrap.scrollTop=drag.st-(e.clientY-drag.y);});
+addEventListener('mouseup',()=>{drag=null;wrap.classList.remove('grabbing');});
+/* a drag that ends over empty stage must not deselect — only a true click does */
+wrap.addEventListener('click',e=>{
+  if(dragMoved){dragMoved=false;return;}
+  if(e.target===wrap||e.target===svg||e.target.id==='root')closePanel();});
+/* right-click anywhere on the map = deselect */
+wrap.addEventListener('contextmenu',e=>{e.preventDefault();closePanel();});
+
+/* year ruler (syncs with horizontal scroll) */
+const rin=document.getElementById('rin');
+function buildRuler(){rin.innerHTML='';rin.style.width=(W*scale+ENDPAD)+'px';
+  for(let y=2009;y<=2026;y++){const s=document.createElement('span');s.textContent=y;
+    s.style.left=X(y+'-01-01')*scale+'px';rin.appendChild(s);}
+  rin.style.transform=`translateX(${-wrap.scrollLeft}px)`;}
+wrap.addEventListener('scroll',()=>{rin.style.transform=`translateX(${-wrap.scrollLeft}px)`;});
+
+addEventListener('resize',()=>{if(scale<minScale())setScale(minScale(),wrap.clientWidth/2,wrap.clientHeight/2);});
+function home(){scale=0.85;applyScale();wrap.scrollLeft=0;wrap.scrollTop=TRUNKY*scale-wrap.clientHeight*0.42;
+  const q=new URLSearchParams(location.search);
+  if(q.get('z')){scale=Math.min(2,Math.max(minScale(),+q.get('z')||.85));applyScale();
+    wrap.scrollTop=TRUNKY*scale-wrap.clientHeight*0.42;}
+  if(q.get('goto')){wrap.scrollLeft=X(q.get('goto')+'-01-01')*scale-260;}
+  if(q.get('y')){wrap.scrollTop=laneY(+q.get('y'))*scale-wrap.clientHeight*0.5;}
+  if(q.get('sel')&&byId[q.get('sel')])openPanel(byId[q.get('sel')]);}
+applyScale();home();
 </script>
 </body>
 </html>
