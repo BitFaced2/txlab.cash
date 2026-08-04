@@ -42,6 +42,9 @@
   /* dark halo behind every map label so chain lines never make text unreadable
      (.era watermarks excluded — they sit under the lines by design) */
   #root text:not(.era){paint-order:stroke;stroke:rgba(8,11,10,.92);stroke-width:3.5px;stroke-linejoin:round}
+  /* era captions: neon cyan with a wide soft stroke-halo standing in for a glow
+     (no CSS filters — they force re-rasters of the huge SVG) */
+  #root text.era{paint-order:stroke;stroke:rgba(0,217,255,.14);stroke-width:9px;stroke-linejoin:round}
   #wrap.grabbing{cursor:grabbing}
   #wrap::-webkit-scrollbar{width:11px;height:11px}
   #wrap::-webkit-scrollbar-track{background:var(--bg)}
@@ -523,11 +526,11 @@ const EVENTS=[
 /* era captions */
 /* era captions — each parked in permanently empty space beside the group it names */
 const ERAS=[
- {date:'2009-04-01',lane:5.6,txt:'FIRST-GENERATION CODE FORKS · 2011–13'},   /* lead-in left of the 2011 cluster */
+ {date:'2010-06-01',lane:5.6,txt:'FIRST-GENERATION CODE FORKS · 2011–13'},   /* lead-in left of the 2011 cluster */
  {date:'2011-12-01',lane:15.2,txt:'THE SCRYPT → DOGE LINEAGE'},              /* gap under LTC before JKC/LKY begin */
- {date:'2015-01-01',lane:24.1,txt:'THE PRIVACY FAMILY'},                     /* left of the Zcash family launch */
- {date:'2011-01-01',lane:32,txt:'THE FAMILY SPRAWLS · 2013–18'}, /* left of the Quark→LCC band */
- {date:'2017-08-10',lane:-22.5,txt:'THE AIRDROP GRAVEYARD · 2017–18 · COMPLETE'}, /* mid-fan, right where it erupts */
+ {date:'2015-09-01',lane:24.1,txt:'THE PRIVACY FAMILY'},                     /* left of the Zcash family launch */
+ {date:'2013-03-01',lane:33,txt:'THE FAMILY SPRAWLS · 2013–18'},             /* right beside Quark, top of the band */
+ {date:'2017-10-15',lane:-22.5,txt:'THE AIRDROP GRAVEYARD · 2017–18 · COMPLETE'}, /* just left of the eruption */
  {date:'2021-01-01',lane:-9.6,txt:'THE SCALING WARS · BCH → BSV → XEC · AND FORKS OF THE FORK'},
 ];
 
@@ -561,7 +564,7 @@ for(let y=2009;y<=2026;y++){
 const nowX=X(NOW);
 L.eras.appendChild(el('line',{x1:nowX,y1:36,x2:nowX,y2:H-14,stroke:'#E8B547','stroke-width':2,'stroke-dasharray':'3 6',opacity:.5}));
 const tnow=el('text',{x:nowX+7,y:52,fill:'#E8B547','font-size':11,'font-weight':700,class:'yr'});tnow.textContent='TODAY';L.eras.appendChild(tnow);
-ERAS.forEach(e=>{const t=el('text',{x:X(e.date),y:laneY(e.lane),fill:'rgba(160,185,172,.38)','font-size':21,'font-weight':800,'letter-spacing':'.14em',class:'era'});
+ERAS.forEach(e=>{const t=el('text',{x:X(e.date),y:laneY(e.lane),fill:'rgba(0,217,255,.55)','font-size':21,'font-weight':800,'letter-spacing':'.14em',class:'era'});
   t.textContent=e.txt;L.eras.appendChild(t);});
 
 /* chain lines */
