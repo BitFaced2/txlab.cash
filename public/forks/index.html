@@ -6,19 +6,19 @@
 <title>The Bitcoin Fork Tree</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="favicon.png">
-<meta name="description" content="Interactive subway-map of every Bitcoin fork, 2009–2026 — chain splits, code forks, upgrades, bug forks and failed campaigns. ~90 events, key moments verified on the author's own full nodes.">
+<meta name="description" content="Interactive subway-map of every Bitcoin fork, 2009–2026 — chain splits, code forks, upgrades, bug forks and failed campaigns. 100+ chains — every Bitcoin ledger fork that demonstrably ran — with key moments verified on the author's own full nodes.">
 <meta name="theme-color" content="#080b0a">
 <link rel="canonical" href="https://txlab.cash/forks/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://txlab.cash/forks/">
 <meta property="og:title" content="The Bitcoin Fork Tree">
-<meta property="og:description" content="Every fork · every reason · 2009–2026. Interactive map of ~90 chain splits, code forks, upgrades and bug forks — verified on-chain.">
+<meta property="og:description" content="Every fork · every reason · 2009–2026. Interactive map of 100+ chains and ~140 events — every ledger fork that ever ran — verified on-chain.">
 <meta property="og:image" content="https://txlab.cash/forks/social-card.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="628">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="The Bitcoin Fork Tree">
-<meta name="twitter:description" content="Every fork · every reason · 2009–2026. ~90 chain splits, code forks, upgrades and bug forks — verified on-chain.">
+<meta name="twitter:description" content="Every fork · every reason · 2009–2026. 100+ chains, every ledger fork that ever ran — verified on-chain.">
 <meta name="twitter:image" content="https://txlab.cash/forks/social-card.png">
 <style>
   :root{
@@ -225,12 +225,21 @@
   <p>Entries wearing the amber badge rest on secondary sources only (several 2017-18 airdrop coins barely documented
      anything). Dead-line <i>endpoints</i> are approximate — most of these coins faded rather than announced a death.
      BCH codenames after Axion (2020) are community nicknames, not official.</p>
+  <h3>What "complete" means here</h3>
+  <p><b>Ledger forks: complete.</b> Every chain that split Bitcoin's ledger (or a family member's — BCH, Litecoin,
+     Dash) and demonstrably ran — produced blocks, had a wallet, explorer or exchange listing — is on this map,
+     down to forks that lived four months and chains still mining at 17 hashes per second. A 2026 research sweep
+     across the fork catalogs, contemporary press, claim-service lists and bitcointalk archives confirmed the tally;
+     dozens of announced-only vaporware "forks" (Bitcoin Silver, Bitcoin Uranium, Quantum Bitcoin…) were verified
+     to have never launched and are excluded by that criterion.
+     <b>Code forks: curated.</b> Thousands of codebase clones existed; the map shows every historically significant
+     branch of the Bitcoin family tree. Notable near-misses are acknowledged as searchable cards.</p>
   <h3>What's deliberately missing</h3>
   <p>Monero, Ethereum, Ripple, Cardano and friends — commonly mislabeled as Bitcoin forks; they are independent
      codebases. Same for airdrop claims to BTC holders (HEX, Byteball), token layers on Bitcoin (Omni/Tether,
-     Counterparty, Ordinals), Bitcoin layers and sidechains (Lightning, Liquid), and wrapped representations (WBTC).
-     <b>Search any of them</b> — each returns a card explaining exactly why it isn't a fork.
-     Vaporware forks that never demonstrably launched (Bitcoin Silver, Bitcoin Uranium) are excluded.
+     Counterparty, Ordinals), Bitcoin layers and sidechains (Lightning, Liquid), wrapped representations (WBTC),
+     and the generic 2013-14 Litecoin-clone crowd (Worldcoin, Megacoin, Potcoin…).
+     <b>Search any of them</b> — each returns a card explaining exactly why it isn't drawn.
      BIP-110 stays off the map until it actually activates or splits.</p>
 </div></div>
 
@@ -249,7 +258,7 @@ function X(d){let v=yr(d),x=LEFT;
     if(v<=a)break; x+=(Math.min(v,b)-a)*r; if(v<=b)break;}
   return x;}
 const W=Math.ceil(X('2027-01-01'))+330;
-const LANEH=36, TRUNKY=700, H=1930;
+const LANEH=36, TRUNKY=1370, H=2930;
 function laneY(l){return TRUNKY+l*LANEH;}
 
 /* ================= CHAINS =================
@@ -273,24 +282,80 @@ const CHAINS=[
 {id:'btcp',name:'Bitcoin Private',tick:'BTCP',lane:-3.2,kind:'ledger',col:'#4a3f9f',parent:'btc',start:'2018-02-28',end:'2019-03-01',
  block:'511346',v:'2018-02-28 17:06Z',sum:'Dual fork of Bitcoin + Zclassic adding zk-SNARK privacy. Killed by a hidden-inflation exploit (~2M extra coins minted) and delistings.',status:'Dead'},
 
-/* ---- the 2017-18 airdrop graveyard (gray stubs) ---- */
-{id:'ubtc',name:'United Bitcoin',tick:'UBTC',lane:-7.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-11',end:'2019-03-01',block:'498777',v:'2017-12-11 18:19Z',sum:'Planned to seize dormant coins ("re-activate" unclaimed BTC). Part of the Dec-2017 airdrop-fork wave. Sources said Dec 12; the chain says its snapshot block landed Dec 11 UTC.',status:'Defunct'},
-{id:'bth',name:'Bitcoin Hot',tick:'BTH',lane:-8.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-08-01',block:'498848',v:'2017-12-12 04:44Z',sum:'Airdrop-wave fork. No lasting network.',status:'Dead'},
-{id:'sbtc',name:'Super Bitcoin',tick:'SBTC',lane:-8.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-10-01',block:'498888',v:'2017-12-12 10:29Z',sum:'"Lightning + smart contracts + big blocks" — the whole 2017 wishlist. Abandoned.',status:'Dead'},
-{id:'bcx',name:'BitcoinX',tick:'BCX',lane:-9.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-12-01',block:'498888',v:'2017-12-12 10:29Z',sum:'Airdrop-wave fork, widely flagged as a scam.',status:'Dead'},
-{id:'obtc',name:'Oil Bitcoin',tick:'OBTC',lane:-10,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-09-01',block:'498888',v:'2017-12-12 10:29Z',sum:'Airdrop-wave fork. Yes, "Oil Bitcoin".',status:'Dead'},
-{id:'bicc',name:'BitClassic Coin',tick:'BICC',lane:-10.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-06-01',block:'498888',v:'2017-12-12 10:29Z',uv:'the height claim itself rests on secondary sources',sum:'Airdrop-wave fork; barely documented.',status:'Dead'},
-{id:'btw',name:'Bitcoin World',tick:'BTW',lane:-11.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-17',end:'2018-09-01',block:'499777',v:'2017-12-17 12:11Z',sum:'Airdrop-wave fork.',status:'Dead'},
-{id:'lbtc',name:'Lightning Bitcoin',tick:'LBTC',lane:-11.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2019-06-01',block:'499999',v:'2017-12-18 18:34Z',sum:'DPoS fork — no relation to the actual Lightning Network, name notwithstanding.',status:'Defunct'},
-{id:'btf',name:'Bitcoin Faith',tick:'BTF',lane:-12.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-11-01',block:'500000',v:'2017-12-18 18:35Z',sum:'Forked at the nice round block 500000. Faith did not sustain it.',status:'Dead'},
-{id:'btcs',name:'Bitcoin Stake',tick:'BTCS',lane:-13,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-10-01',elx:-20,ely:-10,block:'499999',v:'2017-12-18 18:34Z',sum:'Proof-of-stake fork. Ticker later clashed with "Bitcoin Silver". Sources said Dec 19; block 499999 landed Dec 18 UTC.',status:'Dead'},
-{id:'god',name:'Bitcoin God',tick:'GOD',lane:-13.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-27',end:'2018-12-01',block:'501225',v:'2017-12-27 06:55Z',sum:'Chandler Guo’s "charity"-themed fork, ticker GOD. Never gained traction.',status:'Dead'},
-{id:'b2x',name:'SegWit2x [B2X]',tick:'B2X',lane:-14.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-28',end:'2018-07-01',block:'501451',v:'2017-12-28 18:02Z',sum:'THE ZOMBIE. After the real SegWit2x died in November, an unrelated team forked at block 501451 anyway and kept the name — 4MB blocks, 2.5-minute spacing, widely called a cash-grab. The chain barely functioned.',status:'Dead'},
-{id:'bpa',name:'Bitcoin Pizza',tick:'BPA',lane:-14.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-31',end:'2018-11-01',block:'501888',v:'2017-12-31 12:32Z',sum:'A DAG-based fork named after the 10,000-BTC pizza. Branded as a New Year’s Day fork — the chain says its snapshot block hit Dec 31 UTC.',status:'Dead'},
-{id:'bcp',name:'Bitcoin Cash Plus',tick:'BCP',lane:-15.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-28',end:'2018-07-01',block:'501407',v:'2017-12-28 10:52Z',sum:'Name-squatting on Bitcoin Cash. Vanished almost immediately. Secondary sources claim Jan 2, 2018 — block 501407 was actually mined Dec 28, 2017. The chain doesn’t lie.',status:'Dead'},
-{id:'bca',name:'Bitcoin Atom',tick:'BCA',lane:-16,kind:'ledger',stub:1,parent:'btc',start:'2018-01-24',end:'2019-09-01',block:'505888',v:'2018-01-24 14:26Z',sum:'Atomic-swap-focused fork. Outlived most of the wave, then faded.',status:'Defunct'},
-{id:'bco',name:'Bitcoin Ore',tick:'BCO',lane:-16.6,kind:'ledger',stub:1,parent:'btc',start:'2018-01-31',end:'2018-10-01',uv:'fork block unverified',sum:'Proof-of-capacity fork.',status:'Dead'},
-{id:'anon',name:'Anonymous Bitcoin',tick:'ANON',lane:-17.2,kind:'ledger',stub:1,parent:'btc',start:'2018-09-10',end:'2019-09-01',uv:'fork block unverified',sum:'Dual fork of Bitcoin + Zclassic (like BTCP): zk-SNARKs plus masternodes. The last gasp of the airdrop wave.',status:'Defunct'},
+/* ---- the BCH family: forks OF the fork ---- */
+{id:'clashic',name:'Bitcoin Clashic',tick:'BCHC',lane:-7.6,kind:'ledger',col:'#3fa66b',parent:'bch',start:'2017-11-13',end:'2018-06-01',block:'504031 (BCH)',uv:'BCH-side height pending own-node check',
+ sum:'THE SATIRE CHAIN: when BCH hard-forked its difficulty algorithm (Nov 2017), someone kept mining the OLD rules — "Satoshi’s true vision", they deadpanned. Bitcoin’s fork got a fork, as a joke, and the joke produced blocks for months.',status:'Dead / legendary'},
+{id:'cdy',name:'Bitcoin Candy',tick:'CDY',lane:-8.4,kind:'ledger',col:'#d977b0',parent:'bch',start:'2018-01-13',block:'512666 (BCH)',uv:'BCH-side height pending own-node check',
+ sum:'First fork-of-a-fork of the airdrop wave: split from BITCOIN CASH (not BTC), 1000 CDY per BCH, Equihash PoW. A zombie — but a zombie that was still shipping release binaries in 2026.',status:'Alive (barely)'},
+{id:'bsh',name:'Bitcoin Stash',tick:'BSH',lane:-9.2,kind:'ledger',col:'#b58f3e',parent:'bch',start:'2018-11-15',ely:16,end:'2019-12-01',block:'556766',v:'2018-11-15 17:52Z',
+ sum:'THE FORGOTTEN THIRD CHAIN of the November 2018 hash war: while BCH and BSV fought, Bitcoin Stash quietly split at the very same block with a merged-mining pitch. Nobody noticed then either.',status:'Dead'},
+{id:'btcc',name:'Bitcoin Core [BTCC]',tick:'BTCC',lane:-10,kind:'ledger',col:'#cc5533',parent:'clashic',start:'2018-05-20',end:'2020-07-01',block:'576698 (Clashic)',uv:'height is on the Clashic chain; end date reconciled from explorer activity (brand sunset 2019-06)',
+ sum:'A THIRD-GENERATION ledger fork — BTC → BCH → Clashic → this — whose entire thesis was squatting the name "Bitcoin Core" to troll Roger Ver’s BCH rebranding. CoinDesk covered it. It rebranded to Title Network in 2019 and limped to ~2020.',status:'Dead'},
+{id:'fch',name:'Freecash',tick:'FCH',lane:-10.8,kind:'code',col:'#2fa3a3',parent:'bch',start:'2020-01-01',
+ sum:'Bitcoin ABC code fork (new genesis, New Year’s Day 2020) from the CoinEx orbit, self-described "not suitable for investment." Still producing blocks.',status:'Alive (niche)'},
+
+/* ---- the 2017-18 airdrop graveyard (gray stubs) — COMPLETE: every BTC fork that demonstrably ran ---- */
+{id:'btx',name:'BitCore',tick:'BTX',lane:-11.8,kind:'code',stub:1,parent:'btc',start:'2017-04-24',block:'snapshots 463619 + 492820',v:'2017-04-26 17:10Z · 2017-11-02 17:23Z',
+ sum:'THE PROTOTYPE: a fresh chain (Apr 2017, BitSend team) that airdropped BTX onto snapshotted BTC balances instead of inheriting the ledger — inventing the "hybrid fork" model the entire airdrop wave then ran into the ground. Still mining in 2026, outliving nearly everything that copied it.',status:'Alive (niche)'},
+{id:'bcbc',name:'Bitcoin@CBC',tick:'BCBC',lane:-12.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-11',end:'2018-08-01',block:'498754',v:'2017-12-11 15:07Z',
+ sum:'Fork whose gimmick was DELETING Satoshi’s coins (and all other dormant early balances) for "fairness". Explorer stalled ~19,700 blocks in.',status:'Dead'},
+{id:'ubtc',name:'United Bitcoin',tick:'UBTC',lane:-13,kind:'ledger',stub:1,parent:'btc',start:'2017-12-11',end:'2019-03-01',block:'498777',v:'2017-12-11 18:19Z',sum:'Planned to seize dormant coins ("re-activate" unclaimed BTC). Part of the Dec-2017 airdrop-fork wave. Sources said Dec 12; the chain says its snapshot block landed Dec 11 UTC.',status:'Defunct'},
+{id:'bth',name:'Bitcoin Hot',tick:'BTH',lane:-13.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-08-01',block:'498848',v:'2017-12-12 04:44Z',sum:'Airdrop-wave fork. No lasting network.',status:'Dead'},
+{id:'sbtc',name:'Super Bitcoin',tick:'SBTC',lane:-14.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-10-01',block:'498888',v:'2017-12-12 10:29Z',sum:'"Lightning + smart contracts + big blocks" — the whole 2017 wishlist. Abandoned.',status:'Dead'},
+{id:'bcx',name:'BitcoinX',tick:'BCX',lane:-14.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-12-01',block:'498888',v:'2017-12-12 10:29Z',sum:'Airdrop-wave fork, widely flagged as a scam.',status:'Dead'},
+{id:'obtc',name:'Oil Bitcoin',tick:'OBTC',lane:-15.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-09-01',block:'498888',v:'2017-12-12 10:29Z',sum:'Airdrop-wave fork. Yes, "Oil Bitcoin".',status:'Dead'},
+{id:'bicc',name:'BitClassic Coin',tick:'BICC',lane:-16,kind:'ledger',stub:1,parent:'btc',start:'2017-12-12',end:'2018-06-01',block:'498888',v:'2017-12-12 10:29Z',uv:'the height claim itself rests on secondary sources',sum:'Airdrop-wave fork; barely documented.',status:'Dead'},
+{id:'btp',name:'Bitcoin Pay',tick:'BTP',lane:-16.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-15',end:'2019-06-01',block:'499345',v:'2017-12-15 00:15Z',
+ sum:'Chinese fork that actually shipped: node, miners, explorer, 10:1 split. Ran ~18 months.',status:'Dead'},
+{id:'btw',name:'Bitcoin World',tick:'BTW',lane:-17.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-17',end:'2018-09-01',block:'499777',v:'2017-12-17 12:11Z',sum:'Airdrop-wave fork.',status:'Dead'},
+{id:'lbtc',name:'Lightning Bitcoin',tick:'LBTC',lane:-17.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2019-06-01',block:'499999',v:'2017-12-18 18:34Z',sum:'DPoS fork — no relation to the actual Lightning Network, name notwithstanding.',status:'Defunct'},
+{id:'btf',name:'Bitcoin Faith',tick:'BTF',lane:-18.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-11-01',block:'500000',v:'2017-12-18 18:35Z',sum:'Forked at the nice round block 500000. Faith did not sustain it.',status:'Dead'},
+{id:'btcs',name:'Bitcoin Stake',tick:'BTCS',lane:-19,kind:'ledger',stub:1,parent:'btc',start:'2017-12-18',end:'2018-10-01',block:'499999',v:'2017-12-18 18:34Z',sum:'Proof-of-stake fork. Ticker later clashed with "Bitcoin Silver". Sources said Dec 19; block 499999 landed Dec 18 UTC.',status:'Dead'},
+{id:'btt',name:'Bitcoin Top',tick:'BTT',lane:-19.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-26',end:'2019-08-01',block:'501118',v:'2017-12-26 13:50Z',
+ sum:'Airdrop-wave fork from the December stampede. Ran longer than most; remembered by none.',status:'Dead'},
+{id:'bifi',name:'Bitcoin File',tick:'BIFI',lane:-20.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-27',end:'2020-12-01',block:'501225',v:'2017-12-27 06:55Z',
+ sum:'IPFS-storage pitch, 1000:1 split, real OKEx and Gate.io listings. The file system never shipped; the chain ran three years anyway.',status:'Dead'},
+{id:'god',name:'Bitcoin God',tick:'GOD',lane:-20.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-27',end:'2018-12-01',block:'501225',v:'2017-12-27 06:55Z',sum:'Chandler Guo’s "charity"-themed fork, ticker GOD. Never gained traction.',status:'Dead'},
+{id:'nbtc',name:'New Bitcoin',tick:'NBTC',lane:-21.4,kind:'ledger',stub:1,parent:'btc',start:'2017-12-27',end:'2019-06-01',block:'501225',v:'2017-12-27 06:55Z',
+ sum:'Forked at the same block as Bitcoin File and Bitcoin God — three chains from one block. The stampede, in one datum.',status:'Dead'},
+{id:'b2x',name:'SegWit2x [B2X]',tick:'B2X',lane:-22,kind:'ledger',stub:1,parent:'btc',start:'2017-12-28',end:'2018-07-01',block:'501451',v:'2017-12-28 18:02Z',sum:'THE ZOMBIE. After the real SegWit2x died in November, an unrelated team forked at block 501451 anyway and kept the name — 4MB blocks, 2.5-minute spacing, widely called a cash-grab. The chain barely functioned.',status:'Dead'},
+{id:'bcp',name:'Bitcoin Cash Plus',tick:'BCP',lane:-22.6,kind:'ledger',stub:1,parent:'btc',start:'2017-12-28',end:'2018-07-01',block:'501407',v:'2017-12-28 10:52Z',sum:'Name-squatting on Bitcoin Cash. Vanished almost immediately. Secondary sources claim Jan 2, 2018 — block 501407 was actually mined Dec 28, 2017. The chain doesn’t lie.',status:'Dead'},
+{id:'bpa',name:'Bitcoin Pizza',tick:'BPA',lane:-23.2,kind:'ledger',stub:1,parent:'btc',start:'2017-12-31',elx:20,end:'2018-11-01',block:'501888',v:'2017-12-31 12:32Z',sum:'A DAG-based fork named after the 10,000-BTC pizza. Branded as a New Year’s Day fork — the chain says its snapshot block hit Dec 31 UTC.',status:'Dead'},
+{id:'btn',name:'Bitcoin Nano',tick:'BTN',lane:-23.8,kind:'ledger',stub:1,parent:'btc',start:'2017-12-31',end:'2018-12-01',block:'501888',v:'2017-12-31 12:32Z',
+ sum:'Snapshot at the same block as Bitcoin Pizza. Gone within a year.',status:'Dead'},
+{id:'bcb',name:'Bitcoin Boy',tick:'BCB',lane:-24.4,kind:'ledger',stub:1,parent:'btc',start:'2018-01-02',end:'2018-05-01',block:'502233',v:'2018-01-02 16:30Z',
+ sum:'Four months of life. Its bitcointalk thread lists the wrong fork height; its own code says 502233 — trust the code.',status:'Dead'},
+{id:'wbtc',name:'World Bitcoin',tick:'WBTC',lane:-25,kind:'ledger',stub:1,parent:'btc',start:'2018-01-12',end:'2018-08-01',block:'503888',v:'2018-01-12 16:44Z',
+ sum:'Airdrop-wave fork. Its ticker was later made famous by an unrelated Ethereum token (Wrapped BTC).',status:'Dead'},
+{id:'btv',name:'BitVote',tick:'BTV',lane:-25.6,kind:'ledger',stub:1,parent:'btc',start:'2018-01-19',end:'2021-12-01',block:'505050',v:'2018-01-19 21:58Z',
+ sum:'CryptoNight fork pitching "one CPU one vote", traded on CoinEx and YoBit. Widely dated Jan 20 — block 505050 landed Jan 19 UTC. Ran nearly four years.',status:'Dead'},
+{id:'bci',name:'Bitcoin Interest',tick:'BCI',lane:-26.2,kind:'ledger',stub:1,parent:'btc',start:'2018-01-20',ely:-10,end:'2020-01-01',block:'505083',v:'2018-01-20 02:04Z',
+ sum:'Paid holders "interest" from a staking pool — and earned a real footnote as the FIRST CHAIN TO RUN PROGPOW (Sep 2018). Sources say Jan 22; block 505083 landed Jan 20 UTC. Bitfinex delisted it Jan 2020.',status:'Dead'},
+{id:'bca',name:'Bitcoin Atom',tick:'BCA',lane:-26.8,kind:'ledger',stub:1,parent:'btc',start:'2018-01-24',end:'2019-09-01',block:'505888',v:'2018-01-24 14:26Z',sum:'Atomic-swap-focused fork. Outlived most of the wave, then faded.',status:'Defunct'},
+{id:'btsq',name:'Bitcoin Community',tick:'BTSQ',lane:-27.4,kind:'ledger',stub:1,parent:'btc',start:'2018-01-25',end:'2018-12-01',block:'506066',v:'2018-01-25 15:20Z',
+ sum:'Airdrop-wave fork. The name was the most communal thing about it.',status:'Dead'},
+{id:'bco',name:'Bitcoin Ore',tick:'BCO',lane:-28,kind:'ledger',stub:1,parent:'btc',start:'2018-01-31',end:'2018-10-01',uv:'fork block unverified',sum:'Proof-of-capacity fork.',status:'Dead'},
+{id:'btc2',name:'Bitcoin 2',tick:'BTC2',lane:-28.6,kind:'ledger',stub:1,parent:'btc',start:'2018-02-05',block:'507850',v:'2018-02-05 21:16Z',
+ sum:'PIVX-style proof-of-stake and masternodes seeded from a BTC snapshot at block 507850 — and, improbably, still staking in 2026.',status:'Alive (barely)'},
+{id:'bbc',name:'Big Bitcoin',tick:'BBC',lane:-29.2,kind:'ledger',stub:1,parent:'btc',start:'2018-02-12',end:'2019-06-01',block:'508888',v:'2018-02-12 22:26Z',
+ sum:'Another lucky-eights fork block (508888). Bigness did not materialize.',status:'Dead'},
+{id:'cbtc',name:'ClassicBitcoin',tick:'CBTC',lane:-29.8,kind:'ledger',stub:1,parent:'btc',start:'2018-04-01',end:'2019-12-01',block:'516095',v:'2018-04-01 07:01Z',
+ sum:'Snapshot fork on Zcash/Equihash code whose fork block genuinely landed on APRIL FOOLS’ DAY. The developer vanished within weeks, which may have been the joke.',status:'Dead'},
+{id:'bcl',name:'BitcoinClean',tick:'BCL',lane:-30.4,kind:'ledger',stub:1,parent:'btc',start:'2018-04-18',end:'2018-12-01',block:'518800',v:'2018-04-18 15:26Z',
+ sum:'"Proof-of-greenness": miners peer-voted each other’s renewable-energy credentials. An eco-fork seven years before its time, dead in eight months.',status:'Dead'},
+{id:'breco',name:'Bitcoin Reference Line',tick:'BRECO',lane:-31,kind:'code',stub:1,parent:'btc',start:'2018-05-17',ely:16,end:'2019-11-01',block:'snapshot 523118',v:'2018-05-17 12:48Z',
+ sum:'Fork-wave curio from a German PDF-shareware shop: swallowed Bitcoin’s UTXO set at block 523118 and added encrypted payment memos. Traded on exactly one obscure exchange, then became a parked domain.',status:'Dead'},
+{id:'mbc',name:'MicroBitcoin',tick:'MBC',lane:-31.6,kind:'ledger',stub:1,parent:'btc',start:'2018-05-29',block:'525000',v:'2018-05-29 20:24Z',
+ sum:'10,000 MBC per BTC at block 525000, pitching microtransactions; relaunched 2019 on a CPU-friendly algorithm. Still producing blocks in 2026 with a trading volume of approximately zero.',status:'Alive (barely)'},
+{id:'bcrm',name:'Bitcoin RM',tick:'BCRM',lane:-32.2,kind:'ledger',stub:1,parent:'btc',start:'2018-08-21',block:'537746',v:'2018-08-21 03:56Z',
+ sum:'Obscure late-wave fork that nobody has ever heard of — and which is, absurdly, STILL ALIVE, mining at hashrates measured in the tens of hashes per second. Project materials say Aug 30; block 537746 landed Aug 21 UTC.',status:'Alive (barely measurable)'},
+{id:'anon',name:'Anonymous Bitcoin',tick:'ANON',lane:-32.8,kind:'ledger',stub:1,parent:'btc',start:'2018-09-10',end:'2019-09-01',uv:'fork block unverified',sum:'Dual fork of Bitcoin + Zclassic (like BTCP): zk-SNARKs plus masternodes.',status:'Defunct'},
+{id:'xrc',name:'Bitcoin Rhodium',tick:'XRC',lane:-33.4,kind:'code',stub:1,parent:'btc',start:'2018-10-28',end:'2023-08-01',uv:'own-genesis chain; distribution by pre-registered BTC-address claims, so there is no fork block to verify',
+ sum:'The "rare metal" Bitcoin: an own-genesis C# chain distributed to BTC holders who PRE-REGISTERED their addresses — the politest airdrop mechanic of the era. Ran five real years.',status:'Dead'},
+{id:'bpq',name:'Bitcoin Post-Quantum',tick:'BPQ',lane:-34,kind:'ledger',stub:1,parent:'btc',start:'2018-12-22',end:'2021-03-01',block:'555000',v:'2018-12-22 23:41Z',
+ sum:'The earnest one: XMSS quantum-resistant signatures on a BTC snapshot — real cryptography, zero adoption. The wave’s last serious idea.',status:'Dead'},
+{id:'btcv',name:'Bitcoin Vault',tick:'BTCV',lane:-34.6,kind:'code',stub:1,parent:'btc',start:'2019-10-07',
+ sum:'Three-key "reversible transaction" chain attached to the Mining City scheme; hit $489 at the 2021 peak, down ~99.9% since, chain still shipping. The airdrop era’s epilogue.',status:'Alive (declining)'},
 
 /* ---- code forks · first generation, BTC-direct ---- */
 {id:'nmc',name:'Namecoin',tick:'NMC',lane:1.5,kind:'code',col:'#2e7fb8',parent:'btc',start:'2011-04-18',
@@ -303,6 +368,8 @@ const CHAINS=[
  sum:'Premined, faster blocks — and a network killswitch held by its creator. Abandoned within weeks after community backlash.',status:'Dead'},
 {id:'geg',name:'GeistGeld',tick:'GEG',lane:4.5,kind:'code',col:'#708078',parent:'btc',start:'2011-09-01',end:'2012-06-01',uv:'genesis day approximate',
  sum:'Experimental max-speed, no-halving coin (via MultiCoin). Hit by a time-warp attack.',status:'Dead'},
+{id:'i0c',name:'I0Coin',tick:'I0C',lane:4.95,kind:'code',col:'#8f8f5c',parent:'btc',start:'2011-08-15',end:'2018-01-01',
+ sum:'Featureless first-wave clone that found a second life as one of the earliest SHA-256 merge-mined chains alongside Bitcoin.',status:'Dead'},
 {id:'ppc',name:'Peercoin',tick:'PPC',lane:5.4,kind:'code',col:'#3cb054',parent:'btc',start:'2012-08-16',
  uv:'genesis block internally timestamped Aug 16; Sunny King announced the public start as Aug 19; the oft-cited Aug 12 has no traceable primary source',
  sum:'THE FIRST PROOF-OF-STAKE COIN (Sunny King & Scott Nadal). Hybrid PoW/PoS — the ancestor of every staking chain.',status:'Alive / historic'},
@@ -362,17 +429,50 @@ const CHAINS=[
  sum:'Zcash fork with delayed-PoW: notarizes its history onto Bitcoin for security. DEX / atomic-swap platform.',status:'Alive (acquired by Gleec 2025)'},
 {id:'zen',name:'Horizen',tick:'ZEN',lane:25.15,kind:'code',col:'#2f8f7a',parent:'zcl',start:'2017-05-30',end:'2025-07-24',
  sum:'Launched as ZenCash, a Zclassic fork; renamed Horizen 2018. Privacy plus a sidechain platform. The Bitcoin-lineage chain was retired in July 2025 — the ZEN token migrated to Base as an ERC-20.',status:'Chain retired 2025; token lives on Base'},
+{id:'hush',name:'Hush',tick:'HUSH',lane:25.9,kind:'code',col:'#7c86c9',parent:'zec',start:'2016-11-21',
+ sum:'Launched as "Zdash" three weeks after Zcash itself: shielded privacy plus encrypted on-chain messaging. Rebuilt on Komodo technology around 2020; still alive.',status:'Alive (niche)'},
+{id:'zer',name:'Zero',tick:'ZER',lane:26.65,kind:'code',col:'#5fa8d9',parent:'zec',start:'2017-02-19',
+ sum:'One of the earliest Zcash-family forks — no premine, tweaked Equihash (192,7). Quietly persists.',status:'Alive (low)'},
+{id:'btcz',name:'BitcoinZ',tick:'BTCZ',lane:27.4,kind:'code',col:'#c9b03c',parent:'zec',start:'2017-09-09',
+ sum:'Community-launched, no-premine "Bitcoin with Zcash privacy" from the fork-wave summer. One of the few with no founder to rug: still mining, block 1.8M+.',status:'Alive (niche)'},
+{id:'flux',name:'ZelCash / Flux',tick:'FLUX',lane:28.15,kind:'code',col:'#3a7bd9',parent:'zec',start:'2018-01-28',
+ sum:'The fork-wave coin that found a REAL JOB: launched as ZelCash, rebranded Flux, and became a working decentralized cloud-compute network.',status:'Alive'},
+{id:'arrr',name:'Pirate Chain',tick:'ARRR',lane:28.9,kind:'code',col:'#b03a5c',parent:'kmd',start:'2018-08-29',
+ sum:'A Komodo assetchain with MANDATORY shielded transactions — the maximalist take on Zcash privacy. Cracked the top-100 in the 2021 mania.',status:'Alive'},
 
-/* ---- code forks · second generation — the family sprawls ---- */
-{id:'mona',name:'Monacoin',tick:'MONA',lane:26.2,kind:'code',col:'#c9a03c',parent:'ltc',start:'2014-01-01',
+/* ---- code forks · the family sprawls (2013-18) ---- */
+{id:'qrk',name:'Quark',tick:'QRK',lane:29.65,kind:'code',col:'#8a5cc9',parent:'btc',start:'2013-07-21',
+ sum:'Six rounds of six hash algorithms, briefly a top-five coin in the Nov 2013 mania. The coin faded; its algorithm lives on inside PIVX.',status:'Zombie'},
+{id:'uno',name:'Unobtanium',tick:'UNO',lane:30.4,kind:'code',col:'#9fb0bd',parent:'btc',start:'2013-10-13',
+ sum:'The scarcity experiment: 250,000 coins EVER, merge-mined with Bitcoin since 2014. Two and a half million blocks and counting.',status:'Alive (niche)'},
+{id:'grc',name:'Gridcoin',tick:'GRC',lane:31.15,kind:'code',col:'#4dc9b0',parent:'ppc',start:'2013-10-16',
+ sum:'Rewards BOINC volunteer computing — protein folding, SETI, math — on a Peercoin-lineage PoS chain. A "useful work" coin that still ships mandatory upgrades.',status:'Alive'},
+{id:'emc',name:'Emercoin',tick:'EMC',lane:31.9,kind:'code',col:'#c98a5c',parent:'ppc',start:'2013-12-11',
+ sum:'Namecoin’s ideas (name-value storage, decentralized DNS and SSL) on a Peercoin-style PoW/PoS chain — with actual enterprise products to show for it.',status:'Alive (niche)'},
+{id:'moon',name:'Mooncoin',tick:'MOON',lane:32.65,kind:'code',col:'#c9c95c',parent:'doge',start:'2013-12-28',
+ sum:'Dogecoin-family coin whose max supply equals the millimeters from Earth to the Moon (~384 billion). Still mining, somehow.',status:'Zombie'},
+{id:'mona',name:'Monacoin',tick:'MONA',lane:33.4,kind:'code',col:'#c9a03c',parent:'ltc',start:'2014-01-01',
  sum:'JAPAN’S FIRST HOMEGROWN CRYPTOCURRENCY — born on the 2channel board in December 2013, launched New Year’s Day 2014, no premine. Named for the "Mona" ASCII-art cat. A genuine cultural icon in Japan: shrines accept it, and a plot of land was once bought with MONA.',status:'Alive'},
-{id:'blk',name:'Blackcoin',tick:'BLK',lane:26.95,kind:'code',col:'#5c6470',parent:'nvc',start:'2014-02-24',
+{id:'blk',name:'Blackcoin',tick:'BLK',lane:34.15,kind:'code',col:'#5c6470',parent:'nvc',start:'2014-02-24',
  sum:'rat4’s Novacoin fork that dropped to PURE proof-of-stake after a brief PoW distribution phase — the chain that proved staking alone could secure a network. Its PoS v2 protocol paper is cited across the staking world. Still minting since 2014.',status:'Alive (low)'},
-{id:'clam',name:'CLAM',tick:'CLAM',lane:27.7,kind:'code',col:'#d98e5f',parent:'blk',start:'2014-05-24',
+{id:'mzc',name:'MazaCoin',tick:'MZC',lane:34.9,kind:'code',col:'#c95c3a',parent:'btc',start:'2014-02-07',
+ sum:'Promoted as the sovereign national currency of the Lakota Nation — international headlines in 2014, adoption never followed. The chain zombied on regardless.',status:'Zombie'},
+{id:'xmy',name:'Myriadcoin',tick:'XMY',lane:35.65,kind:'code',col:'#5cc94d',parent:'btc',start:'2014-02-23',
+ sum:'THE FIRST MULTI-ALGO COIN — five proofs-of-work side by side — and the first chain dual merge-mined with both BTC and LTC. DigiByte borrowed the blueprint.',status:'Zombie'},
+{id:'clam',name:'CLAM',tick:'CLAM',lane:36.4,kind:'code',col:'#d98e5f',parent:'blk',start:'2014-05-24',
  sum:'THE GREAT EASTER EGG: distributed to every BTC, LTC and DOGE address funded on May 12, 2014 — 4.6 CLAMs each, to 3.2 million addresses. If you had coins in 2014, you probably have CLAMs. Check your old wallets. Blackcoin-lineage pure PoS; long beloved of the Just-Dice staking crowd.',status:'Alive (low)'},
-{id:'xvg',name:'Verge',tick:'XVG',lane:28.45,kind:'code',col:'#0aa3cc',parent:'doge',start:'2014-10-01',uv:'launch month per project history; exact genesis day poorly documented',
+{id:'nav',name:'NavCoin',tick:'NAV',lane:37.15,kind:'code',col:'#7ba3d9',parent:'nvc',start:'2014-07-01',
+ sum:'The serial rebrander: SummerCoin → NavajoCoin → NavCoin → Navio. Novacoin lineage, later rebased onto Bitcoin Core 0.13; still staking a decade on.',status:'Alive (niche)'},
+{id:'via',name:'Viacoin',tick:'VIA',lane:37.9,kind:'code',col:'#3a9dc9',parent:'btc',start:'2014-07-18',
+ sum:'btcdrak’s coin — it employed Peter Todd as advisor, pioneered merged-mined sidechain ideas, and activated SegWit BEFORE Bitcoin did.',status:'Alive (low)'},
+{id:'xvg',name:'Verge',tick:'XVG',lane:38.65,kind:'code',col:'#0aa3cc',parent:'doge',start:'2014-10-01',uv:'launch month per project history; exact genesis day poorly documented',
  sum:'Launched as DOGECOINDARK — a Tor/I2P privacy fork of Dogecoin by "Sunerok". Rebranded Verge in Feb 2016; infamous for the 2018 time-warp 51% attacks and a Pornhub partnership. Dogecoin’s edgiest descendant.',status:'Alive'},
-{id:'lcc',name:'Litecoin Cash',tick:'LCC',lane:29.2,kind:'ledger',col:'#33a457',typeName:'Ledger fork · shares LITECOIN’s history',parent:'ltc',start:'2018-02-18',block:'1371111 (LTC)',
+{id:'pivx',name:'PIVX',tick:'PIVX',lane:39.4,kind:'code',col:'#8a4ec9',parent:'dash',start:'2016-01-30',
+ sum:'Forked from Dash (launched, memorably, as "Darknet"), went pure proof-of-stake with Zerocoin privacy, survived the 2019 Zerocoin exploit, and is still going at block 5.5M+.',status:'Alive'},
+{id:'safe',name:'SAFE (Anwang)',tick:'SAFE',lane:40.15,kind:'ledger',col:'#c94d7b',typeName:'Ledger fork · shares DASH’s history',parent:'dash',start:'2018-01-20',end:'2024-11-01',block:'807085 (Dash)',
+ src:'Project docs · explorer archives · contemporary press',
+ sum:'The rare DASH ledger fork with real staying power: six years of actual development before the ledger migrated to an EVM successor chain (SAFE4) in late 2024 — exiting the Bitcoin family the modern way.',status:'Migrated off-family 2024'},
+{id:'lcc',name:'Litecoin Cash',tick:'LCC',lane:40.9,kind:'ledger',col:'#33a457',typeName:'Ledger fork · shares LITECOIN’s history',parent:'ltc',start:'2018-02-18',block:'1371111 (LTC)',
  src:'Project site · bitcointalk ANN · contemporary press',
  sum:'A FORK OF A FORK — the family’s first famous second-generation ledger fork. Split from Litecoin at block 1,371,111 (10 LCC per LTC) and switched to SHA256, giving retired Bitcoin ASICs somewhere to go. Proof the fork playbook itself was now a fork target.',status:'Alive (low)'},
 ];
@@ -417,7 +517,7 @@ const EVENTS=[
 {chain:'bch',type:'upgrade',name:'2026 upgrade',date:'2026-05-15',block:'951145',v:'2026-05-15 12:49Z',sum:'Bounded loops, functions, bitwise ops, P2S — the four locked-in CHIPs. (Codename "Layla" unofficial; ignore the AI-generated "post-quantum/DeFi" hype, none of it is in the spec.)'},
 /* other lines */
 {chain:'xec',type:'upgrade',name:'Rebrand → eCash',date:'2021-07-01',flip:1,sum:'BCHA rebranded to eCash (XEC), 1:1,000,000 redenomination, Avalanche consensus layered on.'},
-{chain:'doge',type:'upgrade',name:'AuxPoW',date:'2014-09-11',ft:'hard',sum:'Dogecoin switched to merged mining with Litecoin — the scrypt family reunited for security.'},
+{chain:'doge',type:'upgrade',name:'AuxPoW',lxoff:-20,date:'2014-09-11',ft:'hard',sum:'Dogecoin switched to merged mining with Litecoin — the scrypt family reunited for security.'},
 ];
 
 /* era captions */
@@ -426,9 +526,9 @@ const ERAS=[
  {date:'2009-04-01',lane:5.6,txt:'FIRST-GENERATION CODE FORKS · 2011–13'},   /* lead-in left of the 2011 cluster */
  {date:'2011-12-01',lane:15.2,txt:'THE SCRYPT → DOGE LINEAGE'},              /* gap under LTC before JKC/LKY begin */
  {date:'2015-01-01',lane:24.1,txt:'THE PRIVACY FAMILY'},                     /* left of the Zcash family launch */
- {date:'2011-06-01',lane:27.8,txt:'SECOND GENERATION · THE FAMILY SPRAWLS · 2014–18'}, /* left of the Mona/BLK/CLAM band */
- {date:'2017-08-10',lane:-13,txt:'THE AIRDROP GRAVEYARD · 2017–18'},         /* above SegWit, right where the fan erupts */
- {date:'2021-01-01',lane:-9.2,txt:'THE SCALING WARS · BCH → BSV → XEC'},     /* below BSV, after the graveyard clears */
+ {date:'2011-01-01',lane:32,txt:'THE FAMILY SPRAWLS · 2013–18'}, /* left of the Quark→LCC band */
+ {date:'2017-08-10',lane:-22.5,txt:'THE AIRDROP GRAVEYARD · 2017–18 · COMPLETE'}, /* mid-fan, right where it erupts */
+ {date:'2021-01-01',lane:-9.6,txt:'THE SCALING WARS · BCH → BSV → XEC · AND FORKS OF THE FORK'},
 ];
 
 /* ================= RENDER ================= */
@@ -603,6 +703,30 @@ const NOTMAP=[
  ['Byteball / Obyte','A DAG (not even a blockchain) distributed via BTC-linked airdrops in 2016–17 — a claim-drop, like HEX before HEX.'],
  ['Ripple','XRP. Independent ledger tech that predates the fork era. Shared exchange listings with BTC in 2013; never shared a byte of code.'],
  ['Cardano','ADA. Independent proof-of-stake chain (2017), own codebase, own genesis.'],
+ /* Litecoin-family clones that ran but are curated off the map — ledger forks are COMPLETE; code forks are curated for significance */
+ ['Worldcoin (WDC)','Real 2013 Litecoin clone (30-second blocks), briefly top-tier. One of hundreds of scrypt clones — the map curates code forks for historical significance, and this one’s legacy is thin. Acknowledged so you know it wasn’t missed.'],
+ ['Digitalcoin (DGC)','Real 2013 Litecoin clone, top-20 in its day, later multi-algo. Curated off the map as a generic clone — noted here so you know it wasn’t missed.'],
+ ['Megacoin (MEC)','Real 2013 Litecoin clone whose one contribution — the Kimoto Gravity Well difficulty algorithm — outlived it everywhere else. Curated footnote.'],
+ ['Infinitecoin (IFC)','2013 Litecoin clone with a 90-billion supply; amazingly still mining at block 12M+. Generic clone, curated footnote.'],
+ ['Anoncoin (ANC)','2013 Litecoin-family coin — the first with I2P/Tor integration, a genuine privacy pioneer pre-Monero. The strongest case among the curated-off clones.'],
+ ['Pesetacoin (PTC)','Spain’s national altcoin (Litecoin family, genesis New Year’s Eve 2013). Dead 2020. Curated footnote.'],
+ ['Potcoin (POT)','The cannabis Litecoin clone that sponsored Dennis Rodman’s 2017 North Korea trip — a great story on a generic chain. Curated footnote.'],
+ ['Gulden (NLG)','Dutch Litecoin-family coin with a real national userbase and its own PoW2 scheme; now "Munt". Curated footnote.'],
+ ['Einsteinium (EMC2)','Science-funding Litecoin clone, famous for the false Coinbase-listing pump of Dec 2017. Dead 2023. Curated footnote.'],
+ /* fakes, oddities, and wrong-tree chains the completeness sweep confirmed */
+ ['FastBitcoin (FBTC)','Claimed to be a BTC fork; under the hood it was a BitShares DPoS chain cosplaying as one. Ran briefly in 2018. Not Bitcoin technology.'],
+ ['Quantum Bitcoin (QBTC)','The one 2017 "fork" whose chain may never have existed — no code, wallet, or explorer was ever found; possibly exchange IOUs only. Excluded as unverifiable.'],
+ ['Dalilcoin (DLC)','2018 chain seeded from a RETROACTIVE Bitcoin snapshot (block 350000, mined 2015) — formal-proof experiments in OCaml. Real but unplottable on a time axis without lying.'],
+ ['Bitcoin King / Bitcoin New','Registration-and-premine handouts wearing fork costumes — chains ran, but distribution had nothing to do with holding BTC.'],
+ ['Bitcoin Cloud (BCL)','2019 launch claiming a Feb 2018 snapshot block — an 17-month-late "fork". Ran, barely; excluded for incoherent provenance.'],
+ ['Dogethereum (DOGX)','A 2018 DOGE-snapshot chain running rebadged Ethereum code, disowned as a scam within months. Dogecoin deserves better descendants.'],
+ ['Bitcoin Hush / Bitcoin Air','Komodo assetchain and Peercoin-family micro-projects distributed via BTC snapshots — merged airdrops, not forks of anything shown here.'],
+ ['Bitcoin Incognito / Bitcoin Green','"Bitcoin" in name only: PIVX/masternode-lineage chains with no BTC code or ledger.'],
+ ['BitcoinV','2019 solo project; its creator eventually posted that the network was dead — the most honest epitaph of the era. Ticker-collides with Bitcoin Vault, which IS on the map.'],
+ ['Ethereum Classic','ETC. The most famous chain-split in crypto — of ETHEREUM. Wrong family tree entirely; same for EtherZero, EtherInc and Callisto.'],
+ ['Monero forks','Monero Classic, Monero Original, MoneroV, Monero 0 — real 2018 splits of MONERO (CryptoNote family). A whole other fork tree.'],
+ ['SmartCash / Bitcoin Confidential','A Zcoin-family lineage (Zcoin→SmartCash→Bitcoin Confidential). Zcoin forked Bitcoin’s code, but this branch is curated off as a footnote-of-a-footnote.'],
+ ['Lotus / Radiant / Nexa','The BCH code lineage continues past this map’s 2020 cutoff — three real post-2021 chains descended from Bitcoin Cash tech. The family keeps sprawling.'],
 ];
 NOTMAP.forEach(([nm,why])=>IDX.push({t:(nm+' not a fork').toLowerCase(),label:nm,sub:'not on this map — why?',x:0,y:0,
  d:{nomap:1,name:nm,kindName:'nomap',col:'#7B857F',sum:why,status:'Not a Bitcoin fork',src:'—'}}));
@@ -636,7 +760,7 @@ function moveTip(e){tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY+
 
 /* per-cluster sources (dataset compiled Aug 2026; ✔ = re-verified against the author's own nodes) */
 const SCRYPT=new Set(['tbx','fbx','ltc','ftc','jkc','lky','bells','doge','vtc','dgb','dash','aur','rdd','sys','mona','xvg']);
-const PRIVACY=new Set(['zec','zcl','kmd','zen']);
+const PRIVACY=new Set(['zec','zcl','kmd','zen','hush','zer','btcz','flux','arrr']);
 const SRC={
  trunk:'The chain itself — genesis block ✔ own node',
  major:'Block explorers · project docs · Wikipedia — split blocks ✔ own nodes',
