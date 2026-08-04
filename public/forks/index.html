@@ -39,6 +39,8 @@
     background-size:30px 30px;}
   /* overflow:visible so mid-pinch content scaled past the svg box isn't clipped */
   #svg{display:block;overflow:visible}
+  /* brief ease on label sizes right after a pinch commits, so any residual adjustment isn't a snap */
+  body.settle #root text{transition:font-size .18s ease-out}
   #wrap.grabbing{cursor:grabbing}
   #wrap::-webkit-scrollbar{width:11px;height:11px}
   #wrap::-webkit-scrollbar-track{background:var(--bg)}
@@ -699,13 +701,14 @@ let scale=0.85;
 const ENDPAD=40;
 function applyScale(){svg.setAttribute('width',W*scale+ENDPAD);svg.setAttribute('height',H*scale);
   root.setAttribute('transform',`scale(${scale})`);
-  /* counter-scale text so labels stay readable when zoomed out:
-     .yr (years/TODAY/GENESIS) hold constant screen size; others grow up to 1.6x; .era stays world-scaled */
+  /* counter-scale text so labels stay readable when zoomed OUT (constant-ish screen size,
+     boosted up to the cap at far-out). Past 1x, text grows geometrically with the map —
+     matching what a pinch shows mid-gesture, so releasing doesn't visibly shrink the words. */
   document.querySelectorAll('#root text').forEach(t=>{
     if(t.classList.contains('era'))return;
     if(!t.dataset.b)t.dataset.b=t.getAttribute('font-size')||'12';
     const cap=t.classList.contains('yr')?3.4:1.6;
-    t.setAttribute('font-size',(+t.dataset.b)*Math.min(1/scale,cap));
+    t.setAttribute('font-size',(+t.dataset.b)*(scale>=1?1:Math.min(1/scale,cap)));
   });
   buildRuler();}
 function minScale(){return Math.min(.85,Math.max(.3,(wrap.clientHeight-padT()-40)/H));}
@@ -756,9 +759,12 @@ wrap.addEventListener('touchmove',e=>{
     tpan.vx=.7*(dx/dt)+.3*tpan.vx;tpan.vy=.7*(dy/dt)+.3*tpan.vy;
     tpan.x=t.clientX;tpan.y=t.clientY;tpan.t=now;
   }},{passive:true});
+let settleT=null;
 function endPinch(){
   if(!pinch)return;
   const ns=pinch.s*pinch.f;
+  document.body.classList.add('settle');
+  clearTimeout(settleT);settleT=setTimeout(()=>document.body.classList.remove('settle'),220);
   scale=Math.min(2,Math.max(minScale(),ns));applyScale();
   wrap.scrollLeft=(pinch.ox/pinch.s)*scale-pinch.cx;
   wrap.scrollTop=(pinch.oy/pinch.s)*scale-pinch.cy+padT();
