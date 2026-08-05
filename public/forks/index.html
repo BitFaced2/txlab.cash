@@ -44,9 +44,11 @@
      Never set opacity on the ~100 chain groups — that invalidates the whole giant SVG
      and re-rasterizes every visible tile, which reads as flicker when zoomed out. */
   #stage{position:relative;width:max-content}
-  #dim{position:absolute;inset:-140px 0;background:rgba(8,11,10,.85);opacity:0;
+  /* dim is FIXED, not absolute: an absolute overlay hanging past the stage bottom adds
+     scrollable overflow to #wrap and resurrects the vertical scrollbar at min zoom */
+  #dim{position:fixed;inset:0;z-index:4;background:rgba(8,11,10,.85);opacity:0;
     pointer-events:none;transition:opacity .22s ease}
-  #svg2{position:absolute;inset:0;pointer-events:none;overflow:visible}
+  #svg2{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:visible}
   /* dark halo behind every map label so chain lines never make text unreadable
      (.era watermarks excluded — they sit under the lines by design) */
   #root text:not(.era){paint-order:stroke;stroke:rgba(8,11,10,.92);stroke-width:3.5px;stroke-linejoin:round}
