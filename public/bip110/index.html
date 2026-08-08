@@ -150,6 +150,32 @@
   .note.cy{border-color:var(--cyan);background:rgba(0,217,255,.06)}
   .note.gn{border-color:var(--green);background:rgba(10,193,142,.06)}
 
+  /* two-node split panel */
+  #split{margin:34px 0}
+  .splitwrap{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:stretch;margin:16px 0 10px}
+  .node{border:1px solid var(--border);border-radius:14px;padding:20px;background:#0f1413;text-align:center;position:relative}
+  .node.maj{border-color:rgba(10,193,142,.5);background:linear-gradient(180deg,rgba(10,193,142,.07),rgba(10,193,142,.02))}
+  .node.knots{border-color:rgba(232,93,107,.5);background:linear-gradient(180deg,rgba(232,93,107,.07),rgba(232,93,107,.02))}
+  .node .nlabel{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;margin-bottom:10px}
+  .node.maj .nlabel{color:var(--green)} .node.knots .nlabel{color:var(--red)}
+  .node .nh{font-size:clamp(28px,6vw,44px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+  .node.maj .nh{color:var(--green)} .node.knots .nh{color:var(--red)}
+  .node .nsub{font-size:12px;color:var(--muted);margin-top:10px}
+  .node.knots .nh.frozen{position:relative}
+  .vs{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:96px}
+  .vs-delta{font-size:26px;font-weight:800;color:var(--amber);font-variant-numeric:tabular-nums;
+    text-shadow:0 0 20px rgba(232,181,71,.4)}
+  .vs-cap{font-size:10.5px;letter-spacing:.06em;color:var(--dim);text-transform:uppercase;text-align:center;margin-top:4px;line-height:1.3}
+  .split-foot{font-size:13px;color:var(--muted);border-left:3px solid var(--red);background:rgba(232,93,107,.05);
+    padding:12px 16px;border-radius:0 8px 8px 0;margin-top:14px}
+  .split-foot b{color:var(--ink)}
+  .twonode-badge{display:inline-flex;gap:8px;align-items:center;font-size:10px;letter-spacing:.1em;color:var(--green);
+    font-weight:800;border:1px solid var(--green);border-radius:20px;padding:3px 11px;margin-left:8px}
+  @media(max-width:620px){
+    .splitwrap{grid-template-columns:1fr;gap:10px}
+    .vs{flex-direction:row;gap:12px;min-width:0;padding:4px 0}
+  }
+
   /* popcorn / BCH-lab framing box */
   .popcorn{display:flex;gap:16px;align-items:flex-start;margin:22px 0 4px;padding:18px 20px;border-radius:14px;
     border:1px solid var(--green);background:linear-gradient(180deg,rgba(10,193,142,.08),rgba(10,193,142,.02));
@@ -280,8 +306,7 @@
   <div class="status">
     <div class="phase-hd">
       <span id="badge" class="badge pre">&hellip; loading</span>
-      <button id="alertbtn" class="alertbtn" type="button">&#128276; Ring my bell when it opens &#129354;</button>
-      <span class="upd">updated <span id="updated">&mdash;</span> &middot; mempool.space + own node</span>
+      <span class="upd">updated <span id="updated">&mdash;</span> &middot; mempool.space + own nodes</span>
     </div>
     <div class="grid3">
       <div class="cell">
@@ -303,6 +328,33 @@
     <div style="padding:16px 22px 4px"><div class="pbar"><i id="pbar" style="width:0"></i></div></div>
     <div class="phase-foot" id="phase-foot">&hellip;</div>
   </div>
+
+  <!-- TWO-NODE SPLIT (live) -->
+  <section id="split">
+    <h3 class="sec red">Live from my own two nodes <span class="twonode-badge">&#10003; VERIFIED ON MY NODES</span></h3>
+    <div class="sec-title">The split, in real time</div>
+    <p class="mut">I&rsquo;m running two nodes on one machine: a <b>Bitcoin Knots 29.4</b> node <b>enforcing</b> BIP&#8209;110 (RDTS),
+      and a majority-following node with it <b>off</b>. At block <b>961,632</b> they parted ways &mdash; and the gap grows with every block.</p>
+    <div class="splitwrap">
+      <div class="node maj">
+        <div class="nlabel">&#9650; Majority chain</div>
+        <div class="nh" id="maj-height">&mdash;</div>
+        <div class="nsub">RDTS off &middot; accepts every block</div>
+      </div>
+      <div class="vs">
+        <div class="vs-delta">&Delta;&nbsp;<span id="split-delta">0</span></div>
+        <div class="vs-cap">blocks apart<br>&amp; counting</div>
+      </div>
+      <div class="node knots">
+        <div class="nlabel">&#9209; BIP-110 &middot; Knots</div>
+        <div class="nh frozen">961,631</div>
+        <div class="nsub">RDTS on &middot; frozen, rejecting 961,632</div>
+      </div>
+    </div>
+    <div class="split-foot">My Knots node is <b>stranded at 961,631</b> &mdash; it rejected the non-signaling boundary block and can&rsquo;t
+      move until a signaling-majority chain appears (which at ~2.5% support is unlikely). Its <code>reduced_data</code> deployment
+      reports <b>51 / 1,109</b> blocks signaling, <b>possible: false</b>. Every reading here is measured live on my own nodes.</div>
+  </section>
 
   <!-- SIGNALING -->
   <section id="signal">
@@ -448,6 +500,9 @@ const EXPIRE  =ACTIVE+52416; // ~1 year later, limits auto-lift (1,018,080)
 const THRESH_PCT=55;
 /* verified-on-node snapshot (taken this session; the live figures update over it) */
 const SNAP={height:961614, sig:51, total:1999, pct:2.55, last144:2};
+/* my Knots (RDTS-enforcing) node is frozen here — it rejected the non-signaling 961,632
+   and can't advance during mandatory signaling, so this stays fixed while the majority tip climbs */
+const KNOTS_FROZEN=961631;
 
 const $=id=>document.getElementById(id);
 const fmt=n=>n.toLocaleString('en-US');
@@ -522,6 +577,12 @@ function paintHeight(h){
     $('pbar').style.width='100%';
   }
   renderMiles(h);
+}
+
+function paintSplit(h){
+  const maj=h||MANDATORY;
+  $('maj-height').textContent=fmt(maj);
+  $('split-delta').textContent=Math.max(0, maj-KNOTS_FROZEN);
 }
 
 function paintSupport(pct, srcText){
@@ -643,6 +704,7 @@ async function tick(){
     const fresh=new Set();
     if(lastTip) recent.forEach(b=>{ if(b.height>lastTip) fresh.add(b.height); });
     paintHeight(h);
+    paintSplit(h);
     paintTicks(recent, fresh);
     paintScoreboard(recent);
     const newest=recent[0];
@@ -672,21 +734,9 @@ async function tick(){
   }
 }
 
-/* alert toggle — the click is the user gesture that unlocks audio autoplay */
-$('alertbtn').addEventListener('click',function(){
-  alertsOn=!alertsOn; const btn=$('alertbtn');
-  if(alertsOn){
-    btn.classList.add('on'); btn.innerHTML='🔔 Bell armed 🥊 — you’ll hear it';
-    try{ const a=$('bell'); a.load(); a.currentTime=0; a.play(); }catch(e){}
-    try{ if('Notification' in window && Notification.permission==='default') Notification.requestPermission(); }catch(e){}
-  }else{
-    btn.classList.remove('on'); btn.innerHTML='🔔 Ring my bell when it opens 🥊';
-    try{ $('bell').pause(); }catch(e){}
-  }
-});
-
 /* first paint from the verified snapshot so nothing is blank, then go live */
 paintHeight(SNAP.height);
+paintSplit(MANDATORY);
 paintSupport(SNAP.pct,'verified on my node');
 paintNodeSnap('');
 tick();
