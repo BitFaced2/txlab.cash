@@ -464,7 +464,7 @@ function paintSupport(pct, srcText){
 
 function paintTicks(blocks){
   // blocks: array newest-first of {height,version,pool}
-  const arr=blocks.slice(0,40).reverse();
+  const arr=blocks.slice(0,50).reverse();
   $('ticks').innerHTML=arr.map(b=>{
     const s=signals(b.version);
     return `<div class="tick ${s?'sig':''}" title="${fmt(b.height)}${b.pool?' · '+b.pool:''}${s?' · SIGNALING':''}"></div>`;
@@ -496,7 +496,7 @@ async function fetchRecent(){
   let r=await fetch('https://mempool.space/api/v1/blocks',{cache:'no-store'});
   let page=await r.json();
   out=out.concat(page);
-  for(let i=0;i<2 && page.length;i++){
+  for(let i=0;i<3 && page.length;i++){
     const lo=page[page.length-1].height-1;
     r=await fetch('https://mempool.space/api/v1/blocks/'+lo,{cache:'no-store'});
     page=await r.json(); out=out.concat(page);
