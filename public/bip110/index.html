@@ -157,6 +157,60 @@
   .popcorn b{color:var(--green)}
   .pc-emoji{font-size:30px;line-height:1;flex:0 0 auto}
 
+  /* alert toggle */
+  .alertbtn{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.03em;cursor:pointer;
+    color:var(--amber);background:rgba(232,181,71,.08);border:1px solid var(--amber);border-radius:22px;
+    padding:8px 15px;transition:all .15s;white-space:nowrap}
+  .alertbtn:hover{background:rgba(232,181,71,.16);box-shadow:0 0 18px rgba(232,181,71,.2)}
+  .alertbtn.on{color:var(--green);border-color:var(--green);background:rgba(10,193,142,.1)}
+
+  /* latest-block pulse */
+  .latest{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-bottom:2px;
+    padding:9px 13px;border:1px solid var(--border);border-radius:8px;background:#0a0e0d;transition:all .3s}
+  .latest.flash{border-color:var(--cyan);background:rgba(0,217,255,.07)}
+  .latest.flash.sig{border-color:var(--green);background:rgba(10,193,142,.1)}
+  .lb-dot{width:9px;height:9px;border-radius:50%;background:var(--dim);flex:0 0 auto;transition:all .3s}
+  .latest.flash .lb-dot{background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+  .latest.flash.sig .lb-dot{background:var(--green);box-shadow:0 0 10px var(--green)}
+  .latest b{color:var(--ink)}
+  /* new-block pop on the tick strip */
+  @keyframes pop{0%{transform:scale(.3);opacity:0}55%{transform:scale(1.5)}100%{transform:scale(1);opacity:1}}
+  .tick.fresh{animation:pop .7s cubic-bezier(.3,1.4,.5,1)}
+  .tick.fresh.sig{box-shadow:0 0 14px var(--green)}
+
+  /* pool scoreboard */
+  .board{display:grid;gap:7px}
+  .prow{display:grid;grid-template-columns:150px 1fr 118px;gap:12px;align-items:center;
+    padding:9px 14px;border:1px solid var(--border);border-radius:9px;background:#0f1413}
+  .prow.sig{border-color:rgba(10,193,142,.5);background:rgba(10,193,142,.05)}
+  .prow .pn{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .prow.sig .pn{color:var(--green)}
+  .prow .pn .chk{margin-right:6px}
+  .pbarwrap{height:12px;background:#0a0e0d;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+  .pbarwrap > i{display:block;height:100%;border-radius:6px}
+  .prow.sig .pbarwrap > i{background:linear-gradient(90deg,rgba(10,193,142,.6),var(--green))}
+  .prow.non .pbarwrap > i{background:var(--dim)}
+  .prow .pstat{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .prow.sig .pstat b{color:var(--green)}
+  .board-cap{font-size:11px;color:var(--dim);margin-top:10px}
+
+  /* boundary banner + popcorn confetti */
+  #banner{position:fixed;left:0;right:0;top:0;z-index:60;display:none;text-align:center;
+    padding:16px;font-size:clamp(16px,3.4vw,26px);font-weight:800;letter-spacing:.04em;color:#0b0b0b;
+    background:linear-gradient(90deg,var(--red),var(--amber),var(--green));
+    box-shadow:0 6px 30px rgba(0,0,0,.5);animation:bslide .5s ease}
+  #banner.show{display:block}
+  @keyframes bslide{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+  #confetti{position:fixed;inset:0;z-index:55;pointer-events:none;overflow:hidden;display:none}
+  #confetti.go{display:block}
+  .pcf{position:absolute;top:-6vh;font-size:26px;will-change:transform;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(112vh) rotate(720deg)}}
+
+  @media(max-width:560px){
+    .prow{grid-template-columns:104px 1fr 92px;gap:8px;padding:8px 10px}
+    .prow .pn{font-size:12px}
+  }
+
   /* verified box */
   .verify{border:1px solid var(--green);border-radius:14px;padding:20px 22px;
     background:linear-gradient(180deg,rgba(10,193,142,.07),rgba(10,193,142,.02))}
@@ -226,7 +280,8 @@
   <div class="status">
     <div class="phase-hd">
       <span id="badge" class="badge pre">&hellip; loading</span>
-      <span class="upd">updated <span id="updated">&mdash;</span> &middot; source: mempool.space + own node</span>
+      <button id="alertbtn" class="alertbtn" type="button">&#128276; Ring my bell when it opens &#129354;</button>
+      <span class="upd">updated <span id="updated">&mdash;</span> &middot; mempool.space + own node</span>
     </div>
     <div class="grid3">
       <div class="cell">
@@ -262,9 +317,20 @@
         <div class="glabel" id="glabel">2.55%</div>
       </div>
       <div class="grow"><span>0%</span><span>current support vs. 55% threshold</span><span>100%</span></div>
+      <div class="latest" id="latest"><span class="lb-dot"></span><span id="lb-text">watching for the next block&hellip;</span></div>
       <div class="ticks" id="ticks"></div>
-      <div class="ticks-cap" id="ticks-cap">last blocks on the main chain &middot; green = signaling bit&nbsp;4</div>
+      <div class="ticks-cap" id="ticks-cap">last 100 blocks on the main chain &middot; green = signaling bit&nbsp;4</div>
     </div>
+  </section>
+
+  <!-- POOL SCOREBOARD -->
+  <section id="pools">
+    <h3 class="sec amb">Who&rsquo;s playing along</h3>
+    <div class="sec-title">The pool scoreboard</div>
+    <p class="mut" id="board-intro">Every recent block, sorted by which mining pool found it &mdash; and whether that pool
+      is signaling bit&nbsp;4. Right now that&rsquo;s a very short list of yes and a very long list of no.</p>
+    <div class="board" id="board"></div>
+    <div class="board-cap" id="board-cap">from the last 100 blocks on the main chain</div>
   </section>
 
   <!-- MILESTONES -->
@@ -368,6 +434,10 @@
 
 </div>
 
+<div id="banner"></div>
+<div id="confetti"></div>
+<audio id="bell" src="bell.mp3" preload="none"></audio>
+
 <script>
 /* ============ BIP-110 constants (retarget boundaries, all confirmed on-node) ============ */
 const PERIOD=2016, BIT=4;
@@ -462,15 +532,76 @@ function paintSupport(pct, srcText){
   if(srcText) $('support-src').textContent=srcText;
 }
 
-function paintTicks(blocks){
-  // blocks: array newest-first of {height,version,pool}
-  const arr=blocks.slice(0,50).reverse();
+function paintTicks(blocks, fresh){
+  // blocks: array newest-first of {height,version,pool}; fresh = Set of just-arrived heights
+  const arr=blocks.slice(0,100).reverse();
   $('ticks').innerHTML=arr.map(b=>{
     const s=signals(b.version);
-    return `<div class="tick ${s?'sig':''}" title="${fmt(b.height)}${b.pool?' · '+b.pool:''}${s?' · SIGNALING':''}"></div>`;
+    return `<div class="tick ${s?'sig':''} ${(fresh&&fresh.has(b.height))?'fresh':''}" title="${fmt(b.height)}${b.pool?' · '+b.pool:''}${s?' · SIGNALING':''}"></div>`;
   }).join('');
   const sig=arr.filter(b=>signals(b.version)).length;
   $('ticks-cap').textContent=`last ${arr.length} blocks on the main chain · ${sig} signaling bit 4 · green = signaling`;
+}
+
+/* ---- pool scoreboard: who's signaling vs stonewalling (from the same 100 blocks) ---- */
+function paintScoreboard(blocks){
+  const map=new Map();
+  blocks.forEach(b=>{
+    const name=b.pool||'Unknown';
+    if(!map.has(name))map.set(name,{name,total:0,sig:0});
+    const o=map.get(name); o.total++; if(signals(b.version))o.sig++;
+  });
+  const pools=[...map.values()].sort((a,b)=>
+    ((b.sig>0)-(a.sig>0)) || (b.sig-a.sig) || (b.total-a.total));
+  const maxTotal=Math.max(1,...pools.map(p=>p.total));
+  $('board').innerHTML=pools.slice(0,12).map(p=>{
+    const isSig=p.sig>0, w=Math.round(100*p.total/maxTotal);
+    return '<div class="prow '+(isSig?'sig':'non')+'">'+
+      '<div class="pn"><span class="chk">'+(isSig?'✅':'❌')+'</span>'+p.name+'</div>'+
+      '<div class="pbarwrap"><i style="width:'+Math.max(4,w)+'%"></i></div>'+
+      '<div class="pstat"><b>'+p.sig+'</b>/'+p.total+' blk</div></div>';
+  }).join('');
+  const yes=pools.filter(p=>p.sig>0).length;
+  $('board-cap').textContent='from the last '+blocks.length+' blocks · '+yes+' pool'+(yes===1?'':'s')+' signaling, '+(pools.length-yes)+' not';
+}
+
+/* ---- latest-block pulse ---- */
+function setLatest(b, flash){
+  if(!b)return;
+  const el=$('latest'), s=signals(b.version);
+  $('lb-text').innerHTML='▲ block <b>'+fmt(b.height)+'</b> · '+(b.pool||'Unknown')+' · '+
+    (s?'<b style="color:var(--green)">signaling bit&nbsp;4</b>':'not signaling');
+  if(flash){ el.classList.remove('flash','sig'); void el.offsetWidth;
+    el.classList.add('flash'); if(s)el.classList.add('sig');
+    clearTimeout(el._t); el._t=setTimeout(function(){el.classList.remove('flash','sig');},2600); }
+}
+
+/* ---- the round-one moment: bell + banner + popcorn ---- */
+let boundaryFired=false, alertsOn=false;
+function playBell(){ try{ const a=$('bell'); a.currentTime=0; a.play(); }catch(e){} }
+function popcornBurst(){
+  const c=$('confetti'); c.classList.add('go'); c.innerHTML='';
+  const em=['🍿','🍿','🍿','🥊','🔔'];
+  for(let i=0;i<80;i++){
+    const s=document.createElement('div'); s.className='pcf'; s.textContent=em[i%em.length];
+    s.style.left=(Math.random()*100)+'vw';
+    s.style.animationDuration=(2.4+Math.random()*2.6)+'s';
+    s.style.animationDelay=(Math.random()*1.3)+'s';
+    s.style.fontSize=(16+Math.random()*24)+'px';
+    c.appendChild(s);
+  }
+  setTimeout(function(){ c.classList.remove('go'); c.innerHTML=''; }, 6500);
+}
+function fireBoundary(){
+  if(boundaryFired)return; boundaryFired=true;
+  const bn=$('banner'); bn.textContent='🥊 ROUND ONE — MANDATORY SIGNALING IS LIVE 🍿';
+  bn.classList.add('show'); setTimeout(function(){bn.classList.remove('show');},13000);
+  popcornBurst();
+  if(alertsOn){
+    playBell();
+    try{ if('Notification' in window && Notification.permission==='granted')
+      new Notification('BIP-110: mandatory signaling is LIVE',{body:'Block 961,632 reached — the fight begins. 🥊'}); }catch(e){}
+  }
 }
 
 /* ---- node snapshot text (verified, baked; refreshed with live period-to-date if possible) ---- */
@@ -496,7 +627,7 @@ async function fetchRecent(){
   let r=await fetch('https://mempool.space/api/v1/blocks',{cache:'no-store'});
   let page=await r.json();
   out=out.concat(page);
-  for(let i=0;i<3 && page.length;i++){
+  for(let i=0;i<6 && page.length;i++){
     const lo=page[page.length-1].height-1;
     r=await fetch('https://mempool.space/api/v1/blocks/'+lo,{cache:'no-store'});
     page=await r.json(); out=out.concat(page);
@@ -504,11 +635,21 @@ async function fetchRecent(){
   return out.map(b=>({height:b.height,version:b.version,pool:(b.extras&&b.extras.pool&&b.extras.pool.name)||''}));
 }
 
+let lastTip=0;
 async function tick(){
   try{
     const [h,recent]=await Promise.all([fetchHeight(),fetchRecent()]);
+    // detect just-arrived blocks (skip on the very first load so we don't animate all 100)
+    const fresh=new Set();
+    if(lastTip) recent.forEach(b=>{ if(b.height>lastTip) fresh.add(b.height); });
     paintHeight(h);
-    paintTicks(recent);
+    paintTicks(recent, fresh);
+    paintScoreboard(recent);
+    const newest=recent[0];
+    if(newest) setLatest(newest, lastTip>0 && newest.height>lastTip);
+    // the crossing — only when we've seen a prior tip below the boundary (not on cold load)
+    if(lastTip>0 && lastTip<MANDATORY && h>=MANDATORY) fireBoundary();
+    lastTip=h;
     const sig=recent.filter(b=>signals(b.version)).length;
     const recentPct=100*sig/recent.length;
     // Headline support: the authoritative period figure is the node snapshot; blend in live recent
@@ -530,6 +671,19 @@ async function tick(){
     $('updated').textContent='snapshot';
   }
 }
+
+/* alert toggle — the click is the user gesture that unlocks audio autoplay */
+$('alertbtn').addEventListener('click',function(){
+  alertsOn=!alertsOn; const btn=$('alertbtn');
+  if(alertsOn){
+    btn.classList.add('on'); btn.innerHTML='🔔 Bell armed 🥊 — you’ll hear it';
+    try{ const a=$('bell'); a.load(); a.currentTime=0; a.play(); }catch(e){}
+    try{ if('Notification' in window && Notification.permission==='default') Notification.requestPermission(); }catch(e){}
+  }else{
+    btn.classList.remove('on'); btn.innerHTML='🔔 Ring my bell when it opens 🥊';
+    try{ $('bell').pause(); }catch(e){}
+  }
+});
 
 /* first paint from the verified snapshot so nothing is blank, then go live */
 paintHeight(SNAP.height);
