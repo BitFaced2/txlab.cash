@@ -331,29 +331,31 @@
 
   <!-- TWO-NODE SPLIT (live) -->
   <section id="split">
-    <h3 class="sec red">Live from my own two nodes <span class="twonode-badge">&#10003; VERIFIED ON MY NODES</span></h3>
-    <div class="sec-title">The split, in real time</div>
-    <p class="mut">I&rsquo;m running two nodes on one machine: a <b>Bitcoin Knots 29.4</b> node <b>enforcing</b> BIP&#8209;110 (RDTS),
-      and a majority-following node with it <b>off</b>. At block <b>961,632</b> they parted ways &mdash; and the gap grows with every block.</p>
+    <h3 class="sec red">Bitcoin actually split <span class="twonode-badge">&#10003; VERIFIED ON MY NODE</span></h3>
+    <div class="sec-title">Two chains, live right now</div>
+    <p class="mut">It happened. At block <b>961,631</b> the chain <b>forked in two</b>. Most hashrate kept mining normally on the
+      <b>majority chain</b> (ignoring BIP&#8209;110). Ocean and the enforcing nodes &mdash; <b>including my Knots node</b> &mdash;
+      followed a separate <b>signaling chain</b>, where a different block sits at 961,632. Same height, different blocks: a real chain split.</p>
     <div class="splitwrap">
       <div class="node maj">
         <div class="nlabel">&#9650; Majority chain</div>
         <div class="nh" id="maj-height">&mdash;</div>
-        <div class="nsub">RDTS off &middot; accepts every block</div>
+        <div class="nsub">non-signaling &middot; most hashrate</div>
       </div>
       <div class="vs">
         <div class="vs-delta">&Delta;&nbsp;<span id="split-delta">0</span></div>
-        <div class="vs-cap">blocks apart<br>&amp; counting</div>
+        <div class="vs-cap">blocks ahead<br>&amp; pulling away</div>
       </div>
       <div class="node knots">
-        <div class="nlabel">&#9209; BIP-110 &middot; Knots</div>
-        <div class="nh frozen">961,631</div>
-        <div class="nsub">RDTS on &middot; frozen, rejecting 961,632</div>
+        <div class="nlabel">&#9884; BIP-110 chain</div>
+        <div class="nh" id="bip110-height">961,632</div>
+        <div class="nsub">signaling &middot; my Knots node</div>
       </div>
     </div>
-    <div class="split-foot">My Knots node is <b>stranded at 961,631</b> &mdash; it rejected the non-signaling boundary block and can&rsquo;t
-      move until a signaling-majority chain appears (which at ~2.5% support is unlikely). Its <code>reduced_data</code> deployment
-      reports <b>51 / 1,109</b> blocks signaling, <b>possible: false</b>. Every reading here is measured live on my own nodes.</div>
+    <div class="split-foot">My Bitcoin&nbsp;Knots node is on the <b>BIP&#8209;110 (signaling) minority chain</b> &mdash; its block 961,632
+      (<code>...0cdb13e7</code>, version <code>0x27D60010</code>) <b>signals bit&nbsp;4</b>, a <em>different</em> block from the majority
+      chain&rsquo;s non-signaling 961,632. With only minority hashrate behind it, the signaling chain falls further behind the majority
+      every block. BIP&#8209;110 height is read from my own node; the majority tip is live from mempool.space.</div>
   </section>
 
   <!-- SIGNALING -->
@@ -500,9 +502,12 @@ const EXPIRE  =ACTIVE+52416; // ~1 year later, limits auto-lift (1,018,080)
 const THRESH_PCT=55;
 /* verified-on-node snapshot (taken this session; the live figures update over it) */
 const SNAP={height:961614, sig:51, total:1999, pct:2.55, last144:2};
-/* my Knots (RDTS-enforcing) node is frozen here — it rejected the non-signaling 961,632
-   and can't advance during mandatory signaling, so this stays fixed while the majority tip climbs */
-const KNOTS_FROZEN=961631;
+/* THE SPLIT (Aug 8): at block 961,631 the chain forked. The majority (non-signaling) chain
+   is what mempool.space follows and races ahead; the BIP-110 (signaling) minority chain is
+   where my Knots node sits, advancing slowly on minority hashrate. This is that chain's height
+   per my own node — baked for now (updates on redeploy; a live node feed is the next step). */
+const BIP110_HEIGHT=961632;
+const FORK_POINT=961631;
 
 const $=id=>document.getElementById(id);
 const fmt=n=>n.toLocaleString('en-US');
@@ -580,9 +585,10 @@ function paintHeight(h){
 }
 
 function paintSplit(h){
-  const maj=h||MANDATORY;
+  const maj=h||MANDATORY;            // majority (non-signaling) chain tip, live from mempool
   $('maj-height').textContent=fmt(maj);
-  $('split-delta').textContent=Math.max(0, maj-KNOTS_FROZEN);
+  $('bip110-height').textContent=fmt(BIP110_HEIGHT);
+  $('split-delta').textContent=Math.max(0, maj-BIP110_HEIGHT);  // majority's lead, growing
 }
 
 function paintSupport(pct, srcText){
