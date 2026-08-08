@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIP-110 Live Tracker — The Mandatory Signaling Watch</title>
+<link rel="icon" type="image/png" href="/forks/favicon.png">
+<meta name="description" content="Live tracker for BIP-110, the 'Temporarily Limit Arbitrary Data' soft fork entering mandatory signaling at block 961,632 with ~2.5% miner support against a 55% threshold. Block height, phase, countdown and signaling — verified on my own Bitcoin Core node.">
+<meta name="theme-color" content="#080b0a">
+<link rel="canonical" href="https://txlab.cash/bip110/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://txlab.cash/bip110/">
+<meta property="og:title" content="BIP-110 Live Tracker 🍿">
+<meta property="og:description" content="Grab popcorn. A ~2.5%-support soft fork enters MANDATORY signaling at block 961,632 — live height, phase, countdown & chain-split watch, straight off my own node. From a Bitcoin Cash lab.">
+<meta property="og:image" content="https://txlab.cash/bip110/card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="628">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BIP-110 Live Tracker 🍿">
+<meta name="twitter:description" content="Grab popcorn. A ~2.5%-support soft fork enters MANDATORY signaling at block 961,632 — live height, phase, countdown & split watch, straight off my node.">
+<meta name="twitter:image" content="https://txlab.cash/bip110/card.png">
+<style>
+  :root{
+    /* Cypher-BCHN base + Qubes neon accents — shared with the Fork Tree */
+    --bg:#080b0a; --surface:#141917; --elevated:#1C2320; --border:#232B27;
+    --ink:#E8ECEA; --muted:#7B857F; --dim:#4A544F; --line:#232B27;
+    --btc:#f7931a; --green:#0AC18E; --purple:#9D4EDD; --cyan:#00d9ff; --amber:#E8B547; --red:#E85D6B;
+    --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body,html{overflow-x:hidden;max-width:100%}
+  h3,p,li,.lede{overflow-wrap:break-word}
+  .hero h2{overflow-wrap:normal}
+  body{min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--mono);line-height:1.6;
+    background-image:radial-gradient(rgba(10,193,142,.05) 1px,transparent 1.3px);background-size:32px 32px;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 20px 90px}
+  a{color:var(--cyan);text-decoration:none}
+  a:hover{text-decoration:underline}
+  ::selection{background:rgba(0,217,255,.25)}
+
+  /* header */
+  header{position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);
+    background:linear-gradient(180deg,rgba(8,11,10,.94) 60%,rgba(8,11,10,.4));
+    border-bottom:1px solid var(--border)}
+  .hbar{max-width:1000px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .hbar h1{font-size:20px;font-weight:800;letter-spacing:.02em}
+  .hbar h1 .amb{color:var(--amber);text-shadow:0 0 20px rgba(232,181,71,.5)}
+  .live{display:inline-flex;align-items:center;gap:7px;font-size:11px;letter-spacing:.14em;color:var(--green);
+    text-transform:uppercase;font-weight:700}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);
+    animation:pulse 1.6s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  .hbar .sp{flex:1}
+  .hbar .nav{font-size:12px;color:var(--muted)}
+
+  /* hero */
+  .hero{padding:34px 0 10px}
+  .kicker{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+  .hero h2{font-size:clamp(26px,5vw,44px);font-weight:800;line-height:1.12;margin:10px 0 8px}
+  .hero h2 .g{color:var(--amber)}
+  .lede{color:var(--ink);font-size:15px;max-width:70ch}
+  .lede b{color:var(--amber)}
+
+  /* status card */
+  .status{margin:26px 0;border:1px solid var(--border);border-radius:16px;overflow:hidden;
+    background:linear-gradient(180deg,#131817,#0d1210)}
+  .phase-hd{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;
+    justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;gap:9px;font-size:14px;font-weight:800;letter-spacing:.06em;
+    padding:8px 16px;border-radius:24px;text-transform:uppercase}
+  .badge.pre{color:var(--amber);border:1.5px solid var(--amber);box-shadow:0 0 22px rgba(232,181,71,.22)}
+  .badge.mand{color:var(--red);border:1.5px solid var(--red);box-shadow:0 0 26px rgba(232,93,107,.3)}
+  .badge.lock{color:var(--purple);border:1.5px solid var(--purple);box-shadow:0 0 22px rgba(157,78,221,.25)}
+  .badge.active{color:var(--green);border:1.5px solid var(--green);box-shadow:0 0 22px rgba(10,193,142,.25)}
+  .badge.exp{color:var(--muted);border:1.5px solid var(--dim)}
+  .phase-hd .upd{font-size:11px;color:var(--dim)}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+  .cell{background:#0f1413;padding:20px 22px}
+  .cell .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .cell .v{font-size:clamp(24px,4vw,34px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+  .cell .v.big{color:var(--cyan)}
+  .cell .sub{font-size:12px;color:var(--muted);margin-top:7px}
+  .cell .v.amb{color:var(--amber)} .cell .v.red{color:var(--red)}
+  .pbar{height:8px;background:#0a0e0d;border-radius:6px;overflow:hidden;margin-top:14px;border:1px solid var(--border)}
+  .pbar > i{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--red));border-radius:6px;
+    transition:width .6s ease}
+  .phase-foot{padding:14px 22px;font-size:13px;color:var(--muted);border-top:1px solid var(--border)}
+  .phase-foot b{color:var(--ink)}
+
+  section{margin:40px 0}
+  h3.sec{font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--green);margin-bottom:6px}
+  h3.sec.red{color:var(--red)} h3.sec.amb{color:var(--amber)} h3.sec.cy{color:var(--cyan)}
+  .sec-title{font-size:22px;font-weight:800;margin-bottom:14px}
+  p{margin:10px 0;color:var(--ink)}
+  p.mut{color:var(--muted);font-size:14px}
+
+  /* signaling gauge */
+  .gauge{border:1px solid var(--border);border-radius:14px;padding:22px;background:#0f1413}
+  .gwrap{position:relative;height:44px;background:#0a0e0d;border-radius:8px;border:1px solid var(--border);
+    overflow:hidden;margin:18px 0 8px}
+  .gfill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(232,93,107,.5),var(--red));
+    transition:width .6s ease;box-shadow:0 0 18px rgba(232,93,107,.4)}
+  .gthr{position:absolute;top:-6px;bottom:-6px;width:2px;background:var(--green);box-shadow:0 0 10px var(--green)}
+  .gthr::after{content:'55% LOCK-IN THRESHOLD';position:absolute;top:-16px;left:8px;white-space:nowrap;
+    font-size:10px;letter-spacing:.1em;color:var(--green);font-weight:700}
+  .glabel{position:absolute;top:50%;transform:translateY(-50%);left:12px;font-size:15px;font-weight:800;
+    color:#fff;text-shadow:0 1px 4px #000}
+  .grow{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px}
+  .ticks{display:flex;gap:3px;margin-top:16px;flex-wrap:wrap}
+  .tick{width:14px;height:22px;border-radius:2px;background:var(--dim);opacity:.5}
+  .tick.sig{background:var(--green);opacity:1;box-shadow:0 0 7px rgba(10,193,142,.6)}
+  .ticks-cap{font-size:11px;color:var(--dim);margin-top:8px}
+
+  /* milestones */
+  .miles{display:grid;gap:12px}
+  .mile{display:grid;grid-template-columns:130px 1fr;gap:16px;border:1px solid var(--border);border-radius:12px;
+    padding:16px 18px;background:#0f1413;position:relative}
+  .mile.now{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber),0 0 26px rgba(232,181,71,.14)}
+  .mile.done{opacity:.55}
+  .mile .blk{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--cyan)}
+  .mile .when{font-size:11px;color:var(--muted);margin-top:3px}
+  .mile .nm{font-weight:800;font-size:15px;margin-bottom:3px}
+  .mile.m0 .nm{color:var(--red)} .mile.m1 .nm{color:var(--purple)}
+  .mile.m2 .nm{color:var(--green)} .mile.m3 .nm{color:var(--muted)}
+  .mile .ds{font-size:13px;color:var(--muted)}
+  .mile .tagnow{position:absolute;top:-9px;right:14px;font-size:10px;letter-spacing:.12em;font-weight:800;
+    background:var(--amber);color:#000;padding:2px 9px;border-radius:10px}
+
+  /* two-column cards */
+  .cards2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .card{border:1px solid var(--border);border-radius:12px;padding:18px 20px;background:#0f1413}
+  .card h4{font-size:14px;font-weight:800;margin-bottom:8px}
+  .card.pro h4{color:var(--green)} .card.con h4{color:var(--red)}
+  .card ul{list-style:none;margin:0}
+  .card li{font-size:13.5px;color:var(--muted);padding:5px 0 5px 18px;position:relative}
+  .card li::before{content:'▸';position:absolute;left:0;color:var(--dim)}
+  .card.pro li::before{color:var(--green)} .card.con li::before{color:var(--red)}
+
+  .limits{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .limits .row{display:grid;grid-template-columns:1fr auto;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line);
+    font-size:14px}
+  .limits .row:last-child{border-bottom:0}
+  .limits .row .lab{color:var(--ink)}
+  .limits .row .val{color:var(--amber);font-weight:700;white-space:nowrap}
+
+  .note{border-left:3px solid var(--red);background:rgba(232,93,107,.06);padding:14px 18px;border-radius:0 8px 8px 0;
+    font-size:14px;margin:16px 0}
+  .note.cy{border-color:var(--cyan);background:rgba(0,217,255,.06)}
+  .note.gn{border-color:var(--green);background:rgba(10,193,142,.06)}
+
+  /* popcorn / BCH-lab framing box */
+  .popcorn{display:flex;gap:16px;align-items:flex-start;margin:22px 0 4px;padding:18px 20px;border-radius:14px;
+    border:1px solid var(--green);background:linear-gradient(180deg,rgba(10,193,142,.08),rgba(10,193,142,.02));
+    font-size:14px;color:var(--ink)}
+  .popcorn b{color:var(--green)}
+  .pc-emoji{font-size:30px;line-height:1;flex:0 0 auto}
+
+  /* verified box */
+  .verify{border:1px solid var(--green);border-radius:14px;padding:20px 22px;
+    background:linear-gradient(180deg,rgba(10,193,142,.07),rgba(10,193,142,.02))}
+  .verify .vh{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .verify .vbadge{font-size:10px;letter-spacing:.12em;color:var(--green);font-weight:800;border:1px solid var(--green);
+    border-radius:20px;padding:3px 10px}
+  .verify .mono{font-size:13px;color:var(--muted);white-space:pre-wrap;word-break:break-word;margin-top:10px;
+    background:#0a0e0d;border:1px solid var(--border);border-radius:8px;padding:12px 14px;overflow-x:auto}
+  .verify .mono b{color:var(--green)}
+
+  footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--border);font-size:12px;color:var(--dim)}
+  footer a{color:var(--muted)}
+  .srcs{margin-top:8px;line-height:2}
+
+  @media(max-width:720px){
+    br.wide{display:none}
+    .hbar .sp{display:none}
+    .hbar{gap:10px}
+    .hbar .nav{margin-left:auto}
+    .hero h2{font-size:clamp(20px,5.6vw,32px)}
+    .grid3{grid-template-columns:1fr 1fr}
+    .grid3 .cell:last-child{grid-column:1/3}
+    .cards2{grid-template-columns:1fr}
+    .mile{grid-template-columns:96px 1fr;gap:12px}
+  }
+  @media(max-width:480px){
+    .grid3{grid-template-columns:1fr}
+    .grid3 .cell:last-child{grid-column:auto}
+    .wrap{padding:0 14px 80px}
+    .hbar .live{font-size:10px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="hbar">
+    <h1>BIP&#8209;<span class="amb">110</span></h1>
+    <span class="live"><span class="dot"></span>&#127871; Live from my node</span>
+    <span class="sp"></span>
+    <span class="nav"><a href="/forks/">&larr; The Fork Tree</a></span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="kicker">A Bitcoin Cash lab &middot; watching Bitcoin&rsquo;s data-limit fight, live from my own node</div>
+    <h2>A soft fork with <span class="g">~2.5% support</span> <br class="wide">is about to force the issue.</h2>
+    <p class="lede">BIP&#8209;110 wants to temporarily cap arbitrary data in Bitcoin transactions. It never reached the
+      55% miner support a normal lock-in needs &mdash; so at block <b>961,632</b> it enters <b>mandatory signaling</b>,
+      where enforcing nodes reject any block that doesn&rsquo;t signal. With almost no hashrate behind it, that turns a
+      routine upgrade into a live test of who follows which chain &mdash; possibly a split. Grab a chair; we&rsquo;re watching it
+      block by block, straight off my node.</p>
+  </div>
+
+  <div class="popcorn">
+    <div class="pc-emoji">&#127871;</div>
+    <div>
+      <b>Pull up a chair.</b> txlab.cash is a Bitcoin&nbsp;Cash lab &mdash; we settled the block-size question the direct way
+      back in 2017 and took the big-block road, so this particular fight isn&rsquo;t ours. But a soft fork trying to force
+      itself onto Bitcoin with <b>~2.5% support</b> via mandatory signaling is a genuinely rare thing to watch happen live.
+      So I pointed my node at it and built you a seat. No dog in the fight &mdash; just good popcorn, honest numbers.
+    </div>
+  </div>
+
+  <!-- LIVE STATUS -->
+  <div class="status">
+    <div class="phase-hd">
+      <span id="badge" class="badge pre">&hellip; loading</span>
+      <span class="upd">updated <span id="updated">&mdash;</span> &middot; source: mempool.space + own node</span>
+    </div>
+    <div class="grid3">
+      <div class="cell">
+        <div class="k">Current block</div>
+        <div class="v big" id="height">&mdash;</div>
+        <div class="sub" id="height-sub">fetching tip&hellip;</div>
+      </div>
+      <div class="cell">
+        <div class="k" id="cd-k">Mandatory signaling in</div>
+        <div class="v amb" id="countdown">&mdash;</div>
+        <div class="sub" id="countdown-sub">&mdash;</div>
+      </div>
+      <div class="cell">
+        <div class="k">Miner support this period</div>
+        <div class="v red" id="support">2.55%</div>
+        <div class="sub">needs 55% &middot; <span id="support-src">verified on my node</span></div>
+      </div>
+    </div>
+    <div style="padding:16px 22px 4px"><div class="pbar"><i id="pbar" style="width:0"></i></div></div>
+    <div class="phase-foot" id="phase-foot">&hellip;</div>
+  </div>
+
+  <!-- SIGNALING -->
+  <section id="signal">
+    <h3 class="sec red">The signaling gap</h3>
+    <div class="sec-title">55% needed. ~2.5% delivered.</div>
+    <p class="mut">A normal soft fork locks in when 1,109 of 2,016 blocks in a retarget period signal support (bit&nbsp;4).
+      BIP&#8209;110 has been signaling since December 2025 and never came close.</p>
+    <div class="gauge">
+      <div class="gwrap">
+        <div class="gfill" id="gfill" style="width:2.55%"></div>
+        <div class="gthr" style="left:55%"></div>
+        <div class="glabel" id="glabel">2.55%</div>
+      </div>
+      <div class="grow"><span>0%</span><span>current support vs. 55% threshold</span><span>100%</span></div>
+      <div class="ticks" id="ticks"></div>
+      <div class="ticks-cap" id="ticks-cap">last blocks on the main chain &middot; green = signaling bit&nbsp;4</div>
+    </div>
+  </section>
+
+  <!-- MILESTONES -->
+  <section id="timeline">
+    <h3 class="sec cy">The BIP-8 state machine</h3>
+    <div class="sec-title">Four retarget boundaries</div>
+    <p class="mut">Each stop is exactly one 2,016-block period apart. Dates are estimates at ~10 minutes per block and drift with hashrate.</p>
+    <div class="miles" id="miles"></div>
+  </section>
+
+  <!-- WHAT IT DOES -->
+  <section id="rules">
+    <h3 class="sec amb">If it activates</h3>
+    <div class="sec-title">What the rules actually change</div>
+    <p class="mut">For roughly one year (52,416 blocks) after activation, these limits would apply, then automatically lift.
+      The target is bulk data storage &mdash; inscriptions, large <code>OP_RETURN</code> payloads, and similar &mdash; not ordinary payments.</p>
+    <div class="limits">
+      <div class="row"><span class="lab">Non-<code>OP_RETURN</code> output size</span><span class="val">&le; 34 bytes</span></div>
+      <div class="row"><span class="lab"><code>OP_RETURN</code> output size</span><span class="val">&le; 83 bytes</span></div>
+      <div class="row"><span class="lab">Data pushes &amp; witness elements</span><span class="val">&le; 256 bytes</span></div>
+      <div class="row"><span class="lab">Taproot control blocks</span><span class="val">&le; 257 bytes</span></div>
+      <div class="row"><span class="lab">Allowed witness versions</span><span class="val">v0 + Taproot only</span></div>
+    </div>
+  </section>
+
+  <!-- THE MECHANISM / SPLIT RISK -->
+  <section id="risk">
+    <h3 class="sec red">Why this one is different</h3>
+    <div class="sec-title">Minority enforcement &amp; the split scenario</div>
+    <p>Most soft forks activate only once a super-majority of hashrate already agrees, so the network moves as one.
+      BIP&#8209;110 flips that: it uses <b>mandatory signaling</b> (a BIP&#8209;8 &ldquo;lockinontimeout&rdquo; deployment). During the
+      mandatory period, nodes running the patch <b>reject every block that fails to signal bit&nbsp;4</b> &mdash; whether or not
+      most miners agree.</p>
+    <p>With support near 2.5%, that produces a stark asymmetry. If miners keep producing non-signaling blocks, BIP&#8209;110
+      nodes reject the majority chain and follow whatever tiny sliver of hashrate <em>is</em> signaling &mdash; a chain that could
+      crawl at a fraction of normal speed. Everyone else continues on the majority chain. That divergence is the
+      <b>temporary chain-split risk</b> every exchange advisory is warning about.</p>
+    <div class="note">
+      <b>Verified on my node just now:</b> Bitcoin Core 28.1 doesn&rsquo;t recognize BIP&#8209;110 at all &mdash;
+      <code>getdeploymentinfo</code> lists only the six buried/BIP&#8209;9 forks and raises no warning about bit&nbsp;4.
+      Unpatched Core simply treats signaling blocks as ordinary. Enforcement lives entirely in patched (e.g. Ocean-aligned) nodes,
+      which is exactly why a minority can fork itself off.
+    </div>
+    <p class="mut">Outcomes people are watching for: (1) miners capitulate and signal to avoid orphaned blocks, so it activates almost
+      bloodlessly; (2) support stays negligible and BIP&#8209;110 nodes strand themselves on a minority chain until they abandon the
+      rule; or (3) a messy, temporary split with reorg risk around the boundary. Nobody knows which &mdash; that&rsquo;s why it&rsquo;s worth watching.</p>
+  </section>
+
+  <!-- THE DEBATE -->
+  <section id="debate">
+    <h3 class="sec">The argument</h3>
+    <div class="sec-title">Two readings of the same block</div>
+    <div class="cards2">
+      <div class="card pro">
+        <h4>For &mdash; keep Bitcoin lean</h4>
+        <ul>
+          <li>Treats bulk data storage (inscriptions, big <code>OP_RETURN</code>) as an abuse of blockspace meant for money.</li>
+          <li>Smaller, cheaper-to-run archives; less &ldquo;spam&rdquo; permanently welded to every node.</li>
+          <li>Explicitly temporary &mdash; one year, then the limits lift on their own.</li>
+          <li>Backed by Ocean and a slice of node runners who want the fee-market conversation forced now.</li>
+        </ul>
+      </div>
+      <div class="card con">
+        <h4>Against &mdash; censorship &amp; precedent</h4>
+        <ul>
+          <li>If a transaction pays its fee, filtering it is censorship &mdash; the mempool isn&rsquo;t a moral filter.</li>
+          <li>Activating with ~2.5% support via coercive signaling sets a dangerous precedent for minority rule.</li>
+          <li>Real chain-split and reorg risk for a change most of the network never asked for.</li>
+          <li>Prominent opponents (incl. Michael Saylor and much of the mining industry) call the process rushed.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- VERIFIED -->
+  <section id="verified">
+    <h3 class="sec">Ground truth</h3>
+    <div class="sec-title">Measured on my own node</div>
+    <div class="verify">
+      <div class="vh"><span class="vbadge">&#10003; OWN NODE &middot; BITCOIN CORE 28.1</span></div>
+      <p class="mut">The live gauge above pulls recent blocks from mempool.space so it keeps ticking for everyone. But the
+        authoritative period count below I took straight from my own fully-synced node &mdash; the same way every date on
+        <a href="/forks/">the Fork Tree</a> was verified.</p>
+      <div class="mono" id="node-snap">measuring&hellip;</div>
+    </div>
+  </section>
+
+  <footer>
+    <p>BIP&#8209;110 &ldquo;Temporarily Limit Arbitrary Data&rdquo; (a.k.a. Reduced-Data Temporary Soft Fork). Live block data:
+      <a href="https://mempool.space" target="_blank" rel="noopener">mempool.space</a>. Period signaling &amp; deployment
+      state verified on a local Bitcoin&nbsp;Core&nbsp;28.1 node. Estimates assume ~10&nbsp;min/block and will drift.</p>
+    <p class="mut" style="margin-top:10px">A Bitcoin&nbsp;Cash lab&rsquo;s tracker &mdash; openly BCH in vantage, scrupulously accurate about the numbers
+      (that&rsquo;s the whole point). Not advice, and not affiliated with the BIP&#8209;110 authors, Ocean, or any exchange. &#127871;</p>
+    <div class="srcs">
+      Sources &amp; reading:
+      <a href="https://bip110.org/" target="_blank" rel="noopener">bip110.org</a> &middot;
+      <a href="https://www.bitaroo.com.au/bip-110-in-august-what-might-happen-and-how-to-prepare/" target="_blank" rel="noopener">Bitaroo: what might happen</a> &middot;
+      <a href="/forks/">The Bitcoin Fork Tree</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+/* ============ BIP-110 constants (retarget boundaries, all confirmed on-node) ============ */
+const PERIOD=2016, BIT=4;
+const MANDATORY=961632;   // mandatory signaling period opens (477 * 2016)
+const LOCKIN  =963648;    // guaranteed LOCKED_IN by this boundary
+const ACTIVE  =965664;    // new rules enforced
+const EXPIRE  =ACTIVE+52416; // ~1 year later, limits auto-lift (1,018,080)
+const THRESH_PCT=55;
+/* verified-on-node snapshot (taken this session; the live figures update over it) */
+const SNAP={height:961614, sig:51, total:1999, pct:2.55, last144:2};
+
+const $=id=>document.getElementById(id);
+const fmt=n=>n.toLocaleString('en-US');
+const signals=v=>((v & 0xE0000000)>>>0)===0x20000000 && ((v>>BIT)&1)===1;
+
+function human(blocks){
+  const mins=blocks*10, d=Math.floor(mins/1440), h=Math.floor((mins%1440)/60);
+  if(blocks<=0) return 'now';
+  if(d>0) return d+'d '+h+'h';
+  const m=mins%60; return h+'h '+m+'m';
+}
+function estDate(fromHeight, targetHeight){
+  const ms=Date.now()+(targetHeight-fromHeight)*10*60*1000;
+  const d=new Date(ms), far=(targetHeight-fromHeight)>16000; // ~>4 months out → show year
+  return d.toLocaleDateString('en-US', far?{month:'short',year:'numeric'}:{month:'short',day:'numeric'});
+}
+
+/* static est dates for milestone list (computed from the live tip when available) */
+function renderMiles(h){
+  const stops=[
+    {cls:'m0',blk:MANDATORY,nm:'Mandatory signaling opens',ds:'Patched nodes begin rejecting any block that doesn’t signal bit 4. The split window starts here.'},
+    {cls:'m1',blk:LOCKIN,nm:'Lock-in guaranteed',ds:'Because non-signaling blocks were rejected all period, lock-in is assured on the BIP‑110 chain.'},
+    {cls:'m2',blk:ACTIVE,nm:'Rules enforced',ds:'The data limits become consensus on that chain — 34-byte outputs, 83-byte OP_RETURN, capped pushes.'},
+    {cls:'m3',blk:EXPIRE,nm:'Limits expire',ds:'~52,416 blocks (about a year) after activation, every restriction automatically lifts.'},
+  ];
+  const ref = h||SNAP.height;
+  $('miles').innerHTML=stops.map(s=>{
+    const done=ref>=s.blk;
+    const isNow = ref<s.blk && !stops.some(o=>o.blk>ref && o.blk<s.blk); // nearest upcoming
+    const rem=s.blk-ref;
+    return `<div class="mile ${s.cls} ${done?'done':''} ${isNow?'now':''}">
+      ${isNow?'<span class="tagnow">NEXT</span>':''}
+      <div><div class="blk">${fmt(s.blk)}</div>
+        <div class="when">${done?'reached':'~'+estDate(ref,s.blk)+' · '+human(rem)}</div></div>
+      <div><div class="nm">${s.nm}</div><div class="ds">${s.ds}</div></div>
+    </div>`;
+  }).join('');
+}
+
+function phaseFor(h){
+  if(h<MANDATORY) return {cls:'pre',label:'Final signaling period',foot:
+    `Normal lock-in needs 55% and can no longer be reached this period, so <b>mandatory signaling opens at ${fmt(MANDATORY)}</b> — the next retarget boundary.`,
+    next:MANDATORY, ck:'Mandatory signaling in', from:MANDATORY-PERIOD};
+  if(h<LOCKIN) return {cls:'mand',label:'⚠ Mandatory signaling LIVE',foot:
+    `Patched nodes are now <b>rejecting non-signaling blocks</b>. Watch the main-chain signaling below: if it stays low, BIP‑110 nodes are on a minority chain. Lock-in boundary at ${fmt(LOCKIN)}.`,
+    next:LOCKIN, ck:'Lock-in guaranteed in', from:MANDATORY};
+  if(h<ACTIVE) return {cls:'lock',label:'Locked in',foot:
+    `On the BIP‑110 chain the rules are now locked in and will <b>activate at ${fmt(ACTIVE)}</b>.`,
+    next:ACTIVE, ck:'Rules enforced in', from:LOCKIN};
+  if(h<EXPIRE) return {cls:'active',label:'Rules enforced',foot:
+    `The data limits are live on the BIP‑110 chain and <b>expire at ${fmt(EXPIRE)}</b> (~1 year).`,
+    next:EXPIRE, ck:'Limits expire in', from:ACTIVE};
+  return {cls:'exp',label:'Expired — limits lifted',foot:'The temporary restrictions have automatically lifted.',
+    next:null, ck:'', from:ACTIVE};
+}
+
+function paintHeight(h){
+  $('height').textContent=fmt(h);
+  $('height-sub').textContent = h<MANDATORY ? (fmt(MANDATORY-h)+' blocks to the boundary') : 'live tip';
+  const p=phaseFor(h);
+  const b=$('badge'); b.className='badge '+p.cls; b.innerHTML=p.label;
+  $('phase-foot').innerHTML=p.foot;
+  if(p.next){
+    const rem=p.next-h;
+    $('cd-k').textContent=p.ck;
+    $('countdown').textContent=fmt(rem)+' blk';
+    $('countdown-sub').textContent='~'+human(rem)+' · est. '+estDate(h,p.next);
+    const span=p.next-p.from, prog=Math.max(0,Math.min(100,100*(h-p.from)/span));
+    $('pbar').style.width=prog+'%';
+  }else{
+    $('cd-k').textContent='Status'; $('countdown').textContent='DONE'; $('countdown-sub').textContent='';
+    $('pbar').style.width='100%';
+  }
+  renderMiles(h);
+}
+
+function paintSupport(pct, srcText){
+  const shown=(Math.round(pct*100)/100).toFixed(2)+'%';
+  $('support').textContent=shown;
+  $('glabel').textContent=shown;
+  $('gfill').style.width=Math.max(0.6,pct)+'%';
+  if(srcText) $('support-src').textContent=srcText;
+}
+
+function paintTicks(blocks){
+  // blocks: array newest-first of {height,version,pool}
+  const arr=blocks.slice(0,40).reverse();
+  $('ticks').innerHTML=arr.map(b=>{
+    const s=signals(b.version);
+    return `<div class="tick ${s?'sig':''}" title="${fmt(b.height)}${b.pool?' · '+b.pool:''}${s?' · SIGNALING':''}"></div>`;
+  }).join('');
+  const sig=arr.filter(b=>signals(b.version)).length;
+  $('ticks-cap').textContent=`last ${arr.length} blocks on the main chain · ${sig} signaling bit 4 · green = signaling`;
+}
+
+/* ---- node snapshot text (verified, baked; refreshed with live period-to-date if possible) ---- */
+function paintNodeSnap(extra){
+  $('node-snap').innerHTML =
+`$ bitcoin-cli getblockcount
+<b>${fmt(SNAP.height)}</b>
+$ scan bit-4 across period ${fmt(MANDATORY-PERIOD)}–${fmt(MANDATORY-1)}
+signaling: <b>${SNAP.sig} / ${SNAP.total}</b> blocks = <b>${SNAP.pct}%</b>   (need 1,109 = 55%)
+last 144 blocks signaling: <b>${SNAP.last144}</b>  (${(100*SNAP.last144/144).toFixed(2)}%)
+$ bitcoin-cli getdeploymentinfo | grep bip110
+<b>(nothing — Core 28.1 does not know this rule exists)</b>${extra||''}`;
+}
+
+/* ============ live fetch ============ */
+async function fetchHeight(){
+  const r=await fetch('https://mempool.space/api/blocks/tip/height',{cache:'no-store'});
+  return parseInt(await r.text(),10);
+}
+async function fetchRecent(){
+  // one page = 15 newest blocks with version + pool; grab 3 pages for ~45
+  let out=[];
+  let r=await fetch('https://mempool.space/api/v1/blocks',{cache:'no-store'});
+  let page=await r.json();
+  out=out.concat(page);
+  for(let i=0;i<2 && page.length;i++){
+    const lo=page[page.length-1].height-1;
+    r=await fetch('https://mempool.space/api/v1/blocks/'+lo,{cache:'no-store'});
+    page=await r.json(); out=out.concat(page);
+  }
+  return out.map(b=>({height:b.height,version:b.version,pool:(b.extras&&b.extras.pool&&b.extras.pool.name)||''}));
+}
+
+async function tick(){
+  try{
+    const [h,recent]=await Promise.all([fetchHeight(),fetchRecent()]);
+    paintHeight(h);
+    paintTicks(recent);
+    const sig=recent.filter(b=>signals(b.version)).length;
+    const recentPct=100*sig/recent.length;
+    // Headline support: the authoritative period figure is the node snapshot; blend in live recent
+    // as the leading indicator. Before the boundary they agree (~2.5%); after, recent = compliance.
+    const h0=h||SNAP.height;
+    if(h0>=MANDATORY){
+      paintSupport(recentPct, 'main-chain, last '+recent.length+' blk');
+      $('cd-k')&&0;
+    }else{
+      paintSupport(SNAP.pct, 'verified on my node');
+    }
+    paintNodeSnap('\n\n// live: main chain last '+recent.length+' blk → '+sig+' signaling ('+recentPct.toFixed(1)+'%)');
+    $('updated').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  }catch(e){
+    // graceful: keep the verified snapshot on screen
+    if(!$('height').textContent||$('height').textContent==='—'){ paintHeight(SNAP.height); }
+    paintSupport(SNAP.pct,'verified on my node (live feed unavailable)');
+    paintNodeSnap('');
+    $('updated').textContent='snapshot';
+  }
+}
+
+/* first paint from the verified snapshot so nothing is blank, then go live */
+paintHeight(SNAP.height);
+paintSupport(SNAP.pct,'verified on my node');
+paintNodeSnap('');
+tick();
+setInterval(tick, 30000);
+</script>
+</body>
+</html>
