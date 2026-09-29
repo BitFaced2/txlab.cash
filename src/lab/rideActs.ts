@@ -8,6 +8,7 @@ import {
 } from "./rideCore";
 import { enterViaTube, exitViaTube } from "./rideCore";
 import type { ActDef, RideLayers } from "./rideCore";
+import { sfx } from "./sfx";
 
 const camFollow = (worldW: number) => (_t: number, heroX: number) =>
   clamp(heroX + 130, 700, worldW - 700);
@@ -103,7 +104,7 @@ export function buildAct1(stage: Container, T: TexKit, particles: Particles): Ac
     worldW: W,
     L,
     captions: [
-      [0.5, 5.5, "Every transaction is born in a wallet — outside the node. This one is yours."],
+      [0.5, 5.5, "Every transaction is born in a wallet — outside the node. This one is yours: that's what the purple halo means."],
       [5.8, 10.5, "Inputs: two of your unspent coins — UTXOs — poured in whole. Coins are never edited, only consumed."],
       [10.8, 14.8, "Outputs written: the payment, and your change. New coins, formed from the old."],
       [15, 18.8, "Signed and sealed — SIGHASH_FORKID makes it valid on Bitcoin Cash and nowhere else."],
@@ -157,7 +158,9 @@ export function buildAct1(stage: Container, T: TexKit, particles: Particles): Ac
           v.alpha = 0.35; // spent — consumed whole
         }
       }
+      if (crossed(prevT, t, 3.4)) sfx.pour();
       if (crossed(prevT, t, 6)) {
+        sfx.chime();
         for (let i = 0; i < 18; i++) {
           const a = rand(0, Math.PI * 2);
           particles.spawn({
@@ -167,12 +170,14 @@ export function buildAct1(stage: Container, T: TexKit, particles: Particles): Ac
           });
         }
       }
+      if (crossed(prevT, t, 8)) sfx.ding();
       tag1.alpha = clamp((t - 8) / 0.8, 0, 1);
       tag2.alpha = clamp((t - 8.8) / 0.8, 0, 1);
       // stamp drops at 15.2
       const sk = t < 15 ? 0 : t < 15.5 ? (t - 15) / 0.5 : t < 16.2 ? 1 : Math.max(0, 1 - (t - 16.2) / 0.6);
       stamp.y = 200 + sk * 240;
       if (crossed(prevT, t, 15.5)) {
+        sfx.stamp();
         for (let i = 0; i < 14; i++) {
           const a = rand(-Math.PI, 0);
           particles.spawn({
@@ -205,20 +210,33 @@ export function buildAct2(stage: Container, T: TexKit, particles: Particles): Ac
   const L = makeLayers(stage);
   roomShell(L, T, { w: W, skipWall: true, washTint: 0x0ac18e, washAlpha: 0.05, pillars: [] });
 
-  // night sky + far peers
+  // night sky + the gossip network: a row of peer nodes that light up as word spreads
+  const PEERS = [180, 380, 580, 780, 980, 1180];
+  const peerHs: number[] = [];
   const sky = new Graphics();
   sky.rect(-400, -40, W + 800, 790).fill(0x05080a);
-  for (let i = 0; i < 90; i++) sky.circle(rand(-380, W + 380), rand(-20, 600), rand(0.4, 1.5)).fill({ color: 0xdde5e0, alpha: rand(0.25, 0.7) });
-  for (const [bx, bh] of [[150, 90], [330, 130], [520, 70]] as const) {
-    sky.rect(bx, 700 - bh, 80, bh).fill(0x0d1410);
-    for (let wy = 700 - bh + 12; wy < 690; wy += 22) sky.rect(bx + 14, wy, 10, 6).fill({ color: C.bch500, alpha: 0.4 });
-    sky.circle(bx + 40, 700 - bh - 8, 2.5).fill({ color: C.danger, alpha: 0.8 });
-  }
-  const skyLbl = mono("other nodes — thousands of them", 10, C.fgDim, { weight: "400" });
-  skyLbl.position.set(180, 420);
-  sky.rect(0, 0, 0, 0);
+  for (let i = 0; i < 90; i++) sky.circle(rand(-380, W + 380), rand(-20, 560), rand(0.4, 1.5)).fill({ color: 0xdde5e0, alpha: rand(0.25, 0.7) });
+  PEERS.forEach((px, i) => {
+    const bh = 70 + ((i * 37) % 60);
+    peerHs.push(bh);
+    sky.rect(px - 34, 700 - bh, 68, bh).fill(0x0d1410);
+    for (let wy = 700 - bh + 10; wy < 688; wy += 18) sky.rect(px - 22, wy, 9, 5).fill({ color: C.bch500, alpha: 0.3 });
+    sky.circle(px, 700 - bh - 8, 2.5).fill({ color: C.danger, alpha: 0.8 });
+  });
   L.back.addChild(sky);
+  const skyLbl = mono("the network — thousands of nodes like these", 10, C.fgDim, { weight: "400" });
+  skyLbl.position.set(200, 420);
   L.back.addChild(skyLbl);
+  const peerLights: Sprite[] = PEERS.map((px, i) => {
+    const gl = new Sprite(T.glowGreen);
+    gl.anchor.set(0.5);
+    gl.position.set(px, 700 - peerHs[i] - 8);
+    gl.width = gl.height = 46;
+    gl.alpha = 0.15;
+    gl.blendMode = "add";
+    L.back.addChild(gl);
+    return gl;
+  });
 
   // THE BUILDING (main layer for crispness)
   const bld = new Container();
@@ -272,37 +290,60 @@ export function buildAct2(stage: Container, T: TexKit, particles: Particles): Ac
     worldW: W,
     L,
     captions: [
-      [0.5, 5.5, "Broadcast. Your transaction travels the peer-to-peer network — node to node, no middleman."],
-      [6, 11, "This is a Bitcoin Cash full node: it keeps the rules, the mempool, and the entire chain. Nobody owns the network."],
-      [11.5, 14.8, "Thousands of nodes just like it will see your transaction within about one second."],
-      [15.2, 19.2, "Incoming transaction. Let's follow it inside."],
+      [0.5, 5, "Broadcast. Your transaction leaves the wallet at the speed of gossip — no middleman, no permission."],
+      [5.5, 10.5, "Every node that hears it tells its peers. They tell theirs. Nobody is in charge, and it spreads anyway."],
+      [11, 14.4, "Within about a second, nearly every node on Earth has it. Including this one — a Bitcoin Cash full node."],
+      [14.8, 19.2, "Incoming transaction. Let's follow it inside."],
     ],
     heroAt(t) {
-      if (t < 13.5) return { x: Math.min(1420, 150 + t * 105), y: WALK_Y, moving: t < 12.5, visible: true };
-      if (t < 15) return { x: 1420, y: WALK_Y, moving: false, visible: true };
-      return { x: 1420 + (t - 15) * 220, y: WALK_Y, moving: false, visible: t < 15.6 };
+      // airborne the whole way — launched from the wallet, riding the broadcast
+      if (t < 8) return { x: 120 + t * 150, y: 314 + Math.sin(t * 1.4) * 10, moving: false, visible: true };
+      if (t < 12) {
+        const k = (t - 8) / 4;
+        const e = k * k * (3 - 2 * k);
+        return { x: 1320 + 180 * e, y: 314 + (WALK_Y - 314) * e, moving: false, visible: true };
+      }
+      if (t < 14.6) return { x: 1500, y: WALK_Y, moving: false, visible: true };
+      return { x: 1500 + (t - 14.6) * 120, y: WALK_Y, moving: false, visible: t < 15.4 };
     },
-    camX: (t, hx) => (t < 12 ? clamp(hx + 130, 700, W - 700) : Math.min(1660, clamp(hx + 130, 700, W - 700))),
+    camX: (t, hx) => clamp(hx + 160, 700, 1660),
     update(t, _dt) {
       antGlow.alpha = 0.5 + Math.sin(t * 3) * 0.4;
-      if (t > 14.6 && t < 15.9) {
-        capsule.visible = true;
-        const hp = act.heroAt(t);
-        capsule.position.set(hp.x, hp.y - 10);
-        capsule.alpha = t < 15.4 ? 1 : Math.max(0, 1 - (t - 15.4) / 0.4);
-        // speed streaks behind the capsule during the whoosh
-        if (t > 15) {
-          for (let i = 0; i < 2; i++) {
-            particles.spawn({
-              tex: T.dotWhite, tint: 0x9fd8f0,
-              x: hp.x - rand(20, 90), y: hp.y - 10 + rand(-24, 24),
-              vx: -rand(150, 260), vy: 0,
-              life: 0.35, r0: 0.5, r1: 0.1, a0: 0.8, a1: 0,
-            });
-          }
+      const hp = act.heroAt(t);
+
+      // the capsule rides the whole flight
+      capsule.visible = t < 15.2;
+      capsule.position.set(hp.x, hp.y - 10);
+      capsule.alpha = t < 14.6 ? 1 : Math.max(0, 1 - (t - 14.6) / 0.6);
+      if (t < 12 && Math.random() < 0.9) {
+        particles.spawn({
+          tex: T.dotWhite, tint: 0x9fd8f0,
+          x: hp.x - rand(30, 100), y: hp.y - 10 + rand(-22, 22),
+          vx: -rand(180, 300), vy: 0,
+          life: 0.3, r0: 0.5, r1: 0.1, a0: 0.7, a1: 0,
+        });
+      }
+      if (crossed(prevT, t, 0.3)) sfx.whoosh();
+
+      // gossip cascade: each peer flares as word reaches it, then relays an echo
+      PEERS.forEach((px, i) => {
+        const passT = (px - 120) / 150;
+        peerLights[i].alpha = Math.max(0.15, peerLights[i].alpha - _dt * 0.6);
+        if (crossed(prevT, t, passT)) {
+          peerLights[i].alpha = 0.9;
+          particles.spawn({ tex: T.ringGreen, x: px, y: 700 - peerHs[i] - 8, life: 0.9, r0: 0.15, r1: 1.6, a0: 0.7, a1: 0 });
+          sfx.ping(i);
         }
-      } else capsule.visible = false;
-      if (crossed(prevT, t, 15.7)) {
+        if (crossed(prevT, t, passT + 0.9)) {
+          peerLights[i].alpha = 0.7;
+          particles.spawn({ tex: T.ringGreen, x: px, y: 700 - peerHs[i] - 8, life: 1.1, r0: 0.3, r1: 2.2, a0: 0.5, a1: 0 });
+        }
+      });
+
+      // dock at the intake
+      if (crossed(prevT, t, 14.7)) sfx.suction();
+      if (crossed(prevT, t, 15.3)) {
+        sfx.thunk();
         for (let i = 0; i < 16; i++) {
           particles.spawn({
             tex: T.dotWhite, tint: C.bch400, x: 1500, y: WALK_Y - 10,
@@ -311,8 +352,8 @@ export function buildAct2(stage: Container, T: TexKit, particles: Particles): Ac
           });
         }
       }
-      // periodic antenna broadcast rings
-      if (Math.floor(t * 0.5) !== Math.floor(prevT * 0.5) && t > 1) {
+      // our antenna answers with its own broadcast
+      if (Math.floor(t * 0.5) !== Math.floor(prevT * 0.5) && t > 15) {
         particles.spawn({ tex: T.ringGreen, x: 2200, y: -64, life: 1.2, r0: 0.2, r1: 2.2, a0: 0.6, a1: 0 });
       }
       prevT = t;
@@ -325,25 +366,103 @@ export function buildAct2(stage: Container, T: TexKit, particles: Particles): Ac
   return act;
 }
 
-/* ═══════════ ACT 3 — VALIDATION HALL ═══════════ */
+/* ═══════════ ACT 3 — THE VALIDATION GAUNTLET ═══════════ */
 export function buildAct3(stage: Container, T: TexKit, particles: Particles, lightsRef: { toLocal: (p: any) => any }): ActDef {
-  const W = 2800;
-  const SCAN_X = 1400;
+  const W = 3600;
+  const SCAN_X = 1750;
   const L = makeLayers(stage);
   const { beltDashes } = roomShell(L, T, {
     w: W, conveyor: true,
-    fixtures: [400, 1000, 1600, 2200], fixTint: 0xcfeaff,
-    washTint: 0x9fd8f0, washAlpha: 0.1, pillars: [350, 950, 2550],
+    fixtures: [500, 1200, 1900, 2600, 3200], fixTint: 0xcfeaff,
+    washTint: 0x9fd8f0, washAlpha: 0.1, pillars: [1480, 2200],
   });
 
   const ghost = mono("03", 200, 0x8fd8ff, { weight: "700", alpha: 0.06 });
-  ghost.position.set(120, 90);
+  ghost.position.set(140, 90);
   L.back.addChild(ghost);
-  signage(L, T, 1050, 120, "VALIDATION HALL", "EVERY NODE CHECKS EVERY TRANSACTION — TRUST NOBODY, VERIFY EVERYTHING", 0x8fd8ff);
-  roundel(L, T, 2280, 220, 1, true);
+  signage(L, T, 1250, 120, "THE VALIDATION GAUNTLET", "FIVE CHECKS — EVERY NODE RUNS ALL OF THEM, FOR EVERY TX", 0x8fd8ff, 34);
+  roundel(L, T, 3120, 220, 1, true);
+  tubeAt(L, 120);
+  tubeDownAt(L, 3400);
 
+  const tickBurst = (x: number, y: number) => {
+    for (let i = 0; i < 8; i++) {
+      particles.spawn({
+        tex: T.dotWhite, tint: C.bch400, x: x + rand(-14, 14), y,
+        vx: rand(-30, 30), vy: rand(-60, -20),
+        life: 0.5, r0: 0.28, r1: 0.05, a0: 1, a1: 0,
+      });
+    }
+  };
+
+  /* ── Station 1: FORM CHECK (calipers) at 600 ── */
+  const fg2 = new Graphics();
+  fg2.roundRect(470, 300, 260, 26, 6).fill(0x2c3a32);
+  fg2.roundRect(470, 300, 260, 8, 6).fill(0x4a5850);
+  L.main.addChild(fg2);
+  const armL = new Graphics();
+  armL.roundRect(-7, 0, 14, 330, 6).fill(0x39463e);
+  armL.roundRect(-7, 300, 14, 30, 6).fill(0x8fd8ff);
+  armL.position.set(505, 326);
+  const armR = new Graphics();
+  armR.roundRect(-7, 0, 14, 330, 6).fill(0x39463e);
+  armR.roundRect(-7, 300, 14, 30, 6).fill(0x8fd8ff);
+  armR.position.set(695, 326);
+  L.main.addChild(armL, armR);
+  const formLbl = mono("1 · FORM CHECK", 12, 0x8fd8ff, { anchor: 0.5, ls: 2 });
+  formLbl.position.set(600, 280);
+  L.main.addChild(formLbl);
+  const formStatus = mono("…", 13, C.fgDim, { anchor: 0.5 });
+  formStatus.position.set(600, 370);
+  L.main.addChild(formStatus);
+
+  /* ── Station 2: UTXO LOOKUP (card catalog) at 1150 ── */
+  const cab = new Graphics();
+  cab.roundRect(1050, 360, 200, 330, 6).fill(0x222d26);
+  cab.roundRect(1050, 360, 200, 14, 6).fill(0x39463e);
+  for (let r = 0; r < 5; r++) for (let c2 = 0; c2 < 3; c2++) {
+    cab.roundRect(1062 + c2 * 62, 384 + r * 58, 54, 46, 3).fill(0x141b17);
+    cab.roundRect(1080 + c2 * 62, 402 + r * 58, 18, 5, 2).fill(0x39463e);
+  }
+  L.main.addChild(cab);
+  const drawer = new Graphics();
+  drawer.roundRect(0, 0, 54, 46, 3).fill(0x1c2620);
+  drawer.roundRect(0, 0, 54, 8, 3).fill(0x39463e);
+  drawer.position.set(1124, 442);
+  L.main.addChild(drawer);
+  const card = new Graphics();
+  card.roundRect(-10, -14, 20, 28, 3).fill({ color: C.bch400, alpha: 0.9 });
+  card.position.set(1151, 465);
+  card.visible = false;
+  L.main.addChild(card);
+  const utxoLbl = mono("2 · UTXO LOOKUP — EVERY SPENDABLE COIN", 12, 0x8fd8ff, { anchor: 0.5, ls: 1.5 });
+  utxoLbl.position.set(1150, 336);
+  L.main.addChild(utxoLbl);
+  const utxoStatus = mono("…", 13, C.fgDim, { anchor: 0.5 });
+  utxoStatus.position.set(1345, 480);
+  L.main.addChild(utxoStatus);
+
+  /* ── Station 4: FEE WEIGH-IN at 2300 ── */
+  const scale = new Graphics();
+  scale.roundRect(2230, 688, 140, 10, 4).fill(0x39463e);
+  scale.roundRect(2288, 634, 24, 56, 4).fill(0x2c3a32);
+  scale.circle(2300, 596, 34).fill(0x141b17);
+  scale.circle(2300, 596, 34).stroke({ width: 3, color: 0x39463e });
+  L.main.addChild(scale);
+  const needle = new Graphics();
+  needle.moveTo(0, 0).lineTo(0, -26).stroke({ width: 3, color: C.warn, cap: "round" });
+  needle.position.set(2300, 596);
+  L.main.addChild(needle);
+  const weighLbl = mono("4 · FEE WEIGH-IN", 12, 0x8fd8ff, { anchor: 0.5, ls: 2 });
+  weighLbl.position.set(2300, 544);
+  L.main.addChild(weighLbl);
+  const weighStatus = mono("…", 13, C.fgDim, { anchor: 0.5 });
+  weighStatus.position.set(2460, 596);
+  L.main.addChild(weighStatus);
+
+  /* ── Station 5: SEEN LEDGER + stamp desk at 2750 ── */
   const ledger = new Container();
-  ledger.position.set(1900, 420);
+  ledger.position.set(2750, 420);
   const lg = new Graphics();
   lg.roundRect(-130, -70, 260, 140, 6).fill(0x1a2620);
   lg.roundRect(-130, -70, 260, 140, 6).stroke({ width: 3, color: 0x39463e });
@@ -352,23 +471,33 @@ export function buildAct3(stage: Container, T: TexKit, particles: Particles, lig
       .stroke({ width: 2.5, color: r === 0 ? C.bch500 : C.fgDim, alpha: 0.7 });
   }
   ledger.addChild(lg);
-  const ledLbl = mono("SEEN LEDGER — FIRST SPEND WINS", 11, C.fgMute, { anchor: 0.5, ls: 1.5, weight: "400" });
-  ledLbl.position.set(0, 90);
+  const ledLbl = mono("5 · SEEN LEDGER — FIRST SPEND WINS", 12, 0x8fd8ff, { anchor: 0.5, ls: 1.5 });
+  ledLbl.position.set(0, -92);
   ledger.addChild(ledLbl);
   L.back.addChild(ledger);
+  const ledStatus = mono("…", 13, C.fgDim, { anchor: 0.5 });
+  ledStatus.position.set(2750, 530);
+  L.back.addChild(ledStatus);
+  const stampArm = new Container();
+  const sg3 = new Graphics();
+  sg3.rect(-8, -50, 16, 58).fill(0x39463e);
+  sg3.roundRect(-26, 8, 52, 20, 4).fill(0x2c3a32);
+  sg3.roundRect(-26, 8, 52, 20, 4).stroke({ width: 2, color: C.bch700 });
+  stampArm.addChild(sg3);
+  stampArm.position.set(2750, 430);
+  L.main.addChild(stampArm);
+  const ledgerDesk = new Graphics();
+  ledgerDesk.roundRect(2690, 640, 120, 14, 4).fill(0x2c3a32);
+  ledgerDesk.roundRect(2700, 654, 12, 46, 3).fill(0x222d26);
+  ledgerDesk.roundRect(2788, 654, 12, 46, 3).fill(0x222d26);
+  L.main.addChild(ledgerDesk);
+  // back lane + barrier for the double-spend cameo
   const backLane = new Graphics();
-  backLane.rect(1500, 560, 1100, 10).fill(0x1a241e);
-  backLane.rect(1500, 560, 1100, 3).fill(0x2e3a33);
+  backLane.rect(2450, 560, 1000, 10).fill(0x1a241e);
+  backLane.rect(2450, 560, 1000, 3).fill(0x2e3a33);
+  backLane.rect(2866, 505, 10, 62).fill(0x39463e);
+  backLane.rect(2866, 505, 10, 8).fill(C.danger);
   L.back.addChild(backLane);
-
-  tubeAt(L, 120);
-  tubeDownAt(L, 2680);
-
-  const rack = new Graphics();
-  rack.roundRect(560, 420, 130, 272, 6).fill(0x222d26);
-  rack.roundRect(560, 420, 130, 14, 6).fill(0x39463e);
-  for (let ry = 448; ry < 668; ry += 34) rack.roundRect(574, ry, 102, 24, 3).fill(0x121a15);
-  L.main.addChild(rack);
 
   const arch = new Graphics();
   arch.roundRect(SCAN_X - 130, 330, 44, 372, 8).fill(0x2c3a32);
@@ -381,7 +510,7 @@ export function buildAct3(stage: Container, T: TexKit, particles: Particles, lig
   arch.roundRect(SCAN_X - 98, 344, 12, 350, 6).fill({ color: 0x8fd8ff, alpha: 0.3 });
   arch.roundRect(SCAN_X + 98, 344, 12, 350, 6).fill({ color: 0x8fd8ff, alpha: 0.3 });
   L.main.addChild(arch);
-  const archLbl = mono("SCRIPT SCANNER", 13, 0x8fd8ff, { anchor: 0.5, ls: 2 });
+  const archLbl = mono("3 · SCRIPT SCANNER", 13, 0x8fd8ff, { anchor: 0.5, ls: 2 });
   archLbl.position.set(SCAN_X, 282);
   L.main.addChild(archLbl);
   const beam = new Graphics();
@@ -392,7 +521,7 @@ export function buildAct3(stage: Container, T: TexKit, particles: Particles, lig
 
   const OPS = ["OP_DUP", "OP_HASH160", "<pubKeyHash>", "OP_EQUALVERIFY", "OP_CHECKSIG", "SIGHASH_FORKID"];
   const stackPanel = new Container();
-  stackPanel.position.set(1580, 380);
+  stackPanel.position.set(1930, 380);
   const spg = new Graphics();
   spg.roundRect(0, 0, 250, 276, 8).fill(0x101813);
   spg.roundRect(0, 0, 250, 276, 8).stroke({ width: 3, color: 0x39463e });
@@ -414,7 +543,7 @@ export function buildAct3(stage: Container, T: TexKit, particles: Particles, lig
   L.main.addChild(stackPanel);
 
   const bot = new Container();
-  bot.position.set(1240, 640);
+  bot.position.set(1590, 640);
   const bg2 = new Graphics();
   bg2.ellipse(0, 52, 40, 9).fill({ color: 0x000000, alpha: 0.35 });
   bg2.roundRect(-30, -36, 60, 66, 20).fill(0x39463e);
@@ -442,72 +571,110 @@ export function buildAct3(stage: Container, T: TexKit, particles: Particles, lig
   cloneGlow.alpha = 0.5;
   cloneGlow.blendMode = "add";
   clone.addChildAt(cloneGlow, 0);
-  clone.position.set(2650, 545);
+  clone.position.set(3350, 545);
   clone.visible = false;
   L.back.addChild(clone);
 
   let prevT = -1;
   const act: ActDef = {
-    title: "VALIDATION HALL",
-    dur: 29.6,
+    title: "THE VALIDATION GAUNTLET",
+    dur: 42.4,
     worldW: W,
     L,
     captions: [
-      [0.5, 6.5, "Inside the node. This hall has one job: prove your transaction — without trusting anyone."],
-      [7, 12.5, "Locking script meets unlocking script. Every full node runs this check itself, for every transaction on earth."],
-      [13, 19.5, "Op by op, the stack machine verifies your signature — sealed with SIGHASH_FORKID, valid only on Bitcoin Cash."],
-      [20, 25, "A double-spend just tried the back lane. First-seen wins — rejected, and a DSProof warns the whole network in seconds."],
-      [25.5, 28.6, "VALID. Your transaction is real. Next stop: the mempool."],
+      [0.5, 4.0, "Inside the node. Five checks stand between your transaction and the mempool — no exceptions, not even for you."],
+      [4.3, 8.9, "Check one: well-formed. Right size, right structure, nothing missing."],
+      [9.5, 15.5, "Check two: do your input coins exist? The node looks them up in its own UTXO set — its ledger of every spendable coin."],
+      [16.5, 24.6, "Check three: the big one. Locking script meets unlocking script — op by op, your signature is proven. SIGHASH_FORKID: Bitcoin Cash only."],
+      [27.8, 31.6, "Check four: the fee. About one satoshi per byte — pocket change that keeps spam expensive."],
+      [32.6, 37.4, "Check five: first-seen. Spent before? That red one was. Rejected — and a DSProof warns the whole network in seconds."],
+      [38.2, 41.8, "Five for five. Welcome to the mempool."],
     ],
     heroAt(t) {
       const enter = enterViaTube(t, 120);
       if (enter) return enter;
-      if (t < 10.5) return { x: Math.min(SCAN_X - 10, 120 + (t - 1.3) * 138), y: WALK_Y, moving: true, visible: true };
-      if (t < 19.5) return { x: SCAN_X - 10, y: WALK_Y, moving: false, visible: true };
-      return exitViaTube(t, 19.5, SCAN_X - 10, 2680, 150, 1);
+      const seg = (t0: number, t1: number, x0: number, x1: number) =>
+        ({ x: x0 + (x1 - x0) * ((t - t0) / (t1 - t0)), y: WALK_Y, moving: true, visible: true });
+      const hold = (x: number) => ({ x, y: WALK_Y, moving: false, visible: true });
+      if (t < 4.12) return seg(1.3, 4.12, 120, 600);
+      if (t < 6.12) return hold(600);
+      if (t < 9.36) return seg(6.12, 9.36, 600, 1150);
+      if (t < 12.86) return hold(1150);
+      if (t < 16.33) return seg(12.86, 16.33, 1150, 1740);
+      if (t < 25.0) return hold(1740);
+      if (t < 28.29) return seg(25.0, 28.29, 1740, 2300);
+      if (t < 30.49) return hold(2300);
+      if (t < 33.14) return seg(30.49, 33.14, 2300, 2750);
+      if (t < 37.1) return hold(2750);
+      return exitViaTube(t, 37.1, 2750, 3400, 170, 1);
     },
     camX: camFollow(W),
     update(t, dt) {
       const hp = act.heroAt(t);
-      const moving = hp.moving;
       beltDashes.clear();
-      if (moving) {
+      if (hp.moving) {
         const off = (t * 90) % 45;
         for (let px = -400 + off; px < W + 400; px += 45) beltDashes.moveTo(px, FLOOR_Y + 2).lineTo(px + 18, FLOOR_Y + 2);
         beltDashes.stroke({ width: 4, color: C.bch500, alpha: 0.35 });
       }
-      const scanning = t >= 10.5 && t < 19.5;
+
+      /* 1 — FORM: calipers close, measure, release */
+      const closeK = t < 4.3 ? 0 : t < 4.9 ? (t - 4.3) / 0.6 : t < 5.7 ? 1 : Math.max(0, 1 - (t - 5.7) / 0.4);
+      armL.x = 505 + 47 * closeK;
+      armR.x = 695 - 47 * closeK;
+      formStatus.text = t > 5.3 ? "219 B ✓" : "measuring…";
+      formStatus.style.fill = t > 5.3 ? C.bch400 : C.fgDim;
+      if (crossed(prevT, t, 4.35)) sfx.beep(2);
+      if (crossed(prevT, t, 5.3)) { sfx.ding(); tickBurst(600, 540); }
+
+      /* 2 — UTXO LOOKUP: drawer out, card up, found */
+      drawer.x = 1124 + (t < 9.6 ? 0 : t < 10.1 ? ((t - 9.6) / 0.5) * 26 : t < 12.2 ? 26 : Math.max(0, 26 - ((t - 12.2) / 0.4) * 26));
+      if (t > 10.3 && t < 12.4) {
+        card.visible = true;
+        const k = clamp((t - 10.3) / 1.0, 0, 1);
+        card.y = 465 - k * 150;
+        card.alpha = t < 12.0 ? 1 : Math.max(0, 1 - (t - 12.0) / 0.4);
+      } else card.visible = false;
+      utxoStatus.text = t > 11.9 ? "INPUTS FOUND ✓" : t > 9.4 ? "searching…" : "…";
+      utxoStatus.style.fill = t > 11.9 ? C.bch400 : C.fgDim;
+      if (crossed(prevT, t, 9.6)) sfx.beep(0);
+      if (crossed(prevT, t, 11.9)) { sfx.ding(); tickBurst(1150, 500); }
+
+      /* 3 — SCRIPT SCANNER */
+      const scanning = t >= 16.4 && t < 24.4;
       beam.visible = scanning;
       if (scanning) {
         beam.x = SCAN_X + Math.sin(t * 3.2) * 88;
         beam.alpha = 0.5 + Math.sin(t * 10) * 0.3;
       }
-      const lit = scanning || t >= 19.5 ? clamp(Math.floor((t - 11) / 1.15), 0, OPS.length) : 0;
+      const lit = t >= 16.6 ? clamp(Math.floor((t - 16.6) / 1.1), 0, OPS.length) : 0;
       opTexts.forEach((o, i) => {
         const on = i < lit;
         o.alpha = on ? 1 : 0.35;
         o.style.fill = on ? C.bch400 : C.fgMute;
       });
       for (let i = 0; i < OPS.length; i++) {
-        if (crossed(prevT, t, 11 + (i + 1) * 1.15)) {
+        if (crossed(prevT, t, 16.6 + (i + 1) * 1.1)) {
+          sfx.beep(i);
           for (let k = 0; k < 5; k++) {
             particles.spawn({
               tex: T.dotWhite, tint: C.bch400,
-              x: 1610 + rand(0, 140), y: 380 + 56 + i * 31,
+              x: 1960 + rand(0, 140), y: 380 + 56 + i * 31,
               vx: rand(-20, 20), vy: rand(-40, -10),
               life: 0.5, r0: 0.25, r1: 0.05, a0: 1, a1: 0,
             });
           }
         }
       }
-      if (t >= 18.2) {
+      if (t >= 23.6) {
         verdict.text = "VALID ✓";
         verdict.style.fill = C.bch400;
       } else {
         verdict.text = "…";
         verdict.style.fill = C.fgDim;
       }
-      if (crossed(prevT, t, 18.2)) {
+      if (crossed(prevT, t, 23.6)) {
+        sfx.chime();
         for (let i = 0; i < 24; i++) {
           const a = rand(0, Math.PI * 2);
           const sp = rand(60, 220);
@@ -518,20 +685,36 @@ export function buildAct3(stage: Container, T: TexKit, particles: Particles, lig
           });
         }
       }
-      // clone cameo
-      if (t >= 19.5 && t < 25.5) {
+
+      /* 4 — FEE WEIGH-IN: needle swings, settles */
+      const wk = t < 28.3 ? 0 : t < 29.3 ? (t - 28.3) / 1.0 : 1;
+      needle.rotation = wk * 0.95 + (t > 28.3 && t < 29.6 ? Math.sin(t * 14) * 0.12 * (1 - wk) : 0);
+      weighStatus.text = t > 29.7 ? "219 sats ✓ · ≥1 sat/vB" : t > 28.2 ? "weighing…" : "…";
+      weighStatus.style.fill = t > 29.7 ? C.bch400 : C.fgDim;
+      if (crossed(prevT, t, 28.35)) sfx.spring();
+      if (crossed(prevT, t, 29.7)) { sfx.ding(); tickBurst(2300, 560); }
+
+      /* 5 — SEEN LEDGER: stamp + double-spend bounces at the barrier */
+      stampArm.y = t < 33.4 ? 430 : t < 33.7 ? 430 + ((t - 33.4) / 0.3) * 170 : t < 34.3 ? 600 : Math.max(430, 600 - ((t - 34.3) / 0.5) * 170);
+      ledStatus.text = t > 34.0 ? "FIRST SEEN ✓" : t > 33.0 ? "checking…" : "…";
+      ledStatus.style.fill = t > 34.0 ? C.bch400 : C.fgDim;
+      if (crossed(prevT, t, 33.65)) sfx.stamp();
+      if (crossed(prevT, t, 34.0)) tickBurst(2750, 560);
+      const bounceT = 33.0 + (3350 - 2880) / 290;
+      if (t >= 33.0 && t < 37.2) {
         clone.visible = true;
-        const cx = Math.max(2030, 2650 - (t - 19.5) * 260);
-        if (cx > 2030) {
+        const cx = Math.max(2880, 3350 - (t - 33.0) * 290);
+        if (cx > 2880) {
           clone.x = cx;
           clone.alpha = 1;
           clone.scale.set(1);
         } else {
-          clone.x = 2030;
-          const k = clamp((t - 19.5 - (2650 - 2030) / 260) / 0.5, 0, 1);
+          clone.x = 2880;
+          const k = clamp((t - bounceT) / 0.5, 0, 1);
           clone.alpha = 1 - k;
           clone.scale.set(1 + k * 0.6);
-          if (crossed(prevT, t, 19.5 + (2650 - 2030) / 260)) {
+          if (crossed(prevT, t, bounceT)) {
+            sfx.buzz();
             const lp = lightsRef.toLocal(clone.getGlobalPosition());
             for (let i = 0; i < 16; i++) {
               const a = rand(0, Math.PI * 2);
@@ -542,18 +725,30 @@ export function buildAct3(stage: Container, T: TexKit, particles: Particles, lig
               });
             }
             particles.spawn({ tex: T.ringRed, x: lp.x, y: lp.y, life: 0.7, r0: 0.4, r1: 1.6, a0: 0.9, a1: 0 });
+            particles.spawn({ tex: T.ringRed, x: lightsRef.toLocal(ledger.getGlobalPosition()).x, y: 420, life: 0.9, r0: 0.3, r1: 1.8, a0: 0.7, a1: 0 });
           }
         }
       } else clone.visible = false;
-      botPupil.x = scanning ? Math.sin(t * 3.2) * 6 : (hp.x - 1240) * 0.004;
+
+      botPupil.x = scanning ? Math.sin(t * 3.2) * 6 : (hp.x - 1590) * 0.004;
       void dt;
       prevT = t;
     },
     reset() {
       prevT = -1;
+      armL.x = 505;
+      armR.x = 695;
+      formStatus.text = "…";
+      drawer.x = 1124;
+      card.visible = false;
+      utxoStatus.text = "…";
+      needle.rotation = 0;
+      weighStatus.text = "…";
+      stampArm.y = 430;
+      ledStatus.text = "…";
       clone.visible = false;
       clone.alpha = 1;
-      clone.position.set(2650, 545);
+      clone.position.set(3350, 545);
       verdict.text = "…";
     },
   };
@@ -682,9 +877,9 @@ export function buildAct4(stage: Container, T: TexKit, particles: Particles): Ac
 
   // fellow residents, already in the pool
   const bgs = [
-    new BgFlask(T, 1150, 652, C.bch400, 0xe8b547),
+    new BgFlask(T, 1150, 652, C.bch400),
     new BgFlask(T, 1320, 652, C.bch400),
-    new BgFlask(T, 1480, 652, C.bch400, C.neon400),
+    new BgFlask(T, 1480, 652, C.bch400),
   ];
   bgs.forEach((b) => L.main.addChild(b.c));
   // one of them brought sunglasses
@@ -809,6 +1004,7 @@ export function buildAct4(stage: Container, T: TexKit, particles: Particles): Ac
 
       // cannonball splash
       if (crossed(prevT, t, 6.05)) {
+        sfx.splash();
         for (let i = 0; i < 22; i++) {
           const a = rand(-Math.PI * 0.95, -Math.PI * 0.05);
           particles.spawn({
@@ -822,6 +1018,9 @@ export function buildAct4(stage: Container, T: TexKit, particles: Particles): Ac
 
       // klaxon at 20.6
       if (t > 20.6) klaxon.alpha = Math.max(0, Math.sin((t - 20.6) * 9) * 0.35) * Math.max(0, 1 - (t - 20.6) / 3.5);
+      if (crossed(prevT, t, 20.6)) sfx.klaxon();
+      if (crossed(prevT, t, 21.3)) sfx.gurgle();
+      if (crossed(prevT, t, 22.3)) sfx.gurgle();
       if (crossed(prevT, t, 20.6)) {
         for (let i = 0; i < 16; i++) {
           particles.spawn({
@@ -893,7 +1092,7 @@ export function buildAct5(stage: Container, T: TexKit, particles: Particles): Ac
   const SORTED_SLOTS = [900, 1010, 1120, 1230]; // final CTOR positions
   const bgs = [
     new BgFlask(T, 1000, WALK_Y + 6, C.bch400, undefined, `7a41…`),
-    new BgFlask(T, 870, WALK_Y + 6, C.bch400, 0xe8b547, `1f09…`),
+    new BgFlask(T, 870, WALK_Y + 6, C.bch400, undefined, `1f09…`),
     new BgFlask(T, 1280, WALK_Y + 6, C.bch400, undefined, `c3d2…`),
   ];
   bgs.forEach((b) => L.main.addChild(b.c));
@@ -952,6 +1151,10 @@ export function buildAct5(stage: Container, T: TexKit, particles: Particles): Ac
     update(t, dt) {
       // crystal slides in after the rain-in beat
       crystal.x = t < 2.5 ? 2600 : t < 5.2 ? 2600 - ((t - 2.5) / 2.7) * 700 : 1900;
+      if (crossed(prevT, t, 5.2)) sfx.crystal();
+      for (let i = 0; i < 3; i++) {
+        if (crossed(prevT, t, 0.7 + i * 0.25 + 0.6)) sfx.thunk();
+      }
       const verifying = t >= 5.2 && t < 7;
       gantryBeam.visible = verifying;
       if (verifying) {
@@ -960,6 +1163,7 @@ export function buildAct5(stage: Container, T: TexKit, particles: Particles): Ac
       }
       blockValid.alpha = t >= 7 && t < 9.5 ? clamp((t - 7) * 3, 0, 1) * clamp((9.5 - t), 0, 1) : 0;
       if (crossed(prevT, t, 7)) {
+        sfx.chime();
         for (let i = 0; i < 18; i++) {
           const a = rand(0, Math.PI * 2);
           particles.spawn({
@@ -1008,6 +1212,7 @@ export function buildAct5(stage: Container, T: TexKit, particles: Particles): Ac
       });
       for (const [mark] of [[18.5], [19.7], [20.9], [22.1]] as const) {
         if (crossed(prevT, t, mark)) {
+          sfx.ding();
           for (let i = 0; i < 10; i++) {
             const a = rand(0, Math.PI * 2);
             particles.spawn({
@@ -1076,21 +1281,6 @@ export function buildAct6(stage: Container, T: TexKit, particles: Particles): Ac
   confLbl.alpha = 0;
   L.main.addChild(confLbl);
 
-  // vial return pod
-  const pod = new Container();
-  const pg = new Graphics();
-  pg.roundRect(-26, -40, 52, 80, 22).fill({ color: 0x27352d, alpha: 0.9 });
-  pg.roundRect(-26, -40, 52, 80, 22).stroke({ width: 3, color: 0x4a5850 });
-  pg.roundRect(-14, -20, 12, 26, 4).fill({ color: C.bch400, alpha: 0.9 });
-  pg.roundRect(2, -20, 12, 26, 4).fill({ color: C.fgMid, alpha: 0.9 });
-  pod.addChild(pg);
-  const podLbl = mono("new UTXOs → future spends", 10, C.fgMute, { anchor: 0.5, weight: "400" });
-  podLbl.position.set(0, 62);
-  pod.addChild(podLbl);
-  pod.position.set(1750, 900);
-  pod.visible = false;
-  L.main.addChild(pod);
-
   let prevT = -1;
   const act: ActDef = {
     title: "THE ARCHIVE",
@@ -1111,6 +1301,7 @@ export function buildAct6(stage: Container, T: TexKit, particles: Particles): Ac
     update(t, _dt) {
       // our crystal slides onto the shelf
       ours.x = t < 3 ? 2300 - (t / 3) * 900 : 1400;
+      if (crossed(prevT, t, 3)) sfx.crystal();
       // confirmations tick as new blocks physically arrive behind ours
       confLbl.alpha = clamp((t - 3.2) / 0.6, 0, 1);
       const confs = t < 7 ? 1 : t < 11 ? 2 : 3;
@@ -1126,6 +1317,7 @@ export function buildAct6(stage: Container, T: TexKit, particles: Particles): Ac
       slideIn(11, 1990, later2);
       for (const mark of [7, 11]) {
         if (crossed(prevT, t, mark)) {
+          sfx.ding();
           particles.spawn({ tex: T.ringGreen, x: 1400, y: 330, life: 0.8, r0: 0.3, r1: 1.4, a0: 0.8, a1: 0 });
           for (let i = 0; i < 10; i++) {
             particles.spawn({
@@ -1141,12 +1333,6 @@ export function buildAct6(stage: Container, T: TexKit, particles: Particles): Ac
           particles.spawn({ tex: T.ringGreen, x: gx, y: gy, life: 0.7, r0: 0.4, r1: 1.5, a0: 0.7, a1: 0 });
         }
       }
-      // vial pod rises during the UTXO caption
-      if (t > 11.5 && t < 17.5) {
-        pod.visible = true;
-        pod.y = 900 - clamp((t - 11.5) / 2, 0, 1) * 420;
-        pod.alpha = t < 16 ? 1 : Math.max(0, 1 - (t - 16) / 1.2);
-      } else pod.visible = false;
       prevT = t;
     },
     reset() {
@@ -1155,7 +1341,6 @@ export function buildAct6(stage: Container, T: TexKit, particles: Particles): Ac
       later1.x = 2350;
       later2.x = 2350;
       confLbl.alpha = 0;
-      pod.visible = false;
     },
   };
   return act;

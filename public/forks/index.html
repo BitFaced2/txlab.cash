@@ -264,7 +264,7 @@
 <script>
 /* ================= TIME SCALE (warped: busy eras get more pixels) ================= */
 const SEGS=[[2009.0,350],[2010.5,500],[2011.2,850],[2014.3,450],[2016.6,2300],[2019.0,550],[2021.0,600],[2027.0,0]];
-const LEFT=260, NOW='2026-08-03';
+const LEFT=260, NOW='2026-09-06';
 function yr(d){const[Y,M,Dy]=d.split('-').map(Number);return Y+((M-1)+((Dy||1)-1)/30)/12;}
 function X(d){let v=yr(d),x=LEFT;
   for(let i=0;i<SEGS.length-1;i++){const[a,r]=SEGS[i],b=SEGS[i+1][0];
@@ -294,6 +294,10 @@ const CHAINS=[
  block:'495866',v:'2017-11-24 09:20Z',sum:'10:1 coin distribution, larger blocks, 210M supply. Anonymous developers.',status:'Dormant'},
 {id:'btcp',name:'Bitcoin Private',tick:'BTCP',lane:-3.2,kind:'ledger',col:'#4a3f9f',parent:'btc',start:'2018-02-28',end:'2019-03-01',
  block:'511346',v:'2018-02-28 17:06Z',sum:'Dual fork of Bitcoin + Zclassic adding zk-SNARK privacy. Killed by a hidden-inflation exploit (~2M extra coins minted) and delistings.',status:'Dead'},
+
+/* ---- 2026 · the BIP-110 (RDTS) data-limit war ---- */
+{id:'bip110',name:'BIP-110 → BLAKE2b',tick:'',lane:-0.8,kind:'ledger',typeName:'Ledger fork · the BIP-110 (RDTS) minority chain, now on a BLAKE2b proof-of-work',col:'#c0552e',parent:'btc',start:'2026-08-08',block:'961632',v:'2026-08-08 20:12Z',
+ sum:'The data-limit soft fork only ~2.5% of miners backed split off a minority chain anyway on Aug 8 (block 961,632). Inheriting Bitcoin’s full SHA-256d difficulty on a sliver of hashrate it nearly froze — ~8 blocks in three weeks — until, on Aug 30, Luke Dashjr hard-forked its proof-of-work to BLAKE2b (block 961,640) to shed the ASICs, and it revived. Marginal: no exchange, no major pool.',status:'Alive but marginal — now “Bitcoin BLAKE2b”'},
 
 /* ---- the BCH family: forks OF the fork ---- */
 {id:'clashic',name:'Bitcoin Clashic',tick:'BCHC',lane:-7.6,kind:'ledger',typeName:'Ledger fork · continues BITCOIN CASH’s original chain',col:'#3fa66b',parent:'bch',start:'2017-11-13',end:'2018-06-01',block:'504031 (BCH)',uv:'BCH-side height pending own-node check',
@@ -525,7 +529,7 @@ const EVENTS=[
 {chain:'btc',type:'failed',name:'SegWit2x cancelled',date:'2017-11-08',sum:'The New York Agreement’s 2MB hard fork (~block 494784), backed by most miners and businesses — suspended days before activation. The dog that didn’t bark. (A zombie "B2X" chain launched at block 501451 weeks later anyway — see the graveyard fan.)'},
 /* pending */
 {chain:'btc',type:'pending',name:'Core v30 OP_RETURN',date:'2025-10-15',flip:1,sum:'Bitcoin Core v30 relaxed OP_RETURN data limits — policy, not consensus, but it reignited the "what is Bitcoin for" fight and boosted Bitcoin Knots adoption.'},
-/* BIP-110 (mandatory signaling ~block 961632, est. 2026-08-07) intentionally omitted until it actually activates or splits — re-add with the ghost:1 line if it happens */
+/* BIP-110 (RDTS) DID split at block 961,632 on 2026-08-08 (~2.5% support), then hard-forked its PoW to BLAKE2b at 961,640 — shown as one ledger fork off BTC in CHAINS: 'bip110' (BIP-110 → BLAKE2b). */
 /* BCH upgrades (heights MTP-gated; shown by date per publishing convention) */
 {chain:'bch',type:'upgrade',name:'New DAA',date:'2017-11-13',block:'504032',v:'2017-11-13 21:03Z',sum:'Emergency difficulty-adjustment replaced with a stable DAA; LOW_S/NULLFAIL rules.'},
 {chain:'bch',type:'upgrade',name:'32MB + opcodes',date:'2018-05-15',flip:1,block:'530356',v:'2018-05-15 17:53Z',sum:'"Monolith": 32MB blocks, re-enabled original opcodes, 220-byte OP_RETURN.'},
@@ -592,7 +596,8 @@ function chainD(c){
   const x0=X(c.start), y1=laneY(c.lane), xE=c.end?X(c.end):X(NOW);
   if(!c.parent)return{d:`M ${x0} ${y1} L ${xE} ${y1}`,x0,y0:y1,y1,xE,dx:0};
   const y0=laneY(byId[c.parent].lane);
-  const dx=Math.max(40,Math.min(Math.abs(y1-y0)*0.5,240));
+  let dx=Math.max(40,Math.min(Math.abs(y1-y0)*0.5,240));
+  if(xE-x0<dx)dx=Math.max(6,xE-x0); /* short edge-forks: keep the bend inside the chain, never overshoot */
   return{d:`M ${x0} ${y0} C ${x0+dx*.45} ${y0}, ${x0+dx*.55} ${y1}, ${x0+dx} ${y1} L ${xE} ${y1}`,x0,y0,y1,xE,dx};
 }
 /* same geometry, but only out to toX — used to glow an ancestor just over the span the child inherited */
@@ -632,10 +637,10 @@ CHAINS.forEach(c=>{
   if(c.end){
     g.appendChild(el('rect',{x:xE-5,y:y1-5,width:10,height:10,rx:2.5,fill:'#59635C',stroke:'var(--casing)','stroke-width':2}));
     endLab=el('text',{x:xE+9+(c.elx||0),y:y1+4+(c.ely||0),fill:'var(--muted)','font-size':c.stub?10.5:11.5});
-    endLab.textContent='✝ '+c.name+' '+c.tick;
+    endLab.textContent='✝ '+c.name+(c.tick?' '+c.tick:'');
   }else{
     endLab=el('text',{x:xE+12+(c.elx||0),y:y1+4+(c.ely||0),fill:col,'font-size':c.kind==='trunk'?15:12.5,'font-weight':800});
-    endLab.textContent=c.name+' · '+c.tick;
+    endLab.textContent=c.name+(c.tick?' · '+c.tick:'');
   }
   g.appendChild(endLab);
   interact(g,c,{name:c.name,tick:c.tick,date:c.start,block:c.block});

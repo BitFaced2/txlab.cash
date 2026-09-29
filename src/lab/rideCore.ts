@@ -62,8 +62,6 @@ export class Hero {
   private legL: Graphics;
   private legR: Graphics;
   private ring: Container;
-  private pets: Sprite[] = [];
-  private trail: { x: number; y: number }[] = [];
   walkPhase = 0;
   x = 200;
   y = WALK_Y;
@@ -101,16 +99,6 @@ export class Hero {
       this.ring.addChild(d);
     }
     this.c.addChild(this.ring);
-
-    for (let i = 0; i < 3; i++) {
-      const p = new Sprite(T.dotWhite);
-      p.anchor.set(0.5);
-      p.tint = 0xe8b547;
-      p.width = p.height = 20;
-      this.c.addChild(p);
-      this.pets.push(p);
-    }
-
     this.c.addChild(fg.c);
     this.c.position.set(this.x, this.y);
   }
@@ -127,15 +115,6 @@ export class Hero {
       this.body.y = Math.sin(time * 2.4) * 2.5;
     }
     this.ring.rotation += dt * 0.9;
-
-    this.trail.unshift({ x: this.x, y: this.y });
-    if (this.trail.length > 70) this.trail.pop();
-    this.pets.forEach((p, i) => {
-      const pt = this.trail[Math.min(this.trail.length - 1, (i + 1) * 12)] ?? this.trail[0];
-      p.position.set(pt.x - this.x, pt.y - this.y + 34 + Math.sin(time * 3 + i) * 3);
-      p.visible = this.c.visible;
-    });
-
     this.c.position.set(this.x, this.y);
   }
 }

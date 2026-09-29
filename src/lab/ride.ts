@@ -4,6 +4,7 @@ import { buildTextures } from "./textures";
 import { Particles } from "./effects";
 import { applyParallax, clamp, Hero, VIEW_H, VIEW_W, WALK_Y, type ActDef } from "./rideCore";
 import { C } from "./palette";
+import { sfx } from "./sfx";
 
 const rand = (a: number, b: number) => a + Math.random() * (b - a);
 import { buildAct1, buildAct2, buildAct3, buildAct4, buildAct5, buildAct6 } from "./rideActs";
@@ -94,6 +95,13 @@ export async function bootRide() {
     fade = 0.8;
   });
 
+  const soundBtn = document.querySelector<HTMLButtonElement>("[data-sound]");
+  soundBtn?.addEventListener("click", () => {
+    sfx.enabled = !sfx.enabled;
+    soundBtn.setAttribute("aria-pressed", String(sfx.enabled));
+    soundBtn.textContent = sfx.enabled ? "🔊 Sound" : "🔇 Muted";
+  });
+
   app.ticker.add((ticker) => {
     const dt = Math.min(ticker.deltaMS / 1000, 0.1);
 
@@ -102,6 +110,7 @@ export async function bootRide() {
       tAct += dt;
       if (tAct >= acts[ai].dur) {
         mode = "out";
+        sfx.cameraWhoosh();
       }
     } else if (mode === "out") {
       fade = Math.min(1, fade + dt / 0.55);
@@ -136,6 +145,8 @@ export async function bootRide() {
     else if (hp.squashY !== undefined) hero.body.scale.set(1 + (1 - hp.squashY) * 0.7, hp.squashY);
     else hero.body.scale.set(1, 1);
     const poseKind = hp.squashY !== undefined ? "squash" : hp.squeezeX !== undefined ? "squeeze" : "none";
+    if (poseKind === "squeeze" && lastPoseKind === "none") sfx.suction();
+    if (poseKind === "squash" && lastPoseKind === "squeeze") sfx.thunk();
     if (poseKind === "squash" && lastPoseKind === "squeeze") {
       for (let i = 0; i < 12; i++) {
         particles.spawn({
