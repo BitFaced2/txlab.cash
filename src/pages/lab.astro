@@ -1,372 +1,363 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import "../styles/txstory.css";
+import Stage from "../components/Stage.astro";
+import { buildDemoTx } from "../lib/tx";
+
+// The demo transaction is built at build time with Libauth: real keys, real
+// signature, real VM trace. Every number on this page is filled in by the
+// page controller from this object, so a pasted mainnet transaction can take
+// its place at runtime.
+const T = buildDemoTx();
 ---
 
-<BaseLayout title="Transaction Lab — txlab.cash">
-  <div class="lab-page">
-    {/* ─────────────────────── Header bar ─────────────────────── */}
-    <div class="lab-header">
-      <div class="lab-header-left">
-        <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
-          // Transaction Lab
-        </div>
-        <h1 class="lab-title">The <span class="text-bch-500 font-mono">Laboratory</span></h1>
-        <p class="lab-hint">one building, one full node — every room is a stage of a tx's life · click any creature to inspect · blocks arrive when they arrive</p>
-      </div>
+<BaseLayout title="The Life of a Transaction — Transaction Lab — txlab.cash" description="One Bitcoin Cash transaction tells the story of its own life, from the wallet to the archive. Paste a txid to ride your own.">
+<div class="txstory">
+  <header class="topbar">
+    <span class="txtitle">// Transaction Lab · the life of a transaction</span>
+    <nav class="progress" aria-label="Stages">
+      <button data-jump="born"><span class="n">1</span>Wallet</button>
+      <button data-jump="broadcast"><span class="n">2</span>Network</button>
+      <button data-jump="gauntlet"><span class="n">3</span>Node</button>
+      <button data-jump="pool"><span class="n">4</span>Mempool</button>
+      <button data-jump="block-arrives"><span class="n">5</span>Block</button>
+      <button data-jump="archive"><span class="n">6</span>Archive</button>
+    </nav>
+    <div class="lens-toggle" role="group" aria-label="Lens">
+      <button data-lens="beginner" aria-pressed="true">Story</button>
+      <button data-lens="technical" aria-pressed="false">Technical</button>
+      <button data-lens="raw" aria-pressed="false">Raw</button>
+    </div>
+  </header>
 
-      <div class="lab-header-right">
-        <div class="mode-chips" role="tablist">
-          <span class="chip chip-active" role="tab" aria-selected="true">Mode 1 · Simulated</span>
-          <span class="chip chip-soon" role="tab">Mode 2 · Chipnet</span>
-          <span class="chip chip-soon" role="tab">Mode 3 · Mainnet</span>
-        </div>
-        <div class="controls">
-          <div class="send-wrap" data-send-wrap>
-            <button type="button" class="btn btn-primary" data-send-btn aria-haspopup="true" aria-expanded="false">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/></svg>
-              Send BCH
-            </button>
-            <div class="send-menu" data-send-menu hidden>
-              <button type="button" data-send-type="plain">Plain BCH</button>
-              <button type="button" data-send-type="fungible">With token ducklings</button>
-              <button type="button" data-send-type="nft">With an NFT pet</button>
-            </div>
-          </div>
-          <button type="button" class="btn" data-pause-btn aria-pressed="false">
-            <svg data-pause-icon width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            <svg data-play-icon width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style="display:none"><polygon points="6 4 20 12 6 20 6 4"/></svg>
-            <span data-pause-label>Pause</span>
-          </button>
-          <label class="speed-label">
-            <span class="text-[10px] font-mono text-fg-mute uppercase tracking-wider">Speed</span>
-            <input type="range" data-speed min="0.5" max="6" step="0.5" value="1" class="speed-slider"/>
-            <span class="text-[10px] font-mono text-fg-mid" data-speed-value>1×</span>
-          </label>
+  <section class="intro">
+    <div class="kicker" data-v="kicker">// The Transaction Lab · six stages · one real transaction</div>
+    <h1>The life of a <em>transaction</em>.</h1>
+    <p>
+      Every Bitcoin Cash payment is a small object with a short, eventful life. This one is going to tell you about it
+      in first person. Everything you will see is real: the keys, the signature, and the script check are computed by
+      Libauth, the same code wallets use. Only the two coins it starts with are invented, because a demo wallet has no past.
+    </p>
+    <form class="txform" id="txform" autocomplete="off">
+      <input id="txinput" name="tx" type="text" inputmode="text" spellcheck="false" maxlength="70"
+             placeholder="or paste a Bitcoin Cash txid and ride your own" aria-label="Transaction id" />
+      <button class="btn primary" type="submit">Ride it</button>
+      <span class="txstatus" id="txstatus" aria-live="polite"></span>
+    </form>
+    <div class="txhint">mainnet only · fetched from public Electrum servers · nothing is stored ·
+      <a href="#" data-try-tx="c01d1def2901dc8a511e90ed695b619a8cc58c6cc5fbbec5f7cb6bd205b15538">try an example</a></div>
+    <div class="livebar" data-live-only hidden>Riding <b data-v="txidShort"></b> · mainnet · block <span data-v="heightNum"></span> · <a href="/">back to the demo transaction</a></div>
+    <div class="hint"><span>▼</span> scroll to begin · switch lenses any time</div>
+  </section>
+
+  <div class="story">
+    <div class="stage-col">
+      <div class="stage-sticky">
+        <Stage />
+        <div class="hexdrawer" id="hexdrawer" aria-label="Raw transaction bytes">
+          <div class="hd">raw tx · <b id="hex-bytes">{T.bytes}</b> bytes · <span id="hex-field"></span></div>
+          <div id="hex-body"></div>
         </div>
       </div>
     </div>
 
-    {/* ─────────────────────── Diorama (WebGL canvas) ─────────────────────── */}
-    <div class="diorama-frame">
-      <div class="diorama-host" data-lab-canvas></div>
+    <div class="steps-col">
+      <!-- ───────────── STAGE 1 · THE WALLET ───────────── -->
+      <article class="step" id="born" data-step="born">
+        <div class="stage-tag">Stage 1 · The wallet</div>
+        <h3 class="stage-head"><span data-v="pageTitle">I am born empty.</span><small data-v="pageSub">Every transaction starts in a wallet, outside the network. Nobody has heard of me yet.</small></h3>
+        <div class="lens lens-beginner"><p class="voice">Right now I am nothing but an intention: <em data-v="intent">send 42,000 satoshis to the coffee shop</em>. I have no coins in me, no signature, no name. A wallet is about to build me, piece by piece.</p></div>
+        <div class="lens lens-technical"><p>A transaction is a data structure with four parts: a version, a list of inputs, a list of outputs, and a locktime. The wallet fills them in locally. No node, no server, and no permission are involved at this point.</p>
+          <div class="fact" data-fact="born"></div></div>
+        <div class="lens lens-raw"><p>The serialized form starts with a 4-byte little-endian version and ends with a 4-byte locktime. Everything in between is what the next steps write.</p>
+          <div class="fact"><span class="g">02000000</span> <span class="k">… inputs … outputs …</span> <span class="g">00000000</span></div></div>
+      </article>
 
-      {/* Live status readout */}
-      <div class="lab-readout">
-        <div><span class="label">// block height</span> <span data-readout-height>892,000</span></div>
-        <div><span class="label">// mempool</span> <span data-readout-mempool>0 txs</span></div>
-        <div><span class="label">// last block sealed</span> <span data-readout-sealed>—</span></div>
-        <div><span class="label">// dsproofs broadcast</span> <span data-readout-dsproof>0</span></div>
-      </div>
+      <article class="step" id="inputs" data-step="inputs" data-ranges="input count,in0.outpoint txid,in0.outpoint index,in1.outpoint txid,in1.outpoint index">
+        <div class="stage-tag">Stage 1 · The wallet</div>
+        <h3>Coins are poured in. Whole.</h3>
+        <div class="lens lens-beginner"><p class="voice">The wallet picks <span data-v="inputsProse">two coins from the shelf, one worth 30,000 sats and one worth 17,500, and pours both into me entirely</span>. Coins are never edited or partially spent. They are consumed, and new ones are made.</p></div>
+        <div class="lens lens-technical"><p>The coins are UTXOs: unspent transaction outputs. Each input references one by the id of the transaction that created it and the output index. The input does not carry the amount; the node will look that up in its own UTXO set.</p>
+          <div class="fact small" data-fact="inputs"></div></div>
+        <div class="lens lens-raw"><p>Each outpoint is the 32-byte txid (byte-reversed on the wire) plus a 4-byte index. The highlighted bytes below are the outpoints.</p>
+          <div class="fact small" data-fact="rawInputs"></div></div>
+      </article>
 
-      {/* Event toasts (DSProof gossip, confirmations) */}
-      <div class="lab-toasts" data-toasts aria-live="polite"></div>
+      <article class="step" id="outputs" data-step="outputs" data-ranges="output count,out0.value,out0.script length,out0.locking script,out1.value,out1.script length,out1.locking script">
+        <div class="stage-tag">Stage 1 · The wallet</div>
+        <h3>New coins are written. Not yet born.</h3>
+        <div class="lens lens-beginner"><p class="voice">Now the wallet writes down what should come out of me: <span data-v="outputsProse">42,000 sats for the coffee shop, and 5,100 sats of change back to my owner</span>. These coins do not exist yet. They are blueprints. They only become real if I make it all the way to a block.</p></div>
+        <div class="lens lens-technical"><p>An output is an amount and a locking script: "whoever can satisfy this script may spend it". A change output goes back to the owner's own address. The gap between inputs and outputs is the fee, which no output claims.</p>
+          <div class="fact small" data-fact="outputs"></div></div>
+        <div class="lens lens-raw"><p>Each output is an 8-byte little-endian amount, a script length, and the locking script; a P2PKH script is the 25 bytes <code>76a914 &lt;20-byte hash&gt; 88ac</code>.</p>
+          <div class="fact small" data-fact="rawOutputs"></div></div>
+      </article>
 
-      {/* Tx inspector panel */}
-      <aside class="lab-inspector" data-inspector hidden></aside>
+      <article class="step" id="sign" data-step="sign" data-ranges="in0.signature,in0.pubkey,in1.signature,in1.pubkey,in0.unlocking script,in1.unlocking script">
+        <div class="stage-tag">Stage 1 · The wallet</div>
+        <h3>Signed and sealed.</h3>
+        <div class="lens lens-beginner"><p class="voice">The private key never leaves the wallet. It stamps me instead: a signature that covers all of me, inputs and outputs alike. Change one byte of me later and the stamp no longer fits. The stamp also says <em>Bitcoin Cash only</em>, so I am worthless on any other chain.</p></div>
+        <div class="lens lens-technical"><p>Each input gets an unlocking script; for a plain spend that is a signature and the public key. The signature commits to the whole transaction using SIGHASH_ALL, and SIGHASH_FORKID mixes the BCH fork id into the digest so the signature cannot be replayed on BTC or any other fork.</p>
+          <div class="fact small" data-fact="sign"></div></div>
+        <div class="lens lens-raw"><p>A plain unlocking script is two pushes: the signature (Schnorr is 64 bytes, ECDSA 70 to 72, plus the sighash byte) and a 33-byte public key. Highlighted below are the inputs' scripts.</p>
+          <div class="fact small" data-fact="rawSign"></div></div>
+      </article>
+
+      <article class="step" id="sealed" data-step="sealed">
+        <div class="stage-tag">Stage 1 · The wallet</div>
+        <h3>I have a name now.</h3>
+        <div class="lens lens-beginner"><p class="voice">Hash every byte of me twice and you get my name: my transaction id. It is not assigned by anyone. It falls out of what I am. If any part of me changed, I would be a different transaction with a different name.</p></div>
+        <div class="lens lens-technical"><p>The txid is the double SHA-256 of the serialized transaction, displayed byte-reversed. It is computed, not allocated, which is why explorers on different continents agree on it without talking.</p>
+          <div class="fact small" data-fact="sealed"></div></div>
+        <div class="lens lens-raw"><p>All <span data-v="bytes">360</span> bytes, in wire order. This exact hex is what the wallet is about to hand to the network.</p>
+          <div class="fact small" data-fact="rawHex" style="max-height:9.5rem;overflow:auto"></div></div>
+      </article>
+
+      <article class="step" id="leave" data-step="leave">
+        <div class="stage-tag">Stage 1 · The wallet</div>
+        <h3>Time to go.</h3>
+        <div class="lens lens-beginner"><p class="voice">There is nothing more the wallet can do for me. I am complete. Whatever happens next happens out there, and I do not get a say in it. Deep breath.</p></div>
+        <div class="lens lens-technical"><p>The wallet hands the raw bytes to one or more peers it is connected to, typically over the P2P protocol or through an Electrum-style server that relays on its behalf. Once relayed, the wallet cannot recall or replace the transaction.</p></div>
+        <div class="lens lens-raw"><p>The wire message is a <code>tx</code> payload carrying exactly the bytes from the previous step, wrapped in the standard P2P message header (magic, command, length, checksum).</p></div>
+      </article>
+
+      <!-- ───────────── STAGE 2 · THE NETWORK ───────────── -->
+      <article class="step" id="broadcast" data-step="broadcast">
+        <div class="stage-tag">Stage 2 · The network</div>
+        <h3 class="stage-head">Broadcast.<small>No middleman, no queue, no permission.</small></h3>
+        <div class="lens lens-beginner"><p class="voice">My wallet tells the handful of nodes it knows. That is all. There is no central place to submit me, and no one to approve me. Whoever hears about me may pass me along.</p></div>
+        <div class="lens lens-technical"><p>A node does not blast the full transaction at every peer. It announces the txid with an <code>inv</code> message; peers that have not seen that id reply with <code>getdata</code>, and only then is the <code>tx</code> sent. This keeps duplicate traffic low as the same transaction arrives from many directions.</p>
+          <div class="fact small" data-fact="inv"></div></div>
+        <div class="lens lens-raw"><p>Inventory announcements carry only the 32-byte hash, so the first hop for most peers is 36 bytes, not <span data-v="bytes">360</span>.</p>
+          <div class="fact small" data-fact="rawInv"></div></div>
+      </article>
+
+      <article class="step" id="gossip" data-step="gossip">
+        <div class="stage-tag">Stage 2 · The network</div>
+        <h3>They tell their peers. Their peers tell theirs.</h3>
+        <div class="lens lens-beginner"><p class="voice">Each node that hears about me checks me quickly and, if I look right, tells the nodes it knows. Nobody coordinates this. It spreads the way news spreads through a crowd.</p></div>
+        <div class="lens lens-technical"><p>Every node validates before relaying, so an invalid transaction dies at the first hop and never floods the network. Relay is best effort: a node may delay or skip an announcement, and a transaction has no guarantee of reaching everyone, only a very high probability.</p></div>
+        <div class="lens lens-raw"><p>Each hop repeats the same inv / getdata / tx exchange. The transaction bytes do not change along the way, and neither does the txid.</p></div>
+      </article>
+
+      <article class="step" id="everywhere" data-step="everywhere">
+        <div class="stage-tag">Stage 2 · The network</div>
+        <h3>About one second later, I am everywhere.</h3>
+        <div class="lens lens-beginner"><p class="voice">Nearly every node on Earth now knows me by name and holds a copy. If my owner's wallet went offline this instant, it would not matter. I am out of its hands and into everyone's.</p></div>
+        <div class="lens lens-technical"><p>Propagation across the public network usually completes within a second or two. Merchants rely on this: a zero-confirmation payment seen by many nodes is very hard to quietly replace, and the network will broadcast a double-spend proof if anyone tries.</p></div>
+        <div class="lens lens-raw"><p>Measured propagation on BCH is typically well under two seconds to reach the large majority of reachable nodes. The exact figure varies with topology and load.</p></div>
+      </article>
+
+      <article class="step" id="arrive" data-step="arrive">
+        <div class="stage-tag">Stage 2 · The network</div>
+        <h3>One of those nodes is this one.</h3>
+        <div class="lens lens-beginner"><p class="voice">Let us follow me into a single full node. It runs software called BCHN, it talks to fourteen peers, and it has just received my bytes. What happens inside is the same in every node that ever sees me.</p></div>
+        <div class="lens lens-technical"><p>A full node keeps the entire UTXO set and enforces every consensus rule independently. It does not trust the peer that relayed the transaction. Before the transaction can enter this node's mempool it must pass every check below, in order.</p></div>
+        <div class="lens lens-raw"><p>The node has just parsed the <code>tx</code> message off the socket into an in-memory transaction object and is about to run it through AcceptToMemoryPool.</p></div>
+      </article>
+
+      <!-- ───────────── STAGE 3 · THE VALIDATION GAUNTLET ───────────── -->
+      <article class="step" id="gauntlet" data-step="gauntlet">
+        <div class="stage-tag">Stage 3 · Inside a full node</div>
+        <h3 class="stage-head">Five checks.<small>No exceptions, not even for you.</small></h3>
+        <div class="lens lens-beginner"><p class="voice">This is the part I was nervous about. Five stations stand between me and the mempool. Each one can throw me out, and none of them care who my owner is.</p></div>
+        <div class="lens lens-technical"><p>Mempool acceptance combines consensus rules (which every block must obey) with policy rules (which this node applies to unconfirmed transactions). The order shown here is simplified; the checks are real.</p></div>
+        <div class="lens lens-raw"><p>In BCHN these live mainly in <code>CheckTransaction</code>, <code>AcceptToMemoryPoolWorker</code>, and <code>CheckInputScripts</code>.</p></div>
+      </article>
+
+      <article class="step" id="check-form" data-step="check-form" data-ranges="version,input count,output count,locktime">
+        <div class="stage-tag">Stage 3 · Check 1 of 5</div>
+        <h3>Am I well-formed?</h3>
+        <div class="lens lens-beginner"><p class="voice">The first station just looks at my shape. Am I a sensible size? Do I have at least one input and one output? Do my numbers add up to something possible? I do.</p></div>
+        <div class="lens lens-technical"><p>Structural checks: the transaction parses, has inputs and outputs, is under the size limit and at or above the minimum size, no output is negative or exceeds 21 million BCH, and no two inputs reference the same outpoint.</p>
+          <div class="fact small" data-fact="form"></div></div>
+        <div class="lens lens-raw"><p>Highlighted: the framing fields the node reads first: version, the two counts, and locktime.</p></div>
+      </article>
+
+      <article class="step" id="check-utxo" data-step="check-utxo" data-ranges="in0.outpoint txid,in0.outpoint index,in1.outpoint txid,in1.outpoint index">
+        <div class="stage-tag">Stage 3 · Check 2 of 5</div>
+        <h3>Do my coins exist?</h3>
+        <div class="lens lens-beginner"><p class="voice">The second station opens its ledger of every spendable coin on the network and looks up <span data-v="utxoProse">the two I claim to be spending. Both are there, both unspent</span>. It also learns what they are worth, because I never said.</p></div>
+        <div class="lens lens-technical"><p>The node looks up each outpoint in its UTXO set (and the mempool, for unconfirmed parents). A missing coin means the transaction is orphaned or invalid. This lookup is also where the node learns the input amounts, which it needs for the fee check and for the signature digest.</p>
+          <div class="fact small" data-fact="utxo"></div></div>
+        <div class="lens lens-raw"><p>The UTXO set is keyed by (txid, index). Each entry stores the amount, the locking script, the height it was created at, and whether it was a coinbase.</p></div>
+      </article>
+
+      <article class="step" id="check-script" data-step="check-script" data-ranges="in0.signature,in0.pubkey,in0.unlocking script">
+        <div class="stage-tag">Stage 3 · Check 3 of 5</div>
+        <h3>The big one: does my key fit the lock?</h3>
+        <div class="lens lens-beginner"><p class="voice">Each coin I carry was locked with a tiny program by whoever gave it to my owner. To spend the coin, I must run that program and satisfy it. The node runs it step by step, on a little machine with a stack. Watch the stack. Every value on it is real.</p></div>
+        <div class="lens lens-technical"><p>For every input, the node runs the unlocking script and then the coin's locking script in the Bitcoin Cash script VM, sharing one stack. The trace on the stage is a real evaluation of input 0 by Libauth's implementation of the same VM.</p>
+          <div class="fact small" data-fact="script"></div></div>
+        <div class="lens lens-raw"><p>Script is a stack language. Pushes put bytes on the stack; operators pop and push. There are no variables, only the stack.</p>
+          <div class="vmnote" data-vmnote hidden></div></div>
+      </article>
+
+      <div id="op-cards"></div>
+
+      <article class="step" id="check-fee" data-step="check-fee">
+        <div class="stage-tag">Stage 3 · Check 4 of 5</div>
+        <h3>Did I pay my way?</h3>
+        <div class="lens lens-beginner"><p class="voice">The fourth station weighs me. <span data-v="feeProse">I am 360 bytes and I left 400 sats unclaimed. That is a hair over one satoshi per byte, which is the going rate on Bitcoin Cash, and has been for years</span>. Pocket change, but enough to make spam expensive.</p></div>
+        <div class="lens lens-technical"><p>Fee = inputs − outputs. It is never written down; the node computes it from the amounts it looked up in check 2. Policy requires at least the minimum relay fee rate, and mining pools generally accept anything at or above it because blocks have plenty of room.</p>
+          <div class="fact small" data-fact="fee"></div></div>
+        <div class="lens lens-raw"><p>Rate is fee divided by serialized size in bytes. BCH does not use weight units or a witness discount; a byte is a byte.</p></div>
+      </article>
+
+      <article class="step" id="check-seen" data-step="check-seen">
+        <div class="stage-tag">Stage 3 · Check 5 of 5</div>
+        <h3>Has anyone spent these coins already?</h3>
+        <div class="lens lens-beginner"><p class="voice">The last station keeps a list of every coin already claimed by a transaction waiting in the mempool. Mine are not on it. And look who is behind me: a copy of me, spending the same coin to a different address. It arrived second, so it loses. First seen wins. No do-overs.</p></div>
+        <div class="lens lens-technical"><p>A conflicting transaction that spends an outpoint already spent by a mempool transaction is rejected. Bitcoin Cash does not implement replace-by-fee, so the first valid spend the node sees is the one it keeps. On detecting the conflict, the node broadcasts a double-spend proof (DSProof) so merchants learn within seconds that someone attempted it.</p></div>
+        <div class="lens lens-raw"><p>A DSProof contains the two conflicting inputs' signatures and the signing serialization components needed to verify both. It proves that a key signed two different spends of one outpoint, without revealing anything else.</p></div>
+      </article>
+
+      <article class="step" id="admitted" data-step="admitted">
+        <div class="stage-tag">Stage 3 · Inside a full node</div>
+        <h3>Five for five. Welcome to the mempool.</h3>
+        <div class="lens lens-beginner"><p class="voice">I made it. I am valid, funded, signed, paid for, and first. The gate opens onto a big pool where every accepted transaction floats until a block comes along. This node has already told its fourteen peers about me. Every one of them is running the same five checks right now.</p></div>
+        <div class="lens lens-technical"><p>The transaction is added to this node's mempool and announced to peers. From here on it is a candidate for the next block. There is no fee auction on Bitcoin Cash in normal conditions: blocks are large enough that everything paying the minimum rate gets in.</p></div>
+        <div class="lens lens-raw"><p>Mempool entry records the transaction, its fee, its size, its arrival time, and its ancestors and descendants for package handling.</p></div>
+      </article>
+
+      <!-- ───────────── STAGE 4 · THE MEMPOOL ───────────── -->
+      <article class="step" id="pool" data-step="pool">
+        <div class="stage-tag">Stage 4 · The mempool</div>
+        <h3 class="stage-head">The pool.<small>Every valid transaction floats here until a block comes.</small></h3>
+        <div class="lens lens-beginner"><p class="voice">It is literally a pool. Everyone who passed the five checks is in here, bobbing, waiting. Nobody is in a hurry, because there is nothing to hurry for. A block will come when it comes.</p></div>
+        <div class="lens lens-technical"><p>The mempool is this node's private set of accepted, unconfirmed transactions. Every node keeps its own; they mostly agree but never perfectly. It is bounded in size and transactions expire from it after two weeks if never mined, though on Bitcoin Cash that essentially never happens.</p></div>
+        <div class="lens lens-raw"><p>Mempool entries are indexed several ways at once: by txid, by fee rate, by arrival time, and by ancestry, so that block assembly and eviction are cheap.</p></div>
+      </article>
+
+      <article class="step" id="rules" data-step="rules">
+        <div class="stage-tag">Stage 4 · The mempool</div>
+        <h3>House rules: no auction, no VIP section.</h3>
+        <div class="lens lens-beginner"><p class="voice">There is a sign on the wall. First seen, first served. No replacing yourself with a pricier version. And there is room for everyone, because blocks here are big. Everyone pays about one satoshi per byte, and that is all anyone pays.</p></div>
+        <div class="lens lens-technical"><p>Bitcoin Cash blocks are at least 32 MB and the limit now adjusts upward with sustained demand. Typical blocks are far from full, so there is no bidding war for space and the fee rate has stayed near the one satoshi per byte floor for years. Without replace-by-fee, the first valid spend of a coin is the one that stays.</p>
+          <div class="fact small"><span class="k">block limit</span> <b>32 MB</b> floor, adaptive (ABLA) · <span class="k">typical fee</span> <b>~1 sat/B</b> · <span class="k">RBF</span> <b class="d">none</b></div></div>
+        <div class="lens lens-raw"><p>Since May 2024 the block size limit is set by the Adaptive Blocksize Limit Algorithm: it grows in response to sustained block usage and never drops below 32 MB.</p></div>
+      </article>
+
+      <article class="step" id="waiting" data-step="waiting">
+        <div class="stage-tag">Stage 4 · The mempool</div>
+        <h3>How long do we float? Nobody knows.</h3>
+        <div class="lens lens-beginner"><p class="voice">Blocks are a lottery, not a schedule. Miners hash away, and every ten minutes on average one of them gets lucky. On average. The clock on the wall does not help: a block is just as likely in the next minute whether we have waited thirty seconds or thirty minutes.</p></div>
+        <div class="lens lens-technical"><p>Block discovery is a memoryless process. The difficulty algorithm (ASERT) steers the long-run average to ten minutes, but individual gaps vary wildly: a couple of seconds, or over an hour. Merchants accept zero-confirmation payments for everyday amounts precisely because the mempool stage is safe enough and the wait is unpredictable.</p>
+          <div class="fact small"><span class="k">P(block in next minute)</span> <b>≈ 10%</b> · <span class="k">median gap</span> <b>≈ 7 min</b> · <span class="k">mean gap</span> <b>10 min</b> · <span class="k">P(> 30 min)</span> <b>≈ 5%</b></div></div>
+        <div class="lens lens-raw"><p>Inter-block times are approximately exponential with rate 1/600 s. The chance of no block within t seconds is e^(−t/600).</p></div>
+      </article>
+
+      <article class="step" id="block-found" data-step="block-found">
+        <div class="stage-tag">Stage 4 · The mempool</div>
+        <h3>A block! The pool drains.</h3>
+        <div class="lens lens-beginner"><p class="voice">Somewhere in the world a miner just found a valid block, and it includes all of us. Down the drain we go, every single one. On Bitcoin Cash there was room for everyone, so nobody is left floating.</p></div>
+        <div class="lens lens-technical"><p>A new block arrives over the same gossip network the transaction used. Our node removes every transaction the block contains from its mempool, and anything that conflicts with them. In the next room it verifies the block itself before trusting any of that.</p></div>
+        <div class="lens lens-raw"><p>Blocks propagate with compact block relay: peers send the header plus short transaction ids, and a node that already holds the transactions in its mempool reconstructs the block without downloading them again. Our transaction helped make the block cheap to relay.</p></div>
+      </article>
+
+      <!-- ───────────── STAGE 5 · THE BLOCK ───────────── -->
+      <article class="step" id="block-arrives" data-step="block-arrives">
+        <div class="stage-tag">Stage 5 · The block</div>
+        <h3 class="stage-head">The block chamber.<small>A miner found it. Our node still checks everything.</small></h3>
+        <p class="livenote" data-livenote hidden></p>
+        <div class="lens lens-beginner"><p class="voice">The block arrives with an 80-byte header on top: a fingerprint of the previous block, a fingerprint of all of us, a timestamp, and the winning lottery number. Our node checks the miner's work before it believes a word of it.</p></div>
+        <div class="lens lens-technical"><p>The header commits to the previous block hash, the merkle root of every txid in the block, the time, the difficulty target, and the nonce. The node verifies that the header hash is below the target (proof of work), then re-validates every transaction it has not already validated in its mempool. Miners get no special trust.</p>
+          <div class="fact small"><span class="k">header</span> version · prev hash · merkle root · time · bits · nonce = <b>80 bytes</b><br/><span class="k">expected work</span> <b>~2^71 hashes</b> per block at current difficulty</div></div>
+        <div class="lens lens-raw"><p>Header layout: 4-byte version, 32-byte previous block hash, 32-byte merkle root, 4-byte time, 4-byte nBits, 4-byte nonce. SHA-256 twice over those 80 bytes must be numerically below the target encoded by nBits.</p></div>
+      </article>
+
+      <article class="step" id="ctor" data-step="ctor">
+        <div class="stage-tag">Stage 5 · The block</div>
+        <h3>Everyone line up. Alphabetically.</h3>
+        <div class="lens lens-beginner"><p class="voice">Inside a block we stand in a fixed order: sorted by our names, the txids. Not by fee, not by who arrived first, not by who the miner likes. <span data-v="ctorProse">My name starts with a4, so I am somewhere in the middle</span>. Nobody can buy a better spot.</p></div>
+        <div class="lens lens-technical"><p>Canonical Transaction Ordering (CTOR, since November 2018) requires the transactions after the coinbase to be sorted by txid. Any node can then reconstruct the block's order from the set of txids alone, which makes block relay and parallel validation far cheaper.</p>
+          <div class="fact small" data-fact="ctor"></div></div>
+        <div class="lens lens-raw"><p>Txids are compared as 256-bit numbers in their displayed (big-endian) form. Parents may appear after children under CTOR; validation handles that with an outputs-first pass.</p></div>
+      </article>
+
+      <article class="step" id="coinbase" data-step="coinbase">
+        <div class="stage-tag">Stage 5 · The block</div>
+        <h3>First in line: the coinbase.</h3>
+        <div class="lens lens-beginner"><p class="voice">One transaction stands at the front, wearing a crown. It has no inputs. It is how the miner gets paid: brand-new coins, plus every fee in the block, mine included. Those <span data-v="feeSats">400</span> satoshis I left behind? They end up here.</p></div>
+        <div class="lens lens-technical"><p>The coinbase is the block's first transaction and the only one allowed to create value. Its outputs may claim the block subsidy plus the sum of all fees. The subsidy halves every 210,000 blocks; after the April 2024 halving it is 3.125 BCH. Coinbase outputs cannot be spent for 100 blocks.</p>
+          <div class="fact small" data-fact="coinbase"></div></div>
+        <div class="lens lens-raw"><p>The coinbase input references the null outpoint (32 zero bytes, index 0xffffffff). Its unlocking script must begin with the block height (BIP34) and may carry up to 100 bytes of arbitrary data.</p></div>
+      </article>
+
+      <article class="step" id="sealed-in" data-step="sealed-in">
+        <div class="stage-tag">Stage 5 · The block</div>
+        <h3>Into the block. One confirmation.</h3>
+        <div class="lens lens-beginner"><p class="voice">In we go, all of us, into the crystal. The block's fingerprint now depends on every one of us, and the next block will depend on this one. Change a single byte of me and the fingerprints stop matching. I have one confirmation.</p></div>
+        <div class="lens lens-technical"><p>The merkle root folds every txid pairwise into one 32-byte hash that sits in the header. The header hash is what the miner worked on, so the proof of work covers this transaction indirectly. Our node connects the block to its chain, updates its UTXO set, and relays the block to its peers.</p></div>
+        <div class="lens lens-raw"><p>UTXO set update: the inputs are deleted, the outputs are inserted as spendable coins tagged with the block height. A merkle proof of this txid needs only about log2(n) hashes.</p></div>
+      </article>
+
+      <!-- ───────────── STAGE 6 · THE ARCHIVE ───────────── -->
+      <article class="step" id="archive" data-step="archive">
+        <div class="stage-tag">Stage 6 · The archive</div>
+        <h3 class="stage-head">The chain.<small>Kept by every node. There is no undo.</small></h3>
+        <p class="livenote" data-livenote hidden></p>
+        <div class="lens lens-beginner"><p class="voice">This is where I live now: block <span data-v="heightNum">966,240</span>, one link in a chain that goes back to January 2009. Every full node on the network has a copy of me. There is no button anyone can press to take me back.</p></div>
+        <div class="lens lens-technical"><p>Each block header references the previous block's hash, so the chain is a single linked structure anchored at the genesis block. Rewriting a block means redoing its proof of work and that of every block after it, against the whole network's ongoing hashrate.</p>
+          <div class="fact small" data-fact="archive"></div></div>
+        <div class="lens lens-raw"><p>Blocks are stored on disk in blk*.dat files with an index in LevelDB. The chain state (the UTXO set) is stored separately and is what validation actually reads.</p></div>
+      </article>
+
+      <article class="step" id="conf-1" data-step="conf-1">
+        <div class="stage-tag">Stage 6 · The archive</div>
+        <h3>Another block on top. Two confirmations.</h3>
+        <div class="lens lens-beginner"><p class="voice">Ten-ish minutes later, another block lands on top of mine. Now anyone who wanted to undo me would have to redo two blocks' worth of work, faster than the entire network adds new ones. It only gets harder from here.</p></div>
+        <div class="lens lens-technical"><p>Confirmations count the block containing the transaction plus every block built on it. Reorganizations of one or two blocks happen occasionally by accident when two miners find blocks at nearly the same time; the transaction is almost always in both candidates and simply reappears.</p></div>
+        <div class="lens lens-raw"><p>An attacker with fraction q of the hashrate who is z blocks behind catches up with probability roughly (q/p)^z. At q = 0.1 and z = 2 that is about 1%; at z = 6 it is about 0.02%.</p></div>
+      </article>
+
+      <article class="step" id="conf-6" data-step="conf-6">
+        <div class="stage-tag">Stage 6 · The archive</div>
+        <h3>Six deep. Settled.</h3>
+        <div class="lens lens-beginner"><p class="voice">Six blocks on top is the old rule of thumb for "this is final". On Bitcoin Cash there is a harder line too: once I am ten blocks deep, nodes running BCHN refuse to reorganize me away at all. I am part of history now. <span data-v="confNow"></span></p></div>
+        <div class="lens lens-technical"><p>Six confirmations is convention, not consensus; exchanges and merchants choose their own thresholds by amount. BCHN additionally finalizes blocks at a depth of ten: it will not accept a competing chain that would reorganize a block more than ten deep, which caps how far back any reorg can reach.</p>
+          <div class="fact small" data-fact="conf"></div></div>
+        <div class="lens lens-raw"><p>Finalization is a node policy (rolling checkpoints), enforced identically by every BCHN node, so the network converges on it without it being part of the block validity rules.</p></div>
+      </article>
+
+      <article class="step" id="outputs-born" data-step="outputs-born">
+        <div class="stage-tag">Stage 6 · The archive</div>
+        <h3>My work is done. My outputs are just getting started.</h3>
+        <div class="lens lens-beginner"><p class="voice">Remember the blueprints from the wallet? They are real coins now. <span data-v="bornProse">42,000 sats sit on the merchant's shelf. 5,100 sats of change went back to my owner's shelf.</span> Some day a wallet will pour one of them into a brand-new transaction, and the whole ride starts again. Me? I am a record. I rest.</p></div>
+        <div class="lens lens-technical"><p>A transaction's outputs become UTXOs the moment the block connects. They are identified by this txid and an index: <span data-v="txid8">a44d3a68</span>…:0, …:1 and so on. Any future transaction spending them will reference exactly those outpoints, the way this one referenced its own inputs.</p>
+          <div class="fact small" data-fact="born2"></div></div>
+        <div class="lens lens-raw"><p>This is the whole model: coins are never balances, only outputs. The global state is the set of unspent outputs, and every transaction is a function from some of them to some new ones.</p></div>
+      </article>
+
+      <article class="step" id="end" data-step="end">
+        <div class="endcard">
+          <div class="stage-tag">The end</div>
+          <h3>That was one transaction's whole life.</h3>
+          <ol>
+            <li class="done">The wallet: born, filled, written, signed, named</li>
+            <li class="done">The network: broadcast, gossip, everywhere, arrival</li>
+            <li class="done">Validation: shape, coins, script, fee, first-seen</li>
+            <li class="done">The mempool: the pool, the rules, the lottery, the drain</li>
+            <li class="done">The block: proof of work, canonical order, coinbase, sealed in</li>
+            <li class="done">The archive: confirmations, finality, and the outputs become coins</li>
+          </ol>
+          <p style="margin:.6rem 0 0;color:var(--fg-mute);font-size:.95rem" data-demo-only>Now paste a txid at the top and watch your own transaction take the same ride.</p>
+          <p style="margin:.6rem 0 0;color:var(--fg-mute);font-size:.95rem" data-live-only hidden>That was your transaction. Every value on this page came from the chain and from Libauth, not from a script.</p>
+          <div class="actions">
+            <a class="btn primary" href="#" data-jump="born">↺ Ride again</a>
+            <button class="btn" data-lens-next>Switch lens</button>
+          </div>
+        </div>
+      </article>
     </div>
   </div>
 
-  {/* ─────────────────── Legend / notes below the diorama ─────────────────── */}
-  <section class="max-w-5xl mx-auto px-6 pt-8 pb-24">
-    <div class="text-[10px] uppercase tracking-[0.2em] text-bch-500 font-mono font-semibold">
-      // Legend
-    </div>
-    <div class="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="rounded-lg border border-line bg-surface p-4">
-        <div class="flex items-center gap-2">
-          <span class="inline-block h-3 w-3 rounded-full bg-bch-500"></span>
-          <span class="text-sm text-fg">Plain BCH tx</span>
-        </div>
-        <p class="mt-1 text-xs text-fg-mute leading-relaxed">
-          Flask-born green critter. The bread and butter — one signer, one recipient.
-        </p>
-      </div>
-      <div class="rounded-lg border border-line bg-surface p-4">
-        <div class="flex items-center gap-2">
-          <span class="inline-block h-3 w-3 rounded-full bg-neon-400"></span>
-          <span class="text-sm text-fg">Fungible-token swarm</span>
-        </div>
-        <p class="mt-1 text-xs text-fg-mute leading-relaxed">
-          Small colored ducklings trailing the creature — CashTokens travel with the UTXO.
-        </p>
-      </div>
-      <div class="rounded-lg border border-line bg-surface p-4">
-        <div class="flex items-center gap-2">
-          <span class="inline-block h-3 w-3 rounded-full" style="background:linear-gradient(135deg, var(--color-bch-500), var(--color-neon-400))"></span>
-          <span class="text-sm text-fg">NFT pet</span>
-        </div>
-        <p class="mt-1 text-xs text-fg-mute leading-relaxed">
-          One unique companion. Crown on top = the tx holds minting authority.
-        </p>
-      </div>
-      <div class="rounded-lg border border-line bg-surface p-4">
-        <div class="flex items-center gap-2">
-          <span class="inline-block h-3 w-3 rounded-full" style="background: var(--color-danger)"></span>
-          <span class="text-sm text-fg">Double-spend clone</span>
-        </div>
-        <p class="mt-1 text-xs text-fg-mute leading-relaxed">
-          Red clone in a bandit mask, re-spending a UTXO someone already spent.
-          The node rejects it the moment it arrives — first-seen wins, no RBF —
-          and broadcasts a DSProof so merchants hear about the attempt in seconds.
-        </p>
-      </div>
-    </div>
-  </section>
+  <p class="txstory-foot">everything on this page was computed, not typed</p>
 
-  {/* ─────────────────── Boot the engine ─────────────────── */}
+  <script is:inline type="application/json" id="hero-tx" set:html={JSON.stringify(T)} />
   <script>
-    import { bootLab } from "../lab/boot";
-    bootLab();
+    import { initPage } from "../lib/page";
+    initPage(JSON.parse(document.getElementById("hero-tx")!.textContent!));
   </script>
-
-  <style is:global>
-    .lab-page {
-      display: flex;
-      flex-direction: column;
-      background: var(--color-canvas);
-    }
-
-    .lab-header {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem 2rem;
-      justify-content: space-between;
-      align-items: flex-end;
-      padding: 1.25rem 1.5rem 0.75rem;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    .lab-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      color: var(--color-fg);
-      margin: 0.25rem 0 0;
-    }
-    .lab-hint {
-      margin: 0.35rem 0 0;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--color-fg-mute);
-      letter-spacing: 0.05em;
-    }
-    .lab-header-right {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      align-items: center;
-    }
-
-    .mode-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; }
-    .chip {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      padding: 0.35rem 0.7rem;
-      border-radius: 999px;
-      border: 1px solid var(--color-line);
-      color: var(--color-fg-mute);
-      white-space: nowrap;
-    }
-    .chip-active {
-      border-color: var(--color-bch-500);
-      color: var(--color-bch-400);
-      box-shadow: 0 0 12px -4px var(--color-bch-500);
-    }
-    .chip-soon { opacity: 0.55; }
-
-    .controls { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.45rem 0.85rem;
-      border-radius: 6px;
-      border: 1px solid var(--color-line-mid);
-      background: var(--color-surface);
-      color: var(--color-fg-mid);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      cursor: pointer;
-      transition: all 150ms;
-    }
-    .btn:hover { border-color: var(--color-bch-500); color: var(--color-bch-400); }
-    .btn-primary {
-      background: var(--color-bch-500);
-      color: var(--color-canvas);
-      border-color: var(--color-bch-500);
-      font-weight: 600;
-      font-family: var(--font-sans);
-    }
-    .btn-primary:hover { background: var(--color-bch-400); color: var(--color-canvas); }
-
-    .speed-label { display: inline-flex; align-items: center; gap: 0.5rem; }
-    .speed-slider {
-      width: 90px;
-      accent-color: var(--color-bch-500);
-    }
-
-    .diorama-frame {
-      position: relative;
-      max-width: 1400px;
-      margin: 0.5rem auto 0;
-      padding: 0 1.5rem;
-      width: 100%;
-    }
-    .diorama-host {
-      width: 100%;
-      aspect-ratio: 1400 / 900;
-      border: 1px solid var(--color-line-mid);
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--color-canvas);
-    }
-    .diorama-canvas {
-      display: block;
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    .lab-readout {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 0.4rem 1.25rem;
-      margin: 8px 0 0 auto;
-      width: fit-content;
-      max-width: 100%;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--color-fg-mid);
-      background: var(--color-surface);
-      padding: 0.5rem 0.85rem;
-      border: 1px solid var(--color-line-mid);
-      border-radius: 4px;
-    }
-    .lab-readout .label {
-      color: var(--color-fg-dim);
-      margin-right: 0.35rem;
-    }
-
-    /* ── Send menu ── */
-    .send-wrap { position: relative; }
-    .send-menu {
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      z-index: 40;
-      display: flex;
-      flex-direction: column;
-      min-width: 190px;
-      background: var(--color-surface);
-      border: 1px solid var(--color-line-mid);
-      border-radius: 6px;
-      overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-    }
-    .send-menu button {
-      padding: 0.55rem 0.8rem;
-      text-align: left;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--color-fg-mid);
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
-    .send-menu button:hover { background: var(--color-elevated); color: var(--color-bch-400); }
-
-    /* ── Event toasts ── */
-    .lab-toasts {
-      position: absolute;
-      top: 14px;
-      left: 36px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      z-index: 30;
-      pointer-events: none;
-      max-width: 380px;
-    }
-    .toast {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      line-height: 1.4;
-      color: var(--color-fg-mid);
-      background: rgb(from var(--color-canvas) r g b / 0.92);
-      border: 1px solid var(--color-line-mid);
-      border-left-width: 3px;
-      border-radius: 4px;
-      padding: 0.45rem 0.7rem;
-      animation: toast-in 250ms ease-out;
-    }
-    .toast-dsproof { border-left-color: var(--color-danger); color: var(--color-fg); }
-    .toast-good { border-left-color: var(--color-bch-500); }
-    .toast-info { border-left-color: var(--color-neon-500); }
-    .toast-out { opacity: 0; transition: opacity 400ms; }
-    @keyframes toast-in {
-      from { opacity: 0; transform: translateX(-10px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-
-    /* ── Tx inspector ── */
-    .lab-inspector {
-      position: absolute;
-      bottom: 12px;
-      left: 36px;
-      width: 300px;
-      max-width: calc(100% - 72px);
-      z-index: 30;
-      background: rgb(from var(--color-canvas) r g b / 0.95);
-      border: 1px solid var(--color-line-mid);
-      border-radius: 6px;
-      padding: 0.6rem 0.75rem 0.7rem;
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: var(--color-fg-mid);
-    }
-    .ins-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: var(--color-bch-400);
-      font-size: 10px;
-      letter-spacing: 0.15em;
-      margin-bottom: 0.45rem;
-    }
-    .ins-head button {
-      background: none;
-      border: none;
-      color: var(--color-fg-mute);
-      font-size: 14px;
-      cursor: pointer;
-      line-height: 1;
-      padding: 2px 4px;
-    }
-    .ins-head button:hover { color: var(--color-fg); }
-    .ins-rows > div {
-      display: flex;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 1.5px 0;
-    }
-    .ins-rows > div > span:first-child { color: var(--color-fg-dim); }
-    .ins-rows > div > span:last-child { text-align: right; }
-    .ins-good { color: var(--color-bch-400); }
-    .ins-bad { color: var(--color-danger); }
-    .ins-note {
-      margin: 0.5rem 0 0;
-      padding-top: 0.5rem;
-      border-top: 1px solid var(--color-line);
-      color: var(--color-fg-mute);
-      line-height: 1.5;
-    }
-    .ins-note b { color: var(--color-fg-mid); font-weight: 600; }
-
-    @media (prefers-reduced-motion: reduce) {
-      .toast { animation: none !important; }
-    }
-  </style>
+</div>
 </BaseLayout>

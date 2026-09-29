@@ -13,10 +13,9 @@
     "check": "astro check"
   },
   "dependencies": {
+    "@bitauth/libauth": "^3.0.0",
     "@tailwindcss/vite": "^4.1.0",
     "astro": "^7.1.1",
-    "pixi-filters": "^6.1.5",
-    "pixi.js": "^8.19.0",
     "tailwindcss": "^4.1.0"
   },
   "devDependencies": {

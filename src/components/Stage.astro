@@ -1,0 +1,746 @@
+---
+/**
+ * The world: three rooms side by side in one SVG. The camera pans and zooms
+ * between them; the hero (the transaction) walks through all three.
+ *   room 1  x    0–1200  the wallet
+ *   room 2  x 1200–2400  the network
+ *   room 3  x 2400–3600  inside a full node: the validation gauntlet
+ * All motion is CSS driven by flags (`f-*`) and data attributes that the
+ * scroll engine sets on the <svg>.
+ */
+let seed = 7;
+const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+const stars = Array.from({ length: 90 }, () => ({ x: 1200 + rnd() * 1200, y: rnd() * 470, r: 0.6 + rnd() * 1.3, o: 0.3 + rnd() * 0.6 }));
+const win = Array.from({ length: 16 }, () => ({ x: 985 + rnd() * 170, y: 200 + rnd() * 90, r: 0.5 + rnd() }));
+
+type N = { x: number; y: number; ring: number };
+const origin: N = { x: 1250, y: 400, ring: 0 };
+const ring1: N[] = [[1420, 300], [1450, 470], [1380, 180]].map(([x, y]) => ({ x, y, ring: 1 }));
+const ring2: N[] = [[1610, 140], [1650, 300], [1600, 470], [1720, 400], [1560, 360], [1690, 190]].map(([x, y]) => ({ x, y, ring: 2 }));
+const ring3: N[] = [[1830, 100], [1860, 260], [1800, 400], [1900, 500], [1960, 170], [2010, 330], [1950, 440], [2080, 110], [2120, 250], [2160, 420], [2050, 520], [2200, 160]].map(([x, y]) => ({ x, y, ring: 3 }));
+const ourNode: N = { x: 2325, y: 268, ring: 4 };
+const dist = (a: N, b: N) => Math.hypot(a.x - b.x, a.y - b.y);
+const nearest = (from: N, pool: N[], k: number) => [...pool].sort((a, b) => dist(from, a) - dist(from, b)).slice(0, k);
+type E = { a: N; b: N; ring: number };
+const edges: E[] = [];
+for (const n of ring1) edges.push({ a: origin, b: n, ring: 1 });
+for (const n of ring2) for (const p of nearest(n, ring1, 2)) edges.push({ a: p, b: n, ring: 2 });
+for (const n of ring3) for (const p of nearest(n, ring2, 2)) edges.push({ a: p, b: n, ring: 3 });
+for (const p of nearest(ourNode, ring3, 3)) edges.push({ a: p, b: ourNode, ring: 4 });
+---
+
+<div class="stage-wrap">
+  <svg class="stage" viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg" role="img"
+       aria-label="An animated stage showing one Bitcoin Cash transaction, drawn as a small glass flask with a face, moving from a wallet, across the network, and through a full node's validation checks."
+       data-mood="blank" data-step="born" style="--cam-x:0;--cam-y:0;--cam-z:1;--hx:600">
+    <defs>
+      <radialGradient id="gGlow"><stop offset="0" stop-color="#3fe5b5" stop-opacity=".55"/><stop offset="1" stop-color="#3fe5b5" stop-opacity="0"/></radialGradient>
+      <radialGradient id="gLampWarm"><stop offset="0" stop-color="#ffd678" stop-opacity=".22"/><stop offset="1" stop-color="#ffd678" stop-opacity="0"/></radialGradient>
+      <radialGradient id="gLampCool"><stop offset="0" stop-color="#7fd9ff" stop-opacity=".18"/><stop offset="1" stop-color="#7fd9ff" stop-opacity="0"/></radialGradient>
+      <linearGradient id="gCone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd678" stop-opacity=".16"/><stop offset="1" stop-color="#ffd678" stop-opacity="0"/></linearGradient>
+      <linearGradient id="gConeCool" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd9ff" stop-opacity=".14"/><stop offset="1" stop-color="#7fd9ff" stop-opacity="0"/></linearGradient>
+      <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#05080c"/><stop offset="1" stop-color="#0b1410"/></linearGradient>
+      <linearGradient id="gDoorLight" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3fe5b5" stop-opacity=".35"/><stop offset="1" stop-color="#3fe5b5" stop-opacity="0"/></linearGradient>
+      <filter id="fGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="fGlowBig" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <clipPath id="cLiquid"><rect class="liq-level" x="-40" y="-6" width="80" height="80"/></clipPath>
+      <clipPath id="cBulb"><path d="M-11-100 L-11-70 A32 32 0 1 0 11-70 L11-100 Z"/></clipPath>
+      <clipPath id="cSwim"><rect x="-30" y="-46" width="60" height="60"/></clipPath>
+      <clipPath id="cCoin"><rect x="-30" y="-52" width="60" height="60"/></clipPath>
+    </defs>
+
+    <g class="world">
+      <!-- ═══════════ ROOM 1 · THE WALLET ═══════════ -->
+      <g class="room1">
+        <rect x="0" y="0" width="1200" height="560" fill="#1b1813"/>
+        <rect x="0" y="0" width="1200" height="60" fill="#241f18"/>
+        <rect x="0" y="560" width="1200" height="140" fill="#100e0b"/>
+        <line x1="0" y1="560" x2="1200" y2="560" stroke="#3a3128" stroke-width="3"/>
+        <g class="planks" stroke="#161310" stroke-width="2">
+          <line x1="0" y1="600" x2="1200" y2="600"/><line x1="0" y1="650" x2="1200" y2="650"/>
+        </g>
+        <!-- lamps -->
+        <g class="lamp-warm">
+          <rect x="255" y="58" width="90" height="10" rx="5" fill="#39312a"/><polygon points="270,68 330,68 470,560 130,560" fill="url(#gCone)"/>
+          <rect x="755" y="58" width="90" height="10" rx="5" fill="#39312a"/><polygon points="770,68 830,68 970,560 630,560" fill="url(#gCone)"/>
+        </g>
+        <text x="60" y="118" class="sign warm">THE WALLET</text>
+        <text x="62" y="140" class="sub">WHERE TRANSACTIONS ARE BORN · OUTSIDE THE NODE</text>
+
+        <!-- window with the node in the distance -->
+        <g class="window">
+          <rect x="970" y="160" width="200" height="180" rx="6" fill="#05080a" stroke="#3a352b" stroke-width="7"/>
+          {win.map((s) => <circle cx={s.x} cy={s.y} r={s.r} fill="#dfe8e3" opacity=".6"/>)}
+          <rect x="1060" y="230" width="60" height="110" fill="#0f1712"/>
+          {[0, 1, 2, 3].map((i) => <><rect x="1068" y={242 + i * 22} width="10" height="7" fill="#0ac18e" opacity=".7"/><rect x="1102" y={242 + i * 22} width="10" height="7" fill="#0ac18e" opacity=".45"/></>)}
+          <line x1="1090" y1="230" x2="1090" y2="205" stroke="#39463e" stroke-width="2"/><circle cx="1090" cy="203" r="3" fill="#e85d6b"/>
+          <text x="1070" y="150" class="tiny" text-anchor="middle">the node · 1 hop away</text>
+        </g>
+
+        <!-- bench -->
+        <rect x="260" y="470" width="680" height="16" fill="#3a3128"/><rect x="260" y="470" width="680" height="4" fill="#4a4033"/>
+        <rect x="290" y="486" width="16" height="74" fill="#2b241d"/><rect x="894" y="486" width="16" height="74" fill="#2b241d"/>
+
+        <!-- input coins: two vials on the bench -->
+        <g class="vial vial-a" transform="translate(410 470)">
+          <g class="vial-body">
+            <rect x="-10" y="-46" width="20" height="46" rx="6" fill="#22302a" stroke="#9fb8ac" stroke-width="2"/>
+            <rect class="vial-liq" x="-8" y="-34" width="16" height="32" rx="4" fill="#3fe5b5" opacity=".9"/>
+            <rect x="-7" y="-54" width="14" height="9" rx="2" fill="#8a6a4a"/>
+          </g>
+        </g>
+        <g class="vial vial-b" transform="translate(470 470)">
+          <g class="vial-body">
+            <rect x="-10" y="-46" width="20" height="46" rx="6" fill="#22302a" stroke="#9fb8ac" stroke-width="2"/>
+            <rect class="vial-liq" x="-8" y="-30" width="16" height="28" rx="4" fill="#b26eff" opacity=".9"/>
+            <rect x="-7" y="-54" width="14" height="9" rx="2" fill="#8a6a4a"/>
+          </g>
+        </g>
+        <text id="lbl-utxo-title" x="440" y="506" class="tiny label-utxo" text-anchor="middle">YOUR UTXOs</text>
+        <text id="lbl-in0" x="410" y="522" class="tiny g label-utxo-a" text-anchor="middle">30,000</text>
+        <text id="lbl-in1" x="470" y="522" class="tiny v label-utxo-b" text-anchor="middle">17,500</text>
+        <path class="stream stream-a" d="M612 438 Q604 452 602 468" />
+        <path class="stream stream-b" d="M588 430 Q596 448 598 468" />
+
+        <!-- output coins: blueprints of coins not yet born -->
+        <g class="outputs">
+          <g class="beaker beaker-pay" transform="translate(760 470)">
+            <path d="M-16-50 h32 v18 l10 32 h-52 l10-32 z" fill="none" stroke="#3fe5b5" stroke-width="2" stroke-dasharray="5 4"/>
+            <text id="lbl-pay-t" y="-58" class="tiny g" text-anchor="middle">PAYMENT</text>
+            <text id="lbl-pay" y="18" class="tiny" text-anchor="middle">42,000 → merchant</text>
+          </g>
+          <g class="beaker beaker-chg" transform="translate(860 470)">
+            <path d="M-13-42 h26 v16 l8 26 h-42 l8-26 z" fill="none" stroke="#c79dff" stroke-width="2" stroke-dasharray="5 4"/>
+            <text id="lbl-chg-t" y="-50" class="tiny v" text-anchor="middle">CHANGE</text>
+            <text id="lbl-chg" y="34" class="tiny" text-anchor="middle">5,100 → you</text><text id="lbl-more" x="70" y="-20" class="tiny dim" text-anchor="middle"></text>
+          </g>
+        </g>
+
+        <!-- the stamp: signature seal -->
+        <g class="stamp" transform="translate(600 330)">
+          <rect x="-8" y="-60" width="16" height="50" rx="6" fill="#8a6a4a"/>
+          <rect x="-34" y="-12" width="68" height="18" rx="4" fill="#5a4a3a" stroke="#8a6a4a" stroke-width="2"/>
+          <text y="-20" class="tiny w" text-anchor="middle">SIGHASH_ALL | FORKID</text>
+        </g>
+
+        <!-- door -->
+        <g class="door">
+          <rect x="1090" y="380" width="100" height="180" fill="#0b0f0d"/>
+          <rect class="door-light" x="1096" y="386" width="94" height="174" fill="url(#gDoorLight)"/>
+          <rect class="door-leaf" x="1096" y="386" width="88" height="174" fill="#2b241d" stroke="#3a3128" stroke-width="2"/>
+          <circle class="door-knob" cx="1170" cy="475" r="3" fill="#8a6a4a"/>
+          <rect x="1086" y="376" width="108" height="8" fill="#3a3128"/>
+          <text x="1140" y="368" class="tiny" text-anchor="middle">TO THE NETWORK →</text>
+        </g>
+      </g>
+
+      <!-- ═══════════ ROOM 2 · THE NETWORK ═══════════ -->
+      <g class="room2">
+        <rect x="1200" y="0" width="1200" height="560" fill="url(#gSky)"/>
+        <rect x="1200" y="560" width="1200" height="140" fill="#0c120f"/>
+        <line x1="1200" y1="560" x2="2400" y2="560" stroke="#1f2a24" stroke-width="3"/>
+        {stars.map((s) => <circle cx={s.x} cy={s.y} r={s.r} fill="#dfe8e3" opacity={s.o}/>)}
+        <text x="1260" y="118" class="sign cool">THE NETWORK</text>
+        <text x="1262" y="140" class="sub">GOSSIP · EVERY NODE TELLS ITS PEERS · NOBODY IN CHARGE</text>
+
+        <!-- wallet doorway you just walked out of -->
+        <rect x="1200" y="380" width="60" height="180" fill="#1b1813"/><rect x="1200" y="376" width="66" height="8" fill="#3a3128"/>
+        <text x="1250" y="600" class="tiny" text-anchor="middle">your wallet</text>
+
+        <!-- gossip graph -->
+        <g class="edges">
+          {edges.map((e) => <line class={`edge edge-r${e.ring}`} x1={e.a.x} y1={e.a.y} x2={e.b.x} y2={e.b.y}/>)}
+        </g>
+        <g class="nodes">
+          <circle class="node node-r0" cx={origin.x} cy={origin.y} r="9"/>
+          {[...ring1, ...ring2, ...ring3].map((n) => <circle class={`node node-r${n.ring}`} cx={n.x} cy={n.y} r="6"/>)}
+        </g>
+        <text x={origin.x} y={origin.y - 18} class="tiny g" text-anchor="middle">you</text>
+        <text x="1430" y="612" class="tiny ring-label ring-label-1" text-anchor="middle">your peers</text>
+        <text x="1650" y="612" class="tiny ring-label ring-label-2" text-anchor="middle">their peers</text>
+        <text x="1990" y="612" class="tiny ring-label ring-label-3" text-anchor="middle">the whole network · ~1 s</text>
+
+        <!-- our node: the building we are about to enter -->
+        <g class="tower">
+          <rect x="2250" y="270" width="140" height="290" fill="#0f1712" stroke="#1f2a24" stroke-width="2"/>
+          {[0, 1, 2, 3, 4, 5, 6].map((i) => <><rect x="2268" y={290 + i * 30} width="18" height="10" fill="#0ac18e" opacity={i % 2 ? ".55" : ".8"}/><rect x="2312" y={290 + i * 30} width="18" height="10" fill="#0ac18e" opacity={i % 2 ? ".8" : ".4"}/><rect x="2356" y={290 + i * 30} width="18" height="10" fill="#0ac18e" opacity=".5"/></>)}
+          <line x1="2325" y1="270" x2="2325" y2="225" stroke="#39463e" stroke-width="3"/><circle cx="2325" cy="222" r="4" fill="#e85d6b" class="beacon"/>
+          <circle class="node node-r4" cx={ourNode.x} cy={ourNode.y} r="8"/>
+          <rect x="2296" y="490" width="58" height="70" fill="#070a09"/>
+          <rect class="node-door-light" x="2298" y="492" width="54" height="68" fill="#3fe5b5" opacity="0"/>
+          <rect class="node-door-leaf" x="2298" y="492" width="54" height="68" fill="#1a2420" stroke="#2e3833" stroke-width="2"/>
+          <text x="2325" y="600" class="tiny g" text-anchor="middle">BITCOIN CASH FULL NODE</text>
+          <text x="2325" y="616" class="tiny" text-anchor="middle">BCHN · peers: 14</text>
+        </g>
+      </g>
+
+      <!-- ═══════════ ROOM 3 · THE VALIDATION GAUNTLET ═══════════ -->
+      <g class="room3">
+        <rect x="2400" y="0" width="1200" height="560" fill="#0f1614"/>
+        <rect x="2400" y="0" width="1200" height="60" fill="#131c19"/>
+        <rect x="2400" y="560" width="1200" height="140" fill="#0a100e"/>
+        <line x1="2400" y1="560" x2="3600" y2="560" stroke="#27352d" stroke-width="3"/>
+        <g stroke="#0b1210" stroke-width="2">{[0,1,2,3,4,5].map((i) => <line x1={2400 + i * 200} y1="60" x2={2400 + i * 200} y2="560"/>)}</g>
+        <g class="lamp-cool">
+          {[2560, 2760, 2960, 3200, 3380].map((x) => <><rect x={x - 45} y="58" width="90" height="10" rx="5" fill="#39463e"/><polygon points={`${x - 30},68 ${x + 30},68 ${x + 170},560 ${x - 170},560`} fill="url(#gConeCool)"/></>)}
+        </g>
+        <text x="2460" y="118" class="sign cool">THE VALIDATION GAUNTLET</text>
+        <text x="2462" y="140" class="sub">FIVE CHECKS · EVERY NODE RUNS ALL OF THEM · ON EVERY TRANSACTION</text>
+
+        <!-- 1 · well-formed: a scanner arch -->
+        <g class="station st1" transform="translate(2560 560)">
+          <path d="M-70 0 V-150 a70 70 0 0 1 140 0 V0" fill="none" stroke="#39463e" stroke-width="8"/>
+          <path class="arch-beam" d="M-62 0 V-150 a62 62 0 0 1 124 0 V0" fill="none" stroke="#7fd9ff" stroke-width="2" opacity=".2"/>
+          <circle class="lamp lamp-1" cx="0" cy="-246" r="7"/>
+          <text y="-266" class="tiny" text-anchor="middle">1 · WELL-FORMED</text>
+          <text id="lbl-form" class="readout readout-1" y="-284" text-anchor="middle">360 bytes · v2 · 2 in · 2 out</text>
+          <text class="check check-1" y="-308" text-anchor="middle">✓</text>
+        </g>
+
+        <!-- 2 · inputs exist: the UTXO ledger cabinet -->
+        <g class="station st2" transform="translate(2760 560)">
+          <rect x="-60" y="-200" width="120" height="200" fill="#182420" stroke="#39463e" stroke-width="3"/>
+          {[0,1,2,3,4,5].map((i) => <rect class={`drawer drawer-${i}`} x="-50" y={-190 + i * 32} width="100" height="26" rx="3"/>)}
+          <text id="lbl-drawer-a" class="drawer-tag tag-a" x="0" y={-190 + 1 * 32 + 17} text-anchor="middle">…3c4b:1 · 30,000</text>
+          <text id="lbl-drawer-b" class="drawer-tag tag-b" x="0" y={-190 + 4 * 32 + 17} text-anchor="middle">…e7f2:0 · 17,500</text>
+          <circle class="lamp lamp-2" cx="0" cy="-220" r="7"/>
+          <text y="-240" class="tiny" text-anchor="middle">2 · INPUTS EXIST · UTXO SET</text>
+          <text class="check check-2" y="-262" text-anchor="middle">✓</text>
+        </g>
+
+        <!-- 3 · script: the stack machine -->
+        <g class="station st3" transform="translate(2960 560)">
+          <rect x="-40" y="-120" width="80" height="120" rx="6" fill="#182420" stroke="#39463e" stroke-width="3"/>
+          <rect class="scan-beam" x="-34" y="-114" width="68" height="108" fill="#7fd9ff" opacity="0"/>
+          <circle class="lamp lamp-3" cx="0" cy="-140" r="7"/>
+          <text y="-160" class="tiny" text-anchor="middle">3 · SCRIPT</text>
+          <text class="check check-3" y="-182" text-anchor="middle">✓</text>
+          <!-- display panel, filled by script -->
+          <g class="panel">
+            <rect x="-150" y="-400" width="330" height="200" rx="6" fill="#0b1210" stroke="#39463e" stroke-width="2"/>
+            <rect x="-150" y="-400" width="330" height="22" rx="6" fill="#182420"/>
+            <text x="-140" y="-385" class="tiny">STACK MACHINE</text>
+            <text id="op-title" x="172" y="-385" class="tiny g" text-anchor="end"></text>
+            <line x1="-8" y1="-378" x2="-8" y2="-204" stroke="#1f2a24"/>
+            <text x="-140" y="-362" class="tiny dim">SCRIPT</text>
+            <text x="4" y="-362" class="tiny dim">STACK · top last</text>
+            <g id="ops-col"></g>
+            <g id="stack-col"></g>
+          </g>
+        </g>
+
+        <!-- 4 · fee weigh-in: a scale -->
+        <g class="station st4" transform="translate(3200 560)">
+          <rect x="-6" y="-120" width="12" height="120" fill="#39463e"/>
+          <g class="scale-beam">
+            <rect x="-90" y="-124" width="180" height="6" rx="3" fill="#9fb8ac"/>
+            <path d="M-80-120 v22 M-100-98 h40" stroke="#9fb8ac" stroke-width="3" fill="none"/>
+            <path d="M80-120 v22 M60-98 h40" stroke="#9fb8ac" stroke-width="3" fill="none"/>
+            <text id="lbl-fee" x="-80" y="-104" class="tiny w" text-anchor="middle">400 sats</text>
+            <text id="lbl-size" x="80" y="-104" class="tiny" text-anchor="middle">360 B</text>
+          </g>
+          <circle class="lamp lamp-4" cx="0" cy="-150" r="7"/>
+          <text y="-170" class="tiny" text-anchor="middle">4 · FEE</text>
+          <text id="lbl-feerate" class="readout readout-4" y="-188" text-anchor="middle">1.11 sat/byte · min 1.0</text>
+          <text class="check check-4" y="-212" text-anchor="middle">✓</text>
+        </g>
+
+        <!-- 5 · first-seen gate -->
+        <g class="station st5" transform="translate(3380 560)">
+          <rect x="-8" y="-150" width="16" height="150" fill="#39463e"/>
+          <g class="turnstile"><rect x="-70" y="-98" width="140" height="8" rx="4" fill="#9fb8ac"/></g>
+          <circle class="lamp lamp-5" cx="0" cy="-170" r="7"/>
+          <text y="-190" class="tiny" text-anchor="middle">5 · FIRST SEEN</text>
+          <text class="readout readout-5" y="-208" text-anchor="middle">inputs unspent · no conflict</text>
+          <text class="check check-5" y="-232" text-anchor="middle">✓</text>
+          <text class="dsproof" y="-260" text-anchor="middle">⚠ DSPROOF BROADCAST</text>
+          <!-- the double-spend clone -->
+          <g class="clone" transform="translate(60 0)">
+            <g class="clone-body">
+              <rect x="-14" y="-14" width="8" height="22" rx="4" fill="#9fb8ac"/><rect x="6" y="-14" width="8" height="22" rx="4" fill="#9fb8ac"/>
+              <path d="M-11-100 L-11-70 A32 32 0 1 0 11-70 L11-100 Z" fill="#2a1418" stroke="#e85d6b" stroke-width="3"/>
+              <path d="M-11-100 L-11-70 A32 32 0 1 0 11-70 L11-100 Z" fill="#e85d6b" opacity=".55" clip-path="url(#cBulb)"/>
+              <rect x="-13" y="-108" width="26" height="12" rx="3" fill="#8a6a4a"/>
+              <rect x="-24" y="-50" width="48" height="12" fill="#0b0f0d"/>
+              <circle cx="-10" cy="-46" r="3" fill="#e85d6b"/><circle cx="10" cy="-46" r="3" fill="#e85d6b"/>
+              <path d="M-8-30 q8-6 16 0" stroke="#0b0f0d" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </g>
+            <text x="6" y="-152" class="tiny d" text-anchor="middle">same coin · spent twice</text>
+          </g>
+        </g>
+
+        <!-- exit: to the mempool -->
+        <g class="gate">
+          <rect x="3520" y="360" width="80" height="200" fill="#070a09"/>
+          <rect class="gate-light" x="3520" y="360" width="80" height="200" fill="url(#gDoorLight)"/>
+          <rect class="gate-leaf" x="3522" y="362" width="76" height="198" fill="#1a2420" stroke="#2e3833" stroke-width="2"/>
+          <rect x="3514" y="354" width="92" height="8" fill="#39463e"/>
+          <text x="3560" y="344" class="tiny g" text-anchor="middle">MEMPOOL →</text>
+        </g>
+      </g>
+
+      <!-- ═══════════ ROOM 4 · THE MEMPOOL ═══════════ -->
+      <g class="room4">
+        <rect x="3600" y="0" width="1200" height="560" fill="#101a17"/>
+        <rect x="3600" y="0" width="1200" height="60" fill="#15211d"/>
+        <rect x="3600" y="560" width="1200" height="140" fill="#0a100e"/>
+        <line x1="3600" y1="560" x2="4800" y2="560" stroke="#27352d" stroke-width="3"/>
+        <g class="lamp-warm">
+          {[3800, 4150, 4500].map((x) => <><rect x={x - 45} y="58" width="90" height="10" rx="5" fill="#39463e"/><polygon points={`${x - 30},68 ${x + 30},68 ${x + 170},560 ${x - 170},560`} fill="url(#gCone)"/></>)}
+        </g>
+        <text x="3660" y="118" class="sign warm">THE MEMPOOL</text>
+        <text x="3662" y="140" class="sub">EVERY VALID TX FLOATS HERE UNTIL A BLOCK COMES · FIRST SEEN · NO FEE AUCTION</text>
+
+        <!-- the pool -->
+        <rect x="3680" y="470" width="820" height="90" fill="#0b1512"/>
+        <g class="water">
+          <rect class="water-body" x="3680" y="492" width="820" height="68" fill="#0ac18e" opacity=".28"/>
+          <rect class="water-line" x="3680" y="490" width="820" height="4" fill="#3fe5b5" opacity=".7"/>
+        </g>
+        <rect x="3672" y="464" width="836" height="10" rx="3" fill="#39463e"/>
+        <rect x="3672" y="464" width="8" height="100" fill="#39463e"/><rect x="4500" y="464" width="8" height="100" fill="#39463e"/>
+        <path d="M3640 470 v90 M3660 470 v90 M3640 490 h20 M3640 515 h20 M3640 540 h20" stroke="#9fb8ac" stroke-width="3" fill="none"/>
+        <!-- other transactions waiting -->
+        {[[3870, "1f3c…09a2", "#3fe5b5"], [4010, "c07e…5d18", "#3fe5b5"], [4160, "5b90…e7c4", "#c79dff"], [4300, "e921…33b0", "#3fe5b5"], [4420, "7d2a…f1e6", "#e8b547"]].map(([x, id, col], i) => (
+          <g class={`swimmer swimmer-${i}`} style={`transform: translate(${x}px, 522px)`}>
+            <g class="swimmer-body">
+              <path d="M-8-72 L-8-50 A23 23 0 1 0 8-50 L8-72 Z" fill="#22302a" fill-opacity=".55"/>
+              <path d="M-8-72 L-8-50 A23 23 0 1 0 8-50 L8-72 Z" fill={col as string} opacity=".7" clip-path="url(#cSwim)"/>
+              <path d="M-8-72 L-8-50 A23 23 0 1 0 8-50 L8-72 Z" fill="none" stroke="#9fb8ac" stroke-width="2.5"/>
+              <rect x="-9" y="-78" width="18" height="9" rx="2" fill="#8a6a4a"/>
+              <circle cx="-7" cy="-32" r="2.6" fill="#0b0f0d"/><circle cx="7" cy="-32" r="2.6" fill="#0b0f0d"/>
+              <path d="M-5-22 q5 4 10 0" stroke="#0b0f0d" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <text y="-88" class="tiny dim" text-anchor="middle" style="font-size:8px">{id}</text>
+            </g>
+          </g>
+        ))}
+        <!-- pool rules -->
+        <g class="rules" transform="translate(4250 150)">
+          <rect x="0" y="0" width="300" height="140" rx="6" fill="#0b1210" stroke="#39463e" stroke-width="2"/>
+          <text x="150" y="28" class="tiny w" text-anchor="middle" style="font-size:13px;letter-spacing:.2em">POOL RULES</text>
+          <text x="18" y="58" class="tiny">1. FIRST SEEN, FIRST SERVED</text>
+          <text x="18" y="80" class="tiny">2. NO REPLACEMENTS (NO RBF)</text>
+          <text x="18" y="102" class="tiny">3. EVERYONE GETS IN · 32 MB+ BLOCKS</text>
+          <text x="18" y="124" class="tiny">4. ~1 sat/byte. ALWAYS.</text>
+        </g>
+        <!-- clock -->
+        <g class="clock" transform="translate(3950 250)">
+          <circle r="52" fill="#0b1210" stroke="#39463e" stroke-width="3"/>
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => <line x1="0" y1="-44" x2="0" y2="-38" stroke="#4a544f" stroke-width="2" transform={`rotate(${i * 30})`}/>)}
+          <line class="clock-hand" x1="0" y1="6" x2="0" y2="-36" stroke="#3fe5b5" stroke-width="3" stroke-linecap="round"/>
+          <circle r="4" fill="#3fe5b5"/>
+          <text y="76" class="tiny" text-anchor="middle">SINCE LAST BLOCK</text>
+          <text y="92" class="tiny dim" text-anchor="middle">avg 10 min · never on schedule</text>
+        </g>
+        <!-- block-found banner -->
+        <g class="banner">
+          <rect x="4110" y="330" width="280" height="44" rx="6" fill="#0ac18e"/>
+          <text x="4250" y="358" text-anchor="middle" style="font-size:16px;fill:#04110c;font-weight:700;letter-spacing:.2em">BLOCK FOUND</text>
+        </g>
+        <!-- the drain -->
+        <g class="drain" transform="translate(4600 560)">
+          <rect x="-40" y="-6" width="80" height="12" rx="3" fill="#39463e"/>
+          {[-30, -18, -6, 6, 18].map((x) => <rect x={x} y="-4" width="6" height="8" fill="#0b0f0d"/>)}
+          <rect x="-26" y="6" width="52" height="134" fill="#0f1714"/>
+          <text x="74" y="-60" class="tiny g" text-anchor="middle">TO THE BLOCK ↓</text>
+        </g>
+      </g>
+
+      <!-- ═══════════ ROOM 5 · THE BLOCK ═══════════ -->
+      <g class="room5">
+        <rect x="4800" y="0" width="1200" height="560" fill="#0d151b"/>
+        <rect x="4800" y="0" width="1200" height="60" fill="#111c23"/>
+        <rect x="4800" y="560" width="1200" height="140" fill="#080d11"/>
+        <line x1="4800" y1="560" x2="6000" y2="560" stroke="#27353d" stroke-width="3"/>
+        <g class="lamp-cool">
+          {[5050, 5350, 5700].map((x) => <><rect x={x - 45} y="58" width="90" height="10" rx="5" fill="#39463e"/><polygon points={`${x - 30},68 ${x + 30},68 ${x + 170},560 ${x - 170},560`} fill="url(#gConeCool)"/></>)}
+        </g>
+        <text x="4860" y="118" class="sign cool">THE BLOCK</text>
+        <text x="4862" y="140" class="sub">A MINER FOUND IT · OUR NODE STILL CHECKS EVERYTHING · CANONICAL ORDER</text>
+        <!-- inlet pipe from the mempool drain -->
+        <rect x="4800" y="440" width="70" height="120" fill="#0f1714"/><rect x="4800" y="436" width="76" height="8" fill="#39463e"/>
+        <!-- header panel -->
+        <g class="header" transform="translate(4880 170)">
+          <rect x="0" y="0" width="320" height="150" rx="6" fill="#0b1210" stroke="#39463e" stroke-width="2"/>
+          <rect x="0" y="0" width="320" height="22" rx="6" fill="#182420"/>
+          <text x="10" y="15" class="tiny">BLOCK HEADER · 80 BYTES</text>
+          <text id="lbl-height" x="260" y="15" class="tiny g" text-anchor="end">#966,240</text>
+          <text x="10" y="44" class="tiny dim">prev</text><text id="lbl-prev" x="60" y="44" class="tiny" style="font-size:9px">000000000000000000f3…9c1a</text>
+          <text x="10" y="62" class="tiny dim">merkle</text><text x="60" y="62" class="tiny" style="font-size:9px">7ab2…4e01 (every txid, folded)</text>
+          <text x="10" y="80" class="tiny dim">time</text><text id="lbl-time" x="60" y="80" class="tiny" style="font-size:9px">2026-09-28 17:48:02 UTC</text>
+          <text x="10" y="98" class="tiny dim">bits</text><text x="60" y="98" class="tiny" style="font-size:9px">target · ~2^71 hashes expected</text>
+          <text x="10" y="116" class="tiny dim">nonce</text><text x="60" y="116" class="tiny" style="font-size:9px">2c9e1b07</text>
+          <circle class="lamp lamp-pow" cx="300" cy="11" r="6"/>
+          <text class="check check-pow" x="300" y="46" text-anchor="middle">✓</text>
+          <text class="readout readout-pow" x="160" y="140" text-anchor="middle">hash below target · proof of work valid</text>
+        </g>
+        <!-- the queue: transactions being sorted -->
+        <text x="5300" y="400" class="tiny ctor-label" text-anchor="middle">CANONICAL ORDER · SORTED BY TXID · COINBASE FIRST</text>
+        <rect x="5020" y="562" width="520" height="6" fill="#1f2a30"/>
+        {[["e921…33b0", 5130, 5480, "#3fe5b5"], ["7d2a…f1e6", 5200, 5270, "#e8b547"], ["1f3c…09a2", 5270, 5130, "#3fe5b5"], ["c07e…5d18", 5410, 5410, "#3fe5b5"], ["5b90…e7c4", 5480, 5200, "#c79dff"]].map(([id, x0, x1, col], i) => (
+          <g class={`qflask qflask-${i}`} style={`--x0:${x0}px;--x1:${x1}px`}>
+            <path d="M-8-72 L-8-50 A23 23 0 1 0 8-50 L8-72 Z" fill="#22302a" fill-opacity=".55"/>
+            <path d="M-8-72 L-8-50 A23 23 0 1 0 8-50 L8-72 Z" fill={col as string} opacity=".7" clip-path="url(#cSwim)"/>
+            <path d="M-8-72 L-8-50 A23 23 0 1 0 8-50 L8-72 Z" fill="none" stroke="#9fb8ac" stroke-width="2.5"/>
+            <rect x="-9" y="-78" width="18" height="9" rx="2" fill="#8a6a4a"/>
+            <rect x="-6" y="-12" width="5" height="14" rx="2.5" fill="#9fb8ac"/><rect x="1" y="-12" width="5" height="14" rx="2.5" fill="#9fb8ac"/>
+            <circle cx="-7" cy="-32" r="2.6" fill="#0b0f0d"/><circle cx="7" cy="-32" r="2.6" fill="#0b0f0d"/>
+            <path d="M-5-22 q5 4 10 0" stroke="#0b0f0d" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <text y="-88" class="tiny dim" text-anchor="middle" style="font-size:8px">{id}</text>
+          </g>
+        ))}
+        <!-- the coinbase -->
+        <g class="coinbase" style="transform: translate(5050px, 560px)">
+          <path d="M-10-80 L-10-56 A26 26 0 1 0 10-56 L10-80 Z" fill="#2a2412" fill-opacity=".8"/>
+          <path d="M-10-80 L-10-56 A26 26 0 1 0 10-56 L10-80 Z" fill="#e8b547" opacity=".8" clip-path="url(#cCoin)"/>
+          <path d="M-10-80 L-10-56 A26 26 0 1 0 10-56 L10-80 Z" fill="none" stroke="#ffd678" stroke-width="3"/>
+          <path d="M-14-96 l5 10 l9-12 l9 12 l5-10 v14 h-28 z" fill="#ffd678"/>
+          <rect x="-7" y="-13" width="5" height="15" rx="2.5" fill="#9fb8ac"/><rect x="2" y="-13" width="5" height="15" rx="2.5" fill="#9fb8ac"/>
+          <circle cx="-8" cy="-36" r="3" fill="#0b0f0d"/><circle cx="8" cy="-36" r="3" fill="#0b0f0d"/>
+          <path d="M-6-24 q6 5 12 0" stroke="#0b0f0d" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <text y="-108" class="tiny w" text-anchor="middle">COINBASE</text>
+          <text y="24" class="tiny" text-anchor="middle" style="font-size:9px">3.125 BCH + all fees</text>
+          <text y="38" class="tiny dim" text-anchor="middle" style="font-size:9px">→ the miner · spendable in 100 blocks</text>
+        </g>
+        <!-- the crystal block -->
+        <g class="crystal" transform="translate(5700 440)">
+          <ellipse cy="118" rx="140" ry="16" fill="#000" opacity=".45"/>
+          <polygon class="crystal-body" points="-120,20 -78,-68 78,-68 120,20 62,89 -62,89" fill="#10283a" fill-opacity=".92" stroke="#7fd9ff" stroke-width="3"/>
+          <path d="M-78-68 L-26 89 M78-68 L26 89 M-120 20 H120" stroke="#9fc8e0" stroke-width="1.5" opacity=".2"/>
+          <g class="crystal-dots">
+            {[[-50, -20], [-20, 30], [15, -35], [40, 10], [-70, 40], [70, 45], [0, 60], [-30, -50], [55, -30]].map(([x, y]) => <circle cx={x} cy={y} r="5" fill="#8fd4ff" opacity=".8"/>)}
+          </g>
+          <text id="lbl-height2" y="-92" class="tiny" text-anchor="middle" style="fill:#7fd9ff;font-size:14px;letter-spacing:.14em">#966,240</text>
+          <text class="conf-1-label" y="140" text-anchor="middle" style="fill:#3fe5b5;font-size:13px;letter-spacing:.2em">1 CONFIRMATION</text>
+        </g>
+      </g>
+
+      <!-- ═══════════ ROOM 6 · THE ARCHIVE ═══════════ -->
+      <g class="room6">
+        <rect x="6000" y="0" width="1200" height="560" fill="#100e17"/>
+        <rect x="6000" y="0" width="1200" height="60" fill="#16131f"/>
+        <rect x="6000" y="560" width="1200" height="140" fill="#0a0910"/>
+        <line x1="6000" y1="560" x2="7200" y2="560" stroke="#2e2840" stroke-width="3"/>
+        <g stroke="#0c0a12" stroke-width="2">{[0,1,2,3,4,5].map((i) => <line x1={6000 + i * 200} y1="60" x2={6000 + i * 200} y2="560"/>)}</g>
+        <text x="6060" y="118" class="sign" style="fill:#c79dff;filter:url(#fGlowBig)">THE ARCHIVE</text>
+        <text x="6062" y="140" class="sub">THE CHAIN · KEPT BY EVERY NODE · THERE IS NO UNDO</text>
+        <!-- rail -->
+        <rect x="6000" y="522" width="1200" height="6" fill="#2e2840"/>
+        <!-- older blocks -->
+        {[[6060, "#966,236"], [6170, "#966,237"], [6280, "#966,238"], [6390, "#966,239"]].map(([x, h]) => (
+          <g transform={`translate(${x} 480)`} opacity=".45">
+            <polygon points="-44,7 -29,-25 29,-25 44,7 23,33 -23,33" fill="#10283a" stroke="#7fd9ff" stroke-width="2"/>
+            <text class="tiny dim oldblock-label" y="-36" text-anchor="middle" style="font-size:8px">{h}</text>
+          </g>
+        ))}
+        <path d="M6104 480 h22 M6214 480 h22 M6324 480 h22 M6434 480 h22" stroke="#4a544f" stroke-width="2"/>
+        <!-- our block -->
+        <g class="ourblock" transform="translate(6500 480)">
+          <polygon points="-44,7 -29,-25 29,-25 44,7 23,33 -23,33" fill="#10283a" stroke="#7fd9ff" stroke-width="3" filter="url(#fGlow)"/>
+          <text id="lbl-height3" y="-36" class="tiny" text-anchor="middle" style="font-size:9px;fill:#7fd9ff">#966,240</text>
+          <text y="56" class="tiny g conf-count" text-anchor="middle">1 CONFIRMATION</text>
+          <text id="lbl-conf2" y="56" class="tiny g conf-count-2" text-anchor="middle">2 CONFIRMATIONS</text>
+          <text id="lbl-conf6" y="56" class="tiny g conf-count-6" text-anchor="middle">6 CONFIRMATIONS · SETTLED</text>
+          <text y="72" class="tiny dim conf-note-6" text-anchor="middle" style="font-size:8px">10 deep: BCHN will never reorganize it away</text>
+        </g>
+        <!-- confirmations: blocks that arrive on top -->
+        {[6610, 6720, 6830, 6940, 7050].map((x, i) => (
+          <g class={`newblock newblock-${i}`} style={`transform: translate(${x}px, 480px)`}>
+            <path d="M-66 0 h22" stroke="#7fd9ff" stroke-width="2"/>
+            <polygon points="-44,7 -29,-25 29,-25 44,7 23,33 -23,33" fill="#10283a" stroke="#7fd9ff" stroke-width="2"/>
+            <text class="tiny dim newblock-label" y="-36" text-anchor="middle" style="font-size:8px">#966,{241 + i}</text>
+          </g>
+        ))}
+        <!-- the shelves where the outputs are born -->
+        <g class="shelves">
+          <g transform="translate(6180 300)">
+            <rect x="-90" y="0" width="180" height="8" fill="#3a3128"/><rect x="-90" y="0" width="180" height="3" fill="#4a4033"/>
+            <text id="lbl-shelf-pay" y="30" class="tiny" text-anchor="middle">THE MERCHANT'S WALLET</text>
+            <g class="newcoin newcoin-pay">
+              <rect x="-10" y="-46" width="20" height="46" rx="6" fill="#22302a" stroke="#9fb8ac" stroke-width="2"/>
+              <rect x="-8" y="-38" width="16" height="36" rx="4" fill="#3fe5b5" opacity=".9"/>
+              <rect x="-7" y="-54" width="14" height="9" rx="2" fill="#8a6a4a"/>
+              <text id="lbl-coin-pay" y="-62" class="tiny g" text-anchor="middle">42,000 · a44d3a…:0</text>
+            </g>
+          </g>
+          <g id="shelf-chg" transform="translate(6420 300)">
+            <rect x="-90" y="0" width="180" height="8" fill="#3a3128"/><rect x="-90" y="0" width="180" height="3" fill="#4a4033"/>
+            <text id="lbl-shelf-chg" y="30" class="tiny" text-anchor="middle">YOUR WALLET</text>
+            <g class="newcoin newcoin-chg">
+              <rect x="-10" y="-46" width="20" height="46" rx="6" fill="#22302a" stroke="#9fb8ac" stroke-width="2"/>
+              <rect x="-8" y="-32" width="16" height="30" rx="4" fill="#b26eff" opacity=".9"/>
+              <rect x="-7" y="-54" width="14" height="9" rx="2" fill="#8a6a4a"/>
+              <text id="lbl-coin-chg" y="-62" class="tiny v" text-anchor="middle">5,100 · a44d3a…:1</text>
+            </g>
+          </g>
+          <path class="lineage" d="M6500 455 C6500 380 6180 420 6180 310" fill="none" stroke="#3fe5b5" stroke-width="2" stroke-dasharray="4 5"/>
+          <path class="lineage" d="M6500 455 C6500 400 6420 400 6420 310" fill="none" stroke="#c79dff" stroke-width="2" stroke-dasharray="4 5"/>
+          <text class="tiny cycle" x="6900" y="300" text-anchor="middle" style="fill:#c79dff">NEW UTXOs · THE CYCLE CONTINUES ↺</text>
+        </g>
+      </g>
+
+      <!-- ═══════════ THE HERO ═══════════ -->
+      <g class="hero">
+        <ellipse class="shadow" cx="0" cy="8" rx="34" ry="7" fill="#000" opacity=".45"/>
+        <circle class="glow" cx="0" cy="-44" r="80" fill="url(#gGlow)"/>
+        <g class="legs">
+          <rect class="leg leg-l" x="-16" y="-14" width="9" height="22" rx="4.5" fill="#9fb8ac"/>
+          <rect class="leg leg-r" x="7" y="-14" width="9" height="22" rx="4.5" fill="#9fb8ac"/>
+        </g>
+        <g class="body">
+          <path class="glass" d="M-11-100 L-11-70 A32 32 0 1 0 11-70 L11-100 Z" fill="#22302a" fill-opacity=".55"/>
+          <g clip-path="url(#cBulb)"><path class="liquid" d="M-40-70 h80 v80 h-80 z" fill="#3fe5b5" opacity=".95" clip-path="url(#cLiquid)"/></g>
+          <path d="M-11-100 L-11-70 A32 32 0 1 0 11-70 L11-100 Z" fill="none" stroke="#9fb8ac" stroke-width="3.5"/>
+          <ellipse cx="-16" cy="-34" rx="5" ry="10" fill="#fff" opacity=".18"/>
+          <rect class="cork" x="-13" y="-108" width="26" height="12" rx="3" fill="#8a6a4a"/>
+          <!-- face -->
+          <g class="face">
+            <g class="eyes">
+              <circle class="eye" cx="-10" cy="-46" r="4" fill="#0b0f0d"/><circle class="eye" cx="10" cy="-46" r="4" fill="#0b0f0d"/>
+              <path class="brow brow-l" d="M-17-57 l10 3" stroke="#0b0f0d" stroke-width="2.5" stroke-linecap="round"/>
+              <path class="brow brow-r" d="M17-57 l-10 3" stroke="#0b0f0d" stroke-width="2.5" stroke-linecap="round"/>
+              <path class="eye-closed" d="M-14-46 q4 3 8 0 M6-46 q4 3 8 0" stroke="#0b0f0d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            </g>
+            <path class="mouth mouth-smile" d="M-8-32 q8 7 16 0" stroke="#0b0f0d" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path class="mouth mouth-flat" d="M-7-30 h14" stroke="#0b0f0d" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path class="mouth mouth-wobble" d="M-8-30 q4-4 8 0 t8 0" stroke="#0b0f0d" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <path class="mouth mouth-joy" d="M-10-33 q10 14 20 0 z" fill="#0b0f0d"/>
+            <ellipse class="mouth mouth-o" cx="0" cy="-29" rx="4" ry="5" fill="#0b0f0d"/>
+          </g>
+          <!-- seal badge -->
+          <g class="seal" transform="translate(25 -24)">
+            <circle r="10" fill="#e8b547" stroke="#0b0f0d" stroke-width="2"/>
+            <text y="4" class="tiny" text-anchor="middle" fill="#0b0f0d" font-weight="700">✓</text>
+          </g>
+        </g>
+        <!-- name tag -->
+        <g class="tag">
+          <rect x="-58" y="-136" width="116" height="20" rx="4" fill="#0b0f0d" stroke="#2e3833"/>
+          <text id="hero-txid" y="-122" class="tiny g" text-anchor="middle">txid</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- vignette over everything -->
+    <rect x="0" y="0" width="1200" height="700" fill="url(#gVig)" pointer-events="none"/>
+    <defs><radialGradient id="gVig" cx=".5" cy=".5" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".55"/></radialGradient></defs>
+  </svg>
+</div>
+
+<style is:global>
+  .stage text { font-family: var(--font-mono); fill: var(--fg-mid); font-size: 12px; font-weight: 600; letter-spacing: .06em; }
+  .stage text.sign { font-size: 40px; font-weight: 700; letter-spacing: .22em; }
+  .stage text.sign.warm { fill: #ffd678; filter: url(#fGlowBig); }
+  .stage text.sign.cool { fill: #7fd9ff; filter: url(#fGlowBig); }
+  .stage text.sub { font-size: 10px; fill: var(--fg-mute); font-weight: 400; letter-spacing: .12em; }
+  .stage text.tiny { font-size: 10px; fill: var(--fg-mute); letter-spacing: .08em; }
+  .stage text.g { fill: var(--bch-400); }
+  .stage text.v { fill: var(--neon-300); }
+  .stage text.w { fill: var(--warn); }
+  .stage text.d { fill: var(--danger); }
+  .stage text.dim { fill: var(--fg-dim); }
+
+  /* camera */
+  .stage .world {
+    transform: scale(var(--cam-z)) translate(calc(var(--cam-x) * -1px), calc(var(--cam-y) * -1px));
+    transform-origin: 0 0;
+    transition: transform 1.25s cubic-bezier(.65, 0, .3, 1);
+  }
+
+  /* hero */
+  .stage .hero { transform: translate(calc(var(--hx) * 1px), 560px); transition: transform var(--walk-dur, 900ms) cubic-bezier(.45, 0, .35, 1); }
+  .stage .hero .body { transform-origin: 0 0; animation: idle 2.6s ease-in-out infinite; }
+  .stage.walking .hero .body { animation: walkbob .32s ease-in-out infinite; }
+  .stage .leg { transform-box: fill-box; transform-origin: 50% 0; }
+  .stage.walking .leg-l { animation: legswing .32s ease-in-out infinite; }
+  .stage.walking .leg-r { animation: legswing .32s ease-in-out infinite reverse; }
+  @keyframes idle { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+  @keyframes walkbob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+  @keyframes legswing { 0%,100% { transform: rotate(-28deg); } 50% { transform: rotate(28deg); } }
+
+  .stage .glow { opacity: 0; transition: opacity .8s; }
+  .stage.f-filled .glow { opacity: 1; }
+  .stage .liq-level { transition: transform 1.4s cubic-bezier(.3, 0, .2, 1); }
+  .stage.f-filled .liq-level { transform: translateY(-60px); }
+  .stage .seal { opacity: 0; transform: translate(25px, -24px) scale(.2); transform-origin: 25px -24px; transition: opacity .3s, transform .5s cubic-bezier(.2, 1.4, .4, 1); }
+  .stage.f-signed .seal { opacity: 1; transform: translate(25px, -24px) scale(1); }
+  .stage .tag { opacity: 0; transition: opacity .5s; }
+  .stage.f-txid .tag { opacity: 1; }
+
+  /* moods */
+  .stage .mouth { display: none; }
+  .stage .brow { opacity: 0; transition: opacity .3s; }
+  .stage[data-mood="blank"] .mouth-flat { display: block; }
+  .stage[data-mood="blank"] .eye { r: 3; }
+  .stage[data-mood="calm"] .mouth-smile { display: block; }
+  .stage[data-mood="proud"] .mouth-smile { display: block; }
+  .stage[data-mood="excited"] .mouth-o { display: block; }
+  .stage[data-mood="nervous"] .mouth-wobble { display: block; }
+  .stage[data-mood="nervous"] .brow { opacity: 1; }
+  .stage[data-mood="joy"] .mouth-joy { display: block; }
+
+  /* room 1 */
+  .stage .vial { transition: transform 1.1s cubic-bezier(.5, 0, .3, 1); }
+  .stage .vial-body { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 1.1s cubic-bezier(.5, 0, .3, 1); }
+  .stage .vial-liq { transition: opacity .6s .5s; }
+  .stage.f-filled .vial-a { transform: translate(663px, 418px); }
+  .stage.f-filled .vial-a .vial-body { transform: rotate(-110deg); }
+  .stage.f-filled .vial-b { transform: translate(541px, 401px); }
+  .stage.f-filled .vial-b .vial-body { transform: rotate(120deg); }
+  .stage.f-filled .vial-liq { opacity: 0; }
+  .stage .stream { fill: none; stroke-width: 4; stroke-linecap: round; opacity: 0; transition: opacity .4s .5s; }
+  .stage .stream-a { stroke: #3fe5b5; } .stage .stream-b { stroke: #b26eff; }
+  .stage.f-filled:not(.f-outputs) .stream { opacity: .9; }
+  .stage .label-utxo-a, .stage .label-utxo-b { transition: opacity .6s; }
+  .stage.f-filled .label-utxo-a, .stage.f-filled .label-utxo-b { opacity: .3; text-decoration: line-through; }
+  .stage .beaker { opacity: 0; transform: translateY(14px); transition: opacity .6s, transform .6s; }
+  .stage .beaker-pay { transform: translate(760px, 484px); } .stage .beaker-chg { transform: translate(860px, 484px); }
+  .stage.f-outputs .beaker-pay { opacity: 1; transform: translate(760px, 470px); }
+  .stage.f-outputs .beaker-chg { opacity: 1; transform: translate(860px, 470px); transition-delay: .2s; }
+  .stage .stamp { opacity: 0; transform: translate(600px, 330px); transition: transform .5s cubic-bezier(.6, 0, .4, 1), opacity .3s; }
+  .stage.f-signed:not(.f-txid) .stamp { opacity: 1; transform: translate(600px, 468px); }
+  .stage .door-leaf { transition: transform .8s cubic-bezier(.5, 0, .3, 1); transform-box: fill-box; transform-origin: 0 50%; }
+  .stage .door-light { opacity: 0; transition: opacity .8s; }
+  .stage.f-door .door-leaf { transform: scaleX(.08); }
+  .stage.f-door .door-light { opacity: 1; }
+
+  /* room 2 */
+  .stage .edge { stroke: #1a2622; stroke-width: 1.5; transition: stroke .6s, stroke-width .6s; }
+  .stage .node { fill: #1a2622; stroke: #2e3833; stroke-width: 1.5; transition: fill .5s, stroke .5s, filter .5s; }
+  .stage .ring-label { opacity: 0; transition: opacity .6s; }
+  .stage.f-net0 .node-r0 { fill: #3fe5b5; stroke: #3fe5b5; filter: url(#fGlow); }
+  .stage.f-net1 .edge-r1 { stroke: #0ac18e; stroke-width: 2; }
+  .stage.f-net1 .node-r1 { fill: #0ac18e; stroke: #3fe5b5; filter: url(#fGlow); transition-delay: .35s; }
+  .stage.f-net1 .ring-label-1 { opacity: 1; }
+  .stage.f-net2 .edge-r2 { stroke: #0ac18e; stroke-width: 2; transition-delay: .5s; }
+  .stage.f-net2 .node-r2 { fill: #0ac18e; stroke: #3fe5b5; filter: url(#fGlow); transition-delay: .9s; }
+  .stage.f-net2 .ring-label-2 { opacity: 1; transition-delay: .9s; }
+  .stage.f-net3 .edge-r3 { stroke: #0ac18e; stroke-width: 2; }
+  .stage.f-net3 .node-r3 { fill: #0ac18e; stroke: #3fe5b5; filter: url(#fGlow); transition-delay: .4s; }
+  .stage.f-net3 .edge-r4 { stroke: #0ac18e; stroke-width: 2; transition-delay: .7s; }
+  .stage.f-net3 .node-r4 { fill: #3fe5b5; stroke: #3fe5b5; filter: url(#fGlow); transition-delay: 1s; }
+  .stage.f-net3 .ring-label-3 { opacity: 1; transition-delay: .5s; }
+  .stage .beacon { animation: beacon 1.6s ease-in-out infinite; }
+  @keyframes beacon { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+  .stage .node-door-leaf { transition: transform .8s cubic-bezier(.5, 0, .3, 1); transform-box: fill-box; transform-origin: 0 50%; }
+  .stage .node-door-light { transition: opacity .8s; }
+  .stage.f-nodedoor .node-door-leaf { transform: scaleX(.08); }
+  .stage.f-nodedoor .node-door-light { opacity: .35; }
+
+  /* room 3 */
+  .stage .lamp { fill: #1a2622; stroke: #2e3833; stroke-width: 1.5; transition: fill .4s, stroke .4s; }
+  .stage .check { font-size: 16px; fill: #3fe5b5; opacity: 0; transition: opacity .4s .6s; }
+  .stage .readout { font-size: 9.5px; fill: var(--fg-mute); opacity: 0; transition: opacity .4s .3s; }
+  .stage.f-st1 .lamp-1, .stage.f-st2 .lamp-2, .stage.f-st3ok .lamp-3, .stage.f-st4 .lamp-4, .stage.f-st5.f-bounced .lamp-5 { fill: #3fe5b5; stroke: #3fe5b5; filter: url(#fGlow); }
+  .stage.f-st1 .check-1, .stage.f-st2 .check-2, .stage.f-st3ok .check-3, .stage.f-st4 .check-4, .stage.f-bounced .check-5 { opacity: 1; }
+  .stage.f-st1 .readout-1, .stage.f-st4 .readout-4, .stage.f-bounced .readout-5 { opacity: 1; }
+  .stage .arch-beam { transition: opacity .4s; }
+  .stage.f-st1 .arch-beam { opacity: .9; filter: url(#fGlow); }
+  .stage .drawer { fill: #0f1a16; stroke: #2e3833; stroke-width: 1; transition: fill .4s, stroke .4s; }
+  .stage .drawer-tag { font-size: 9px; fill: #04110c; opacity: 0; transition: opacity .3s; }
+  .stage.f-st2 .drawer-1, .stage.f-st2 .drawer-4 { fill: #3fe5b5; stroke: #3fe5b5; }
+  .stage.f-st2 .drawer-4 { transition-delay: .4s; }
+  .stage.f-st2 .drawer-tag { opacity: 1; transition-delay: .2s; }
+  .stage.f-st2 .tag-b { transition-delay: .6s; }
+  .stage .panel { opacity: 0; transition: opacity .5s; }
+  .stage.f-st3 .panel { opacity: 1; }
+  .stage.f-st3:not(.f-st3ok) .scan-beam { opacity: .25; animation: scan 1.4s ease-in-out infinite; }
+  @keyframes scan { 0%,100% { opacity: .1; } 50% { opacity: .35; } }
+  .stage #ops-col text { font-size: 9.5px; fill: var(--fg-dim); }
+  .stage #ops-col text.done { fill: var(--fg-mute); }
+  .stage #ops-col text.now { fill: var(--bch-400); }
+  .stage #ops-col text.phase { fill: var(--fg-dim); font-size: 8px; letter-spacing: .14em; }
+  .stage #stack-col rect { fill: #182420; stroke: #2e3833; }
+  .stage #stack-col rect.top { stroke: #3fe5b5; }
+  .stage #stack-col rect.true { fill: #0ac18e; }
+  .stage #stack-col text { font-size: 9px; fill: var(--fg-mid); }
+  .stage #stack-col text.lbl { fill: var(--bch-400); font-size: 8px; letter-spacing: .1em; }
+  .stage #stack-col text.true { fill: #04110c; font-weight: 700; }
+  .stage .scale-beam { transform-box: fill-box; transform-origin: 50% 50%; transform: rotate(0deg); transition: transform 1s cubic-bezier(.4, 0, .2, 1); }
+  .stage.f-st4 .scale-beam { transform: rotate(-6deg); }
+  .stage .clone { opacity: 0; transition: opacity .5s, transform .7s cubic-bezier(.5, 0, .5, 1); }
+  .stage.f-clone .clone { opacity: 1; transform: translate(60px, 0); }
+  .stage.f-bounced .clone { opacity: 0; transform: translate(190px, -120px) rotate(40deg); }
+  .stage .dsproof { font-size: 10px; fill: var(--danger); opacity: 0; transition: opacity .4s .5s; }
+  .stage.f-bounced .dsproof { opacity: 1; }
+  .stage .turnstile { transform-box: fill-box; transform-origin: 50% 50%; transition: transform .8s; }
+  .stage.f-gate .turnstile { transform: rotate(90deg); }
+  .stage .gate-leaf { transition: transform .9s cubic-bezier(.5, 0, .3, 1); transform-box: fill-box; transform-origin: 0 50%; }
+  .stage .gate-light { opacity: 0; transition: opacity .9s; }
+  .stage.f-gate .gate-leaf { transform: scaleX(.06); }
+  .stage.f-gate .gate-light { opacity: 1; }
+
+  /* hero: vertical position, scale, resting face */
+  .stage .hero { transform: translate(calc(var(--hx) * 1px), calc(var(--hy, 560) * 1px)) scale(var(--hs, 1)); }
+  .stage .eye-closed { display: none; }
+  .stage[data-mood="rest"] .eye { display: none; }
+  .stage[data-mood="rest"] .eye-closed { display: block; }
+  .stage[data-mood="rest"] .mouth-smile { display: block; }
+
+  /* room 4 */
+  .stage .swimmer-body { animation: swim 3s ease-in-out infinite; }
+  .stage .swimmer-1 .swimmer-body { animation-delay: -.7s; } .stage .swimmer-2 .swimmer-body { animation-delay: -1.4s; }
+  .stage .swimmer-3 .swimmer-body { animation-delay: -2.1s; } .stage .swimmer-4 .swimmer-body { animation-delay: -2.6s; }
+  @keyframes swim { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-5px) rotate(3deg); } }
+  .stage.f-pool:not(.f-drain) .hero .body { animation: swim 3s ease-in-out infinite; }
+  .stage .rules { opacity: 0; transform: translate(4250px, 160px); transition: opacity .6s, transform .6s; }
+  .stage.f-rules .rules { opacity: 1; transform: translate(4250px, 150px); }
+  .stage .clock { opacity: 0; transition: opacity .6s; }
+  .stage.f-clock .clock { opacity: 1; }
+  .stage .clock-hand { transform-box: fill-box; transform-origin: 50% 85%; }
+  .stage.f-clock .clock-hand { animation: tick 12s linear infinite; }
+  @keyframes tick { to { transform: rotate(360deg); } }
+  .stage .water { transform-box: fill-box; transform-origin: 50% 100%; transition: transform 1.6s cubic-bezier(.5, 0, .3, 1) .4s; }
+  .stage.f-drain .water { transform: scaleY(.04); }
+  .stage .swimmer { transition: transform 1.4s cubic-bezier(.6, 0, .8, .4), opacity .4s 1.2s; }
+  .stage.f-drain .swimmer { transform: translate(4600px, 700px) !important; opacity: 0; }
+  .stage.f-drain .swimmer-1 { transition-delay: .15s, 1.3s; } .stage.f-drain .swimmer-2 { transition-delay: .3s, 1.45s; }
+  .stage.f-drain .swimmer-3 { transition-delay: .45s, 1.6s; } .stage.f-drain .swimmer-4 { transition-delay: .6s, 1.75s; }
+  .stage .banner { opacity: 0; transition: opacity .3s; }
+  .stage.f-drain .banner { opacity: 1; animation: blink 1.2s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+
+  /* room 5 */
+  .stage.f-header .lamp-pow { fill: #3fe5b5; stroke: #3fe5b5; filter: url(#fGlow); }
+  .stage.f-header .check-pow, .stage.f-header .readout-pow { opacity: 1; }
+  .stage .ctor-label { opacity: 0; transition: opacity .5s; }
+  .stage.f-ctor .ctor-label { opacity: 1; }
+  .stage .qflask { transform: translate(var(--x0), 560px); transition: transform 1.2s cubic-bezier(.5, 0, .3, 1), opacity .6s; }
+  .stage.f-ctor .qflask { transform: translate(var(--x1), 560px); }
+  .stage .coinbase { opacity: 0; transition: opacity .6s, transform 1s cubic-bezier(.3, 0, .2, 1); }
+  .stage.f-coinbase .coinbase { opacity: 1; }
+  .stage.f-inblock .qflask, .stage.f-inblock .coinbase { transform: translate(5700px, 500px) scale(.2); opacity: 0; }
+  .stage.f-inblock .qflask-1 { transition-delay: .1s; } .stage.f-inblock .qflask-2 { transition-delay: .2s; }
+  .stage.f-inblock .qflask-3 { transition-delay: .3s; } .stage.f-inblock .qflask-4 { transition-delay: .4s; }
+  .stage .crystal-dots { opacity: .15; transition: opacity 1s .8s; }
+  .stage.f-inblock .crystal-dots { opacity: 1; }
+  .stage .crystal-body { transition: filter .8s; }
+  .stage.f-inblock .crystal-body { filter: url(#fGlow); }
+  .stage .conf-1-label { opacity: 0; transition: opacity .6s 1s; }
+  .stage.f-inblock .conf-1-label { opacity: 1; }
+
+  /* room 6 */
+  .stage .newblock { opacity: 0; transition: opacity .6s, transform .6s; }
+  .stage.f-conf1 .newblock-0 { opacity: 1; }
+  .stage.f-conf6 .newblock { opacity: 1; }
+  .stage.f-conf6 .newblock-1 { transition-delay: .25s; } .stage.f-conf6 .newblock-2 { transition-delay: .5s; }
+  .stage.f-conf6 .newblock-3 { transition-delay: .75s; } .stage.f-conf6 .newblock-4 { transition-delay: 1s; }
+  .stage .conf-count-2, .stage .conf-count-6, .stage .conf-note-6 { opacity: 0; transition: opacity .4s; }
+  .stage.f-conf1 .conf-count { opacity: 0; }
+  .stage.f-conf1:not(.f-conf6) .conf-count-2 { opacity: 1; }
+  .stage.f-conf6 .conf-count-2 { opacity: 0; }
+  .stage.f-conf6 .conf-count-6 { opacity: 1; transition-delay: 1.2s; }
+  .stage.f-conf6 .conf-note-6 { opacity: 1; transition-delay: 1.4s; }
+  .stage .newcoin { opacity: 0; transform: translateY(10px); transition: opacity .6s .6s, transform .6s .6s; }
+  .stage.f-born .newcoin { opacity: 1; transform: translateY(0); }
+  .stage.f-born .newcoin-chg { transition-delay: 1s, 1s; }
+  .stage .lineage { opacity: 0; stroke-dashoffset: 0; transition: opacity .6s; }
+  .stage.f-born .lineage { opacity: .8; animation: flow 1.2s linear infinite; }
+  @keyframes flow { to { stroke-dashoffset: -18; } }
+  .stage .cycle { opacity: 0; transition: opacity .6s 1.4s; }
+  .stage.f-born .cycle { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stage *, .stage .world, .stage .hero { transition-duration: .01ms !important; animation: none !important; }
+  }
+</style>
