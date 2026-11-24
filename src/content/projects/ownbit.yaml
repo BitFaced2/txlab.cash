@@ -1,0 +1,18 @@
+name: Ownbit
+tagline: Self-custody Bitcoin Cash wallet with on-chain multisig and offline QR signing.
+description: |
+  Ownbit supports Bitcoin Cash on iOS and Android. The app lets users hold BCH
+  in a personal wallet, sign BCH transactions on an offline phone using QR
+  codes, or share control through an on-chain multisig wallet with independent
+  signers. Ownbit offers a seven-day trial and paid membership plans.
+category: wallet
+website: https://ownbit.io/en/
+documentation: https://ownbit.io/en/bitcoin-cash-multisig-wallet/
+freshness: active
+lastVerified: '2026-11-25'
+platforms:
+  - android
+  - ios
+custody: non-custodial
+capabilities:
+  multisig: true
